@@ -9,7 +9,7 @@ export default function Hero() {
         animate: (i: number) => ({
             y: [0, -12, 0, 12, 0],
             transition: {
-                duration: 3,
+                duration: 6,
                 repeat: Infinity,
                 ease: "easeInOut",
                 delay: i * 0.15,
