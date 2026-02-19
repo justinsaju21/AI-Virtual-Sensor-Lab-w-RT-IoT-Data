@@ -1,49 +1,67 @@
-# 🌐 Deployment & Domain Configuration
+# 🌐 Deployment, Hosting & Cloud Logic
 
-This document explains how the **AI-Enabled Virtual Sensor Laboratory** is hosted and connected in a production environment.
+This document provides a step-by-step walkthrough of how the **AI-Enabled Virtual Sensor Lab** is hosted in the cloud.
 
-## 🚀 Deployment Strategy
-The project uses a "Split Infrastructure" approach to ensure both the UI and the real-time data streaming are stable.
+---
 
-### **1. Frontend: Hosted on Vercel**
-- **Purpose:** Reliable delivery of the Next.js React dashboard.
-- **Why Vercel?** Fast Global CDN, edge-optimized assets, and easy Next.js integration.
-- **Root Directory:** `./frontend`
+## 🏗️ 1. Why Two Platforms (Render + Vercel)?
+A modern IoT web app cannot run on just one service because of the way data moves:
+- **Vercel** is a "Serverless" platform. It is amazing for hosting high-speed websites, but it cannot keep a "Persistent Connection" open for long (it times out).
+- **Render** is a "Server-Full" platform. It acts like a computer that never turns off, allowing it to keep that **Socket.io** connection open 24/7.
 
-### **2. Backend: Hosted on Render**
-- **Purpose:** Real-time data processing and persistent Socket.io connections.
-- **Why Render?** Unlike Vercel, Render supports **Web Services** that maintain a permanent, open connection (WebSockets), which is critical for IoT data streams.
+### **The Architecture:**
+- **Frontend (The UI):** Hosted on Vercel.
+- **Backend (The Brain):** Hosted on Render.
+
+---
+
+## 🚀 2. Frontend Configuration (Vercel)
+### **Settings Applied:**
+- **Project Name:** `AI-Virtual-Sensor-Lab`
+- **Framework Preset:** Next.js
+- **Root Directory:** `frontend` 
+  - *Why? The laboratory code is inside the `frontend` folder, not at the root. Setting this correctly fixes the "404 Not Found" error.*
+- **Build Command:** `npm run build`
+- **Output Directory:** `.next`
+
+### **The Critical Environment Variable:**
+Vercel needs to know the address of the backend on Render. We set this in **Settings > Environment Variables**:
+- **Key:** `NEXT_PUBLIC_SOCKET_URL`
+- **Value:** Your unique Render URL (e.g., `https://iot-lab-backend.onrender.com`)
+
+---
+
+## 📡 3. Backend Configuration (Render)
+### **Settings Applied:**
+- **Service Type:** Web Service
+- **Runtime:** Node
+- **Build Command:** `npm install`
 - **Start Command:** `node server.js`
-- **Root Directory:** `./backend`
+- **Root Directory:** `backend`
+
+### **Environment Variable:**
+To ensure the backend listens on the correct cloud port, we set:
+- **Key:** `PORT`
+- **Value:** `5000`
 
 ---
 
-## 🛠 Linking the Two (Environment Variables)
-The frontend needs to know where the backend is hiding. This is handled via a **Next.js Environment Variable**.
+## 🏷 4. Domain & URL Strategy
 
-1. **RENDER_BACKEND_URL:** After deploying to Render, you get a link like `https://iot-lab-backend.onrender.com`.
-2. **VERCEL_CONFIG:** Inside the Vercel project settings, we set:
-   `NEXT_PUBLIC_SOCKET_URL=https://iot-lab-backend.onrender.com`
+### **Custom Domains:**
+By default, Vercel gives you a link like `my-project-abcd.vercel.app`. For a professional college presentation, we update this to:
+- **`ai-virtual-sensor-lab-w-rt-iot-data.vercel.app`**
 
-When the dashboard loads in your browser, it automatically checks this variable and opens a secure pipe to the cloud backend.
-
----
-
-## 🏷 Domain Name Logic
-For this project, the domain name used is:
-**`ai-virtual-sensor-lab-w-rt-iot-data.vercel.app`**
-
-### **Naming Strategy:**
-- **AI-Enabled:** Highlights the advanced diagnostic features.
-- **Virtual Sensor Lab:** Identifies the project as an educational simulation platform (Digital Twin).
-- **RT-IoT-Data:** Emphasizes that the data shown is not just static, but "Real-Time" (HIL).
+### **How to Update Domain:**
+1.  Go to Vercel **Dashboard > Settings > Domains**.
+2.  Type in your new desired name.
+3.  Click **Add**.
 
 ---
 
-## 🔄 Updating the Deployment
-To update the project, simply use standard Git commands:
-1. `git add .`
-2. `git commit -m "Your update message"`
-3. `git push origin main`
-
-Both Vercel and Render will automatically detect the push and redeploy the live site within 1-2 minutes.
+## 🔄 5. The "Redeploy" Workflow
+Whenever you change the code on your project (e.g., updating a sensor name):
+1.  **Git Push:** Push the code to GitHub.
+2.  **Auto-Trigger:** Vercel and Render both detect the new code immediately.
+3.  **Building:** They re-run `npm install` and `npm run build` in the cloud.
+4.  **Live:** Your website updates automatically for everyone in the world.

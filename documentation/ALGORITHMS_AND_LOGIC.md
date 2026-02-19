@@ -1,52 +1,83 @@
-# 🧠 Algorithms & Mathematical Logic
+# 🧠 Algorithms, Filters & AI Logic
 
-This document details the scientific and logical backbone of the **AI-Enabled Virtual Sensor Laboratory**.
+This is the most technical document in the lab. It explains the "Control Engineering" and "Data Science" applied to the sensor streams.
 
-## 🛡️ 1. Fault Injection Simulator (FIS)
-We implement **FIT (Fault Injection Testing)** to evaluate how the software handles degraded hardware. These are implemented in the `useFaultInjector.ts` hook.
+---
 
-### **Types of Faults:**
-- **Stuck-at-Low / Stuck-at-High:**
-  `y = constant_offset (0 or 1023)`
-  *Simulates a short circuit to VCC or GND.*
-- **Open Circuit:**
-  `y = null`
-  *Simulates a cut wire or loose connection.*
-- **Gaussian Noise Burst:**
-  `y = raw_data + random_variation(-200, +200)`
-  *Simulates electromagnetic interference (EMI) or bad shielding.*
-- **Drift Fault:**
-  `y = raw_data + (rate * time)`
-  *Simulates sensor aging or thermal expansion.*
+## 🛡️ 1. Fault Injection: The Engineering Stress Test
+To teach students how to build "Fault-Tolerant" code, we intentionally corrupt the data. This is done inside the `useFaultInjector.ts` hook.
+
+### **The Logic Table:**
+| Fault Type | Mathematical Implementation | Physical Equivalent |
+| :--- | :--- | :--- |
+| **None** | `y = raw_input` | Perfect Operation |
+| **Stuck-at-Low** | `y = 0` | Short to Ground (GND) |
+| **Stuck-at-High** | `y = 1023` | Short to VCC (5V) |
+| **Open Circuit** | `y = undefined / null` | Cut or Broken Wire |
+| **Random Noise** | `y = raw + random(-100, 100)` | Electromagnetic Interference |
+| **Calibration Drift** | `y = raw + constant_increase` | Sensor Aging / Heat Damage |
 
 ---
 
 ## 📉 2. Digital Signal Processing (DSP)
-To handle real-world noisy hardware, the system includes real-time signal processing in the `useSignalProcessing.ts` hook.
+Real-world sensors are "dirty" (they have spikes). We use software math to clean them up in the `useSignalProcessing.ts` hook.
 
-### **Moving Average Filter:**
-$$ y[n] = \frac{1}{L} \sum_{k=0}^{L-1} x[n-k] $$
-- **Why?** It acts as a Low-Pass Filter (LPF) that removes high-frequency jitter while preserving the trend.
-- **Visual:** The dashboard shows a smooth white line overlaying the jagged raw data.
+### **A. Moving Average Filter (Smoothing)**
+This algorithm calculates the average of the last $N$ samples to remove sudden spikes.
+```javascript
+// Pseudocode
+window_size = 10;
+history = [];
 
-### **Thresholding (Digital Debouncing):**
-Used for binary sensors like Tilt or Touch to prevent "spiky" data from causing false triggers.
-`if (raw < low_threshold) state = OFF;`
+function smoothedValue(newSample) {
+    history.push(newSample);
+    if (history.length > window_size) history.shift();
+    return sum(history) / history.length;
+}
+```
+**Why use it?** It creates a steady trendline on your charts, making it easier to read values like Temperature or Gas levels.
+
+### **B. Dynamic Thresholding**
+Used for "Binary" sensors like PIR or Hall Effect.
+```javascript
+// Logic
+if (raw_value > sensitivity_threshold) {
+    return "DETECTED";
+} else {
+    return "CLEAR";
+}
+```
 
 ---
 
-## 🤖 3. AI Mistake Detector Logic
-The laboratory uses an "AI-Enabled" diagnostic layer to supervise user experiments.
+## 🤖 3. AI Supervision & Inference Engine
+The "AI" doesn't just chat; it watches the live data stream for engineering mistakes.
 
-### **Logic Rules:**
-- **Floating Input Detection:** If a digital pin is fluctuating randomly between 0 and 1 without user interaction, the AI flags a "Missing Pull-up Resistor" mistake.
-- **Cross-Sensor Validation:**
-  - *Scenario:* Gas Sensor (MQ2) is high, but the LDR (Light) shows darkness.
-  - *AI Inference:* Flags a potential Fire Hazard (since fire creates light and smoke).
-- **Sampling Frequency Warning:** If data arrives too slow, the AI suggests checking the ESP8266 power supply for voltage drops.
+### **Rule 1: The "Floating Pin" Mistake**
+- **Symptom:** A Digital Sensor (Motion/Touch) is fluctuating between 0 and 1 extremely fast (like a square wave).
+- **AI Logic:** `if (frequency > 20Hz && sensorType == "Digital")`
+- **Output Warning:** "Potential Floating Pin detected! Please check if your Pull-up/Pull-down resistor is connected."
+
+### **Rule 2: Environmental Correlation**
+- **Logic:** `if (Gas_Sensor > 400 && LDR_Sensor < 100 && Flame_Sensor == 0)`
+- **AI Inference:** "Detected Smoke in a dark room without a fire spark. Likely a hidden smoldering fire or sensor calibration error!"
 
 ---
 
-## 📊 4. Data Serialization (ArduinoJson)
-The Arduino Mega uses **MessagePack-inspired JSON** to minimize serial overhead.
-- **Static Memory Allocation:** We use `StaticJsonDocument<1024>` to ensure the Mega never crashes from heap fragmentation during high-speed data acquisition.
+## 📝 4. JSON Serialization (The Contract)
+To make the Arduino talk to the Cloud, we use a structured JSON format. This ensures the frontend always knows which value belongs to which sensor.
+```json
+{
+  "deviceId": "MEGA_01",
+  "sensors": {
+    "temp": 24.5,
+    "mq2": 150,
+    "ultrasonic": 52.1
+  },
+  "system": {
+    "uptime": 3600,
+    "freeHeap": 4096
+  }
+}
+```
+*Tip: We use the `ArduinoJson` library on the Mega to safely build this string without causing memory leaks.*
