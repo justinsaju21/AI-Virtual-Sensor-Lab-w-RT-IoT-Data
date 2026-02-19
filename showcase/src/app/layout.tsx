@@ -3,8 +3,8 @@ import "./globals.css";
 
 export const metadata: Metadata = {
   title: "AI-Enabled IoT Virtual Sensor Laboratory | Digital Twin Platform",
-  description: "A hybrid Digital Twin virtual lab for scalable IoT education. 17-sensor platform with fault injection, DSP, and AI-powered diagnostics.",
-  keywords: ["IoT", "Digital Twin", "Virtual Lab", "Sensor", "Arduino", "AI", "Education"],
+  description: "Advanced hybrid Digital Twin platform for high-density IoT sensor acquisition and diagnostic education. Features 17+ sensors, AI analytics, and real-time DSP.",
+  keywords: ["IoT", "Digital Twin", "Virtual Lab", "Sensor", "Arduino", "AI", "Cloud IoT", "SEM6 Project"],
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
