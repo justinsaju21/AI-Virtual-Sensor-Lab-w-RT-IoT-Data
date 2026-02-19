@@ -7,12 +7,12 @@ import { tokens, gradientText, cardStyle } from "./Styles";
 export default function Hero() {
     const waveVariants: Variants = {
         animate: (i: number) => ({
-            y: [-8, 8, -8],
+            y: [0, -12, 0, 12, 0],
             transition: {
-                duration: 4,
+                duration: 3,
                 repeat: Infinity,
                 ease: "easeInOut",
-                delay: i * 0.2
+                delay: i * 0.15,
             }
         })
     };
@@ -23,6 +23,21 @@ export default function Hero() {
         { icon: <Wifi color={tokens.colors.blue} />, title: "Cloud Native", desc: "Edge to Portal" },
         { icon: <Cpu color={tokens.colors.green} />, title: "17+ Sensors", desc: "Dual-MCU Protocol" },
     ];
+
+    // Helper to render words with character-level wave animations
+    const renderWaveText = (text: string, startIndex: number, style: React.CSSProperties = {}) => {
+        return text.split("").map((char, i) => (
+            <motion.span
+                key={`${text}-${i}`}
+                custom={startIndex + i}
+                variants={waveVariants}
+                animate="animate"
+                style={{ display: "inline-block", whiteSpace: char === " " ? "pre" : "normal", ...style }}
+            >
+                {char}
+            </motion.span>
+        ));
+    };
 
     return (
         <section style={{
@@ -63,37 +78,16 @@ export default function Hero() {
                         marginBottom: 24,
                         letterSpacing: "-0.03em",
                         display: "flex",
-                        flexWrap: "wrap",
+                        flexDirection: "column",
+                        alignItems: "center",
                         justifyContent: "center",
-                        gap: "0.3em"
                     }}
                 >
-                    <div style={{ display: "flex", gap: "0.3em", flexWrap: "wrap", justifyContent: "center" }}>
-                        {["AI-Enabled", "IoT"].map((word, i) => (
-                            <motion.span
-                                key={word}
-                                custom={i}
-                                variants={waveVariants}
-                                animate="animate"
-                                style={{ color: "#fff", display: "inline-block" }}
-                            >
-                                {word}
-                            </motion.span>
-                        ))}
+                    <div style={{ display: "flex", justifyContent: "center" }}>
+                        {renderWaveText("AI-Enabled IoT", 0, { color: "#fff" })}
                     </div>
-                    <div style={{ width: "100%" }} />
-                    <div style={{ display: "flex", gap: "0.3em", flexWrap: "wrap", justifyContent: "center" }}>
-                        {["Virtual", "Laboratory"].map((word, i) => (
-                            <motion.span
-                                key={word}
-                                custom={i + 2}
-                                variants={waveVariants}
-                                animate="animate"
-                                style={{ ...gradientText, display: "inline-block" }}
-                            >
-                                {word}
-                            </motion.span>
-                        ))}
+                    <div style={{ display: "flex", justifyContent: "center" }}>
+                        {renderWaveText("Virtual Laboratory", 15, gradientText)}
                     </div>
                 </h1>
 
@@ -101,7 +95,7 @@ export default function Hero() {
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.2 }}
-                    style={{ fontSize: "clamp(1.1rem, 2vw, 1.4rem)", color: tokens.colors.textSecondary, marginBottom: 40, maxWidth: 800, margin: "0 auto 40px", lineHeight: 1.6 }}
+                    style={{ fontSize: "clamp(1.1rem, 2vw, 1.4rem)", color: tokens.colors.textSecondary, marginBottom: 36, maxWidth: 800, margin: "0 auto 40px", lineHeight: 1.6 }}
                 >
                     A hybrid Digital Twin platform that bridges real hardware precision with virtual scalability.
                     Built for the future of engineering education.
@@ -111,7 +105,7 @@ export default function Hero() {
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.3 }}
-                    style={{ display: "flex", flexWrap: "wrap", gap: 16, justifyContent: "center", marginBottom: 80 }}
+                    style={{ display: "flex", flexWrap: "wrap", gap: 16, justifyContent: "center", marginBottom: 70 }}
                 >
                     <a href="https://ai-virtual-sensor-lab-w-rt-iot-data.vercel.app" target="_blank" style={{
                         display: "flex", alignItems: "center", gap: 10, padding: "16px 32px", background: `linear-gradient(135deg, ${tokens.colors.cyan}, ${tokens.colors.blue})`, color: "#030712", fontWeight: 700, borderRadius: 12, textDecoration: "none", boxShadow: `0 20px 40px ${tokens.colors.cyan}33`
