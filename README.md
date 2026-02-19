@@ -1,89 +1,35 @@
-# IoT Virtual Sensor Laboratory
+# 🧪 AI-Enabled Virtual Sensor Laboratory with Real-Time IoT Data
 
-A complete IoT platform with a Next.js dashboard, Node.js backend, and Arduino/ESP8266 firmware.
+A hybrid "Digital Twin" platform for remote IoT education, SoC reliability testing, and real-time sensor analytics.
 
-## Project Structure
+## 🚀 Quick Links
+- **Live Demo:** [ai-virtual-sensor-lab-w-rt-iot-data.vercel.app](https://ai-virtual-sensor-lab-w-rt-iot-data.vercel.app)
+- **Backend API:** [ai-virtual-sensor-lab-w-rt-iot-data.onrender.com](https://ai-virtual-sensor-lab-w-rt-iot-data.onrender.com)
 
-- **`/frontend`**: Next.js 16 + Tailwind CSS v4 dashboard
-- **`/backend`**: Node.js + Express + Socket.io server
-- **`/firmware`**: Arduino Mega and ESP8266 code
+---
 
-## 🚀 Getting Started for Team Members
+## 📚 Technical Documentation
+We have simplified the project documentation into several modules for ease of review:
 
-### 1. Prerequisites
-- Node.js (v18+) installed
-- Git installed
-- VS Code (recommended)
+1.  **[System Architecture](documentation/SYSTEM_ARCHITECTURE.md):** Tech stack (Node, Next, Socket.io) and Data Flow.
+2.  **[File Structure](documentation/FILE_STRUCTURE.md):** Granular breakdown of frontend, backend, and firmware files.
+3.  **[Hardware & Sensors](documentation/HARDWARE_AND_SENSORS.md):** Arduino Mega pinouts and ESP8266 bridge logic.
+4.  **[Deployment & Domain](documentation/DEPLOYMENT_AND_DOMAIN.md):** Cloud hosting (Render/Vercel) and environment setup.
+5.  **[Algorithms & Logic](documentation/ALGORITHMS_AND_LOGIC.md):** Fault Injection, DSP Filters, and AI Mistake Detector math.
 
-### 2. Setup
+---
 
-Clone the repository:
-```bash
-git clone <YOUR_GITHUB_REPO_URL>
-cd iot-virtual-lab
-```
+## 🛠 Tech Stack Summary
+- **Frontend:** Next.js (TypeScript), Tailwind CSS, Recharts.
+- **Backend:** Node.js, Express, Socket.io.
+- **Hardware:** Arduino Mega 2560, ESP8266 (WiFi Bridge).
+- **Hosting:** Render (Backend), Vercel (Frontend).
 
-### 3. Install Dependencies
+## 🛠 Prerequisites
+- Node.js (v18+)
+- Arduino IDE (for hardware uploads)
 
-**Frontend:**
-```bash
-cd frontend
-npm install
-```
-
-**Backend:**
-```bash
-cd ../backend
-npm install
-```
-
-### 4. Environment Variables
-
-Create a `.env` file in **`/backend`**:
-```env
-PORT=5000
-```
-*(Ask the team lead for any other secret keys)*
-
-### 5. Running the Project
-
-You need two terminals running simultaneously.
-
-**Terminal 1 (Backend):**
-```bash
-cd backend
-node server.js
-```
-
-**Terminal 2 (Frontend):**
-```bash
-cd frontend
-npm run dev
-```
-
-Open [http://localhost:3000](http://localhost:3000) to view the dashboard.
-
-## 🤝 Collaboration Workflow
-
-1. **Pull latest changes** before starting work:
-   ```bash
-   git pull origin main
-   ```
-2. **Create a branch** for your feature:
-   ```bash
-   git checkout -b feature-name
-   ```
-3. **Commit your changes**:
-   ```bash
-   git add .
-   git commit -m "Added feature X"
-   ```
-4. **Push to GitHub**:
-   ```bash
-   git push origin feature-name
-   ```
-5. **Create a Pull Request (PR)** on GitHub to merge into `main`.
-
-## 🛠 Hardware Setup
-
-See [firmware/HARDWARE_SETUP.md](./firmware/HARDWARE_SETUP.md) for wiring diagrams and flashing instructions.
+## 🏃 Running Locally
+1. **Backend:** `cd backend && npm install && node server.js`
+2. **Frontend:** `cd frontend && npm install && npm run dev`
+3. Open `http://localhost:3000`
