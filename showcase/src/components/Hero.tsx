@@ -1,21 +1,57 @@
 "use client";
-import React from "react";
-import { motion, Variants } from "framer-motion";
+import React, { useRef } from "react";
+import { motion, useScroll, useTransform, useSpring, MotionValue } from "framer-motion";
 import { ExternalLink, Activity, Cpu, Wifi, Brain } from "lucide-react";
 import { tokens, gradientText, cardStyle } from "./Styles";
 
+interface WaveLetterProps {
+    char: string;
+    index: number;
+    progress: MotionValue<number>;
+    style?: React.CSSProperties;
+}
+
+const WaveLetter = ({ char, index, progress, style }: WaveLetterProps) => {
+    // Each letter has a unique phase offset mapped to the scroll progress
+    const y = useTransform(
+        progress,
+        [0, 0.5, 1],
+        [
+            Math.sin(index * 0.4) * 15,
+            Math.sin(index * 0.4 + 2) * 30,
+            Math.sin(index * 0.4 + 4) * 45
+        ]
+    );
+
+    const opacity = useTransform(progress, [0, 0.9], [1, 0]);
+
+    return (
+        <motion.span
+            style={{
+                display: "inline-block",
+                whiteSpace: char === " " ? "pre" : "normal",
+                y,
+                opacity,
+                ...style
+            }}
+        >
+            {char}
+        </motion.span>
+    );
+};
+
 export default function Hero() {
-    const waveVariants: Variants = {
-        animate: (i: number) => ({
-            y: [0, -12, 0, 12, 0],
-            transition: {
-                duration: 5,
-                repeat: Infinity,
-                ease: "easeInOut",
-                delay: i * 0.08,
-            }
-        })
-    };
+    const containerRef = useRef<HTMLDivElement>(null);
+    const { scrollYProgress } = useScroll({
+        target: containerRef,
+        offset: ["start start", "end start"]
+    });
+
+    const smoothProgress = useSpring(scrollYProgress, {
+        stiffness: 80,
+        damping: 30,
+        restDelta: 0.001
+    });
 
     const features = [
         { icon: <Activity color={tokens.colors.cyan} />, title: "Real-Time Data", desc: "5Hz Live Stream" },
@@ -24,34 +60,25 @@ export default function Hero() {
         { icon: <Cpu color={tokens.colors.green} />, title: "17+ Sensors", desc: "Dual-MCU Protocol" },
     ];
 
-    // Helper to render words with character-level wave animations
-    const renderWaveText = (text: string, startIndex: number, style: React.CSSProperties = {}) => {
-        return text.split("").map((char, i) => (
-            <motion.span
-                key={`${text}-${i}`}
-                custom={startIndex + i}
-                variants={waveVariants}
-                animate="animate"
-                style={{ display: "inline-block", whiteSpace: char === " " ? "pre" : "normal", ...style }}
-            >
-                {char}
-            </motion.span>
-        ));
-    };
+    const firstLine = "AI-Enabled IoT";
+    const secondLine = "Virtual Laboratory";
 
     return (
-        <section style={{
-            minHeight: "100vh",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            position: "relative",
-            overflow: "hidden",
-            padding: "120px 24px 60px",
-            backgroundImage: "linear-gradient(rgba(255,255,255,0.025) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,0.025) 1px,transparent 1px)",
-            backgroundSize: "64px 64px",
-        }}>
-            {/* Dynamic Glows */}
+        <section
+            ref={containerRef}
+            style={{
+                minHeight: "140vh",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                position: "relative",
+                overflow: "hidden",
+                padding: "160px 24px 100px",
+                backgroundImage: "linear-gradient(rgba(255,255,255,0.025) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,0.025) 1px,transparent 1px)",
+                backgroundSize: "64px 64px",
+            }}
+        >
+            {/* Background Decor */}
             <motion.div
                 animate={{ scale: [1, 1.2, 1], opacity: [0.06, 0.1, 0.06] }}
                 transition={{ duration: 8, repeat: Infinity }}
@@ -66,7 +93,7 @@ export default function Hero() {
                 >
                     <span className="pulse-dot" style={{ background: tokens.colors.green }} />
                     <span style={{ fontSize: 13, color: tokens.colors.textSecondary, fontFamily: "monospace", letterSpacing: "0.05em" }}>
-                        v2.0 — AI INFUSED DIGITAL TWIN ACTIVE
+                        v2.0 — SCROLL-ACTIVE WAVE ENGINE
                     </span>
                 </motion.div>
 
@@ -84,10 +111,14 @@ export default function Hero() {
                     }}
                 >
                     <div style={{ display: "flex", justifyContent: "center" }}>
-                        {renderWaveText("AI-Enabled IoT", 0, { color: "#fff" })}
+                        {firstLine.split("").map((c, i) => (
+                            <WaveLetter key={i} char={c} index={i} progress={smoothProgress} style={{ color: "#fff" }} />
+                        ))}
                     </div>
                     <div style={{ display: "flex", justifyContent: "center" }}>
-                        {renderWaveText("Virtual Laboratory", 15, gradientText)}
+                        {secondLine.split("").map((c, i) => (
+                            <WaveLetter key={i} char={c} index={i + firstLine.length} progress={smoothProgress} style={gradientText} />
+                        ))}
                     </div>
                 </h1>
 
@@ -97,8 +128,8 @@ export default function Hero() {
                     transition={{ delay: 0.2 }}
                     style={{ fontSize: "clamp(1.1rem, 2vw, 1.4rem)", color: tokens.colors.textSecondary, marginBottom: 36, maxWidth: 800, margin: "0 auto 40px", lineHeight: 1.6 }}
                 >
-                    A hybrid Digital Twin platform that bridges real hardware precision with virtual scalability.
-                    Built for the future of engineering education.
+                    Experience hardware precision in a scalable virtual environment.
+                    Use your scroll to interact with the laboratory's core metadata.
                 </motion.p>
 
                 <motion.div
@@ -119,7 +150,7 @@ export default function Hero() {
                     </a>
                 </motion.div>
 
-                {/* Feature Strip - Fixed to be exactly on one line on desktop */}
+                {/* Feature Strip */}
                 <div style={{ maxWidth: 1100, margin: "0 auto" }}>
                     <motion.div
                         initial={{ opacity: 0, scale: 0.95 }}
