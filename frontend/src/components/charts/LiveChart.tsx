@@ -73,8 +73,8 @@ export const LiveChart: React.FC<LiveChartProps> = ({
                         }}
                         itemStyle={{ color: "#fff" }}
                         labelStyle={{ color: "rgba(255,255,255,0.5)" }}
-                        formatter={(value: number, name: string) => [
-                            value.toFixed(1) + unit,
+                        formatter={(value: any, name: any) => [
+                            (Number(value) || 0).toFixed(1) + unit,
                             name === "value" ? "Raw" : "Processed"
                         ]}
                     />
