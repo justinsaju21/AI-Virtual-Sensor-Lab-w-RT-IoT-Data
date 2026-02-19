@@ -1,110 +1,147 @@
 "use client";
-
 import React from "react";
 import { motion } from "framer-motion";
-import { MonitorSmartphone } from "lucide-react";
+import {
+    Activity, Shield, Cpu, Database, Bell,
+    Wifi, Signal, Clock, Server, Monitor, Zap
+} from "lucide-react";
+import { tokens, cardStyle, glass } from "./Styles";
+import SectionHeading from "./SectionHeading";
+import Waveform from "./Waveform";
 
 export default function DashboardPreview() {
-    return (
-        <section className="max-w-6xl mx-auto">
-            <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true, margin: "-100px" }}
-                className="text-center mb-16"
-            >
-                <p className="text-sm font-mono text-emerald-400 mb-3 tracking-widest uppercase">Live Preview</p>
-                <h2 className="text-3xl md:text-5xl font-bold text-white">
-                    The <span className="gradient-text-emerald">Dashboard</span>
-                </h2>
-                <p className="text-slate-500 mt-4 max-w-xl mx-auto">A production-grade monitoring interface built for engineering precision</p>
-            </motion.div>
+    const sensorCards = [
+        { label: "DISTANCE", val: "48.4", unit: "cm", model: "HC-SR04", color: tokens.colors.purple, icon: <Activity size={14} /> },
+        { label: "TEMPERATURE", val: "26", unit: "°C", model: "DHT11 Sensor", color: tokens.colors.red, icon: <Activity size={14} /> },
+        { label: "HUMIDITY", val: "56.8", unit: "%", model: "DHT11 Sensor", color: tokens.colors.blue, icon: <Activity size={14} /> },
+        { label: "ALCOHOL LEVEL", val: "113", unit: "raw", model: "MQ-3 Alcohol", color: tokens.colors.green, icon: <Activity size={14} /> },
+        { label: "GAS/SMOKE", val: "217", unit: "ppm", model: "MQ-2 Sensor", color: tokens.colors.red, icon: <Activity size={14} /> },
+        { label: "MAGNETIC FIELD", val: "Clear", unit: "", model: "Hall Sensor", color: tokens.colors.purple, icon: <Activity size={14} /> },
+        { label: "SOUND LEVEL", val: "83", unit: "dB", model: "Microphone", color: tokens.colors.purple, icon: <Activity size={14} /> },
+        { label: "IR OBSTACLE", val: "Clear", unit: "", model: "IR Sensor", color: tokens.colors.cyan, icon: <Activity size={14} /> },
+    ];
 
-            {/* Dashboard mockup */}
+    return (
+        <section id="preview" style={{ padding: "100px 24px", maxWidth: 1280, margin: "0 auto" }}>
+            <SectionHeading
+                pill="Interface Parity"
+                title="Production"
+                gradientText="Sensor Dashboard"
+                subtitle="The actual monitoring interface used by engineers and students to manage 15+ IoT data streams in real-time."
+            />
+
             <motion.div
-                initial={{ opacity: 0, y: 30 }}
+                initial={{ opacity: 0, y: 40 }}
                 whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true, margin: "-100px" }}
-                transition={{ duration: 0.7 }}
-                className="relative"
+                style={{
+                    ...cardStyle,
+                    padding: 0,
+                    background: "#0a0f1a",
+                    border: "1px solid rgba(255,255,255,0.05)",
+                    boxShadow: "0 100px 200px rgba(0,0,0,0.7)",
+                    overflow: "hidden",
+                    borderRadius: 12
+                }}
             >
-                <div className="glass-strong p-4 md:p-6 glow-cyan">
-                    {/* Browser chrome */}
-                    <div className="flex items-center gap-2 mb-4 pb-3 border-b border-white/5">
-                        <div className="flex gap-1.5">
-                            <div className="w-3 h-3 rounded-full bg-red-400/60" />
-                            <div className="w-3 h-3 rounded-full bg-amber-400/60" />
-                            <div className="w-3 h-3 rounded-full bg-emerald-400/60" />
+                {/* Top Header Bar */}
+                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "12px 24px", background: "rgba(0,0,0,0.3)", borderBottom: "1px solid rgba(255,255,255,0.05)" }}>
+                    <div style={{ display: "flex", alignItems: "center", gap: 20 }}>
+                        <span style={{ fontSize: 13, fontWeight: 700, color: "#fff" }}>Live Monitoring</span>
+                        <span style={{ fontSize: 11, color: tokens.colors.textMuted }}>Real-time sensor data stream</span>
+                    </div>
+                    <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+                        <div style={{ display: "flex", alignItems: "center", gap: 8, background: "rgba(255,255,255,0.03)", padding: "4px 12px", borderRadius: 4, border: "1px solid rgba(255,255,255,0.05)" }}>
+                            <Cpu size={12} color={tokens.colors.textMuted} />
+                            <span style={{ fontSize: 11, color: tokens.colors.textMuted }}>virtual_lab_01</span>
                         </div>
-                        <div className="flex-1 text-center text-xs font-mono text-slate-600">
-                            ai-virtual-sensor-lab-w-rt-iot-data.vercel.app
+                        <div style={{ display: "flex", alignItems: "center", gap: 8, background: "rgba(16,185,129,0.1)", padding: "4px 12px", borderRadius: 4, border: "1px solid rgba(16,185,129,0.2)" }}>
+                            <div style={{ width: 6, height: 6, background: "#10b981", borderRadius: "50%" }} />
+                            <span style={{ fontSize: 11, color: "#10b981", fontWeight: 700 }}>Connected</span>
                         </div>
                     </div>
+                </div>
 
-                    {/* Dashboard mock */}
-                    <div className="grid grid-cols-12 gap-3 min-h-[400px]">
-                        {/* Sidebar */}
-                        <div className="col-span-2 bg-white/[0.02] rounded-lg p-3 space-y-3">
-                            <div className="flex items-center gap-2 mb-4">
-                                <MonitorSmartphone className="w-4 h-4 text-cyan-400" />
-                                <span className="text-[10px] font-bold text-white">VirtLab</span>
+                <div style={{ display: "grid", gridTemplateColumns: "220px 1fr", height: 750 }} className="hidden-mobile">
+                    {/* Dashboard Sidebar - Match screenshot colors */}
+                    <div style={{ background: "#060a12", borderRight: "1px solid rgba(255,255,255,0.03)", padding: "24px 16px" }}>
+                        <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 40 }}>
+                            <div style={{ width: 32, height: 32, background: `linear-gradient(135deg, ${tokens.colors.cyan}, ${tokens.colors.blue})`, borderRadius: 8, display: "flex", alignItems: "center", justifyContent: "center" }}>
+                                <Cpu size={18} color="#000" />
                             </div>
-                            {["Dashboard", "Temperature", "Humidity", "Gas", "Ultrasonic", "Motion", "Sound", "Flame", "Settings"].map((item, i) => (
-                                <div key={item} className={`text-[9px] font-mono px-2 py-1.5 rounded ${i === 0 ? "bg-cyan-500/10 text-cyan-400" : "text-slate-600 hover:text-slate-400"}`}>
-                                    {item}
+                            <div>
+                                <div style={{ fontWeight: 800, fontSize: 14, color: "#fff" }}>VirtLab</div>
+                                <div style={{ fontSize: 9, color: tokens.colors.textMuted }}>IoT Sensor Platform</div>
+                            </div>
+                        </div>
+
+                        <div style={{ fontSize: 9, color: tokens.colors.textMuted, letterSpacing: "0.1em", marginBottom: 12, textTransform: "uppercase" }}>Monitoring</div>
+                        <div style={{ padding: "10px 12px", borderRadius: 6, background: "linear-gradient(90deg, rgba(0,242,254,0.1), transparent)", color: tokens.colors.cyan, fontSize: 12, display: "flex", alignItems: "center", gap: 10, marginBottom: 20 }}>
+                            <Monitor size={14} /> Dashboard
+                        </div>
+
+                        <div style={{ fontSize: 9, color: tokens.colors.textMuted, letterSpacing: "0.1em", marginBottom: 12, textTransform: "uppercase" }}>Sensors</div>
+                        {["Temperature", "Humidity", "Gas Sensor", "Alcohol (MQ3)", "Light Sensor", "Ultrasonic", "Motion", "Hall Effect", "Sound"].map((m, i) => (
+                            <div key={i} style={{ padding: "8px 12px", color: tokens.colors.textSecondary, fontSize: 12, display: "flex", alignItems: "center", gap: 10, marginBottom: 4 }}>
+                                <Activity size={14} opacity={0.5} /> {m}
+                            </div>
+                        ))}
+                    </div>
+
+                    {/* Dashboard Main - Match Screenshot Layout */}
+                    <div style={{ padding: "32px", overflowY: "auto", background: "#0a0f1a" }}>
+                        <div style={{ marginBottom: 32, display: "flex", justifyContent: "space-between", alignItems: "flex-end" }}>
+                            <div>
+                                <h2 style={{ fontSize: 24, fontWeight: 800, color: "#fff", marginBottom: 4 }}>Sensor Dashboard</h2>
+                                <p style={{ fontSize: 12, color: tokens.colors.textMuted }}>Monitor 15 connected IoT sensors in real-time</p>
+                            </div>
+                            <div style={{ padding: "8px 16px", background: "rgba(16,185,129,0.05)", borderRadius: 6, border: "1px solid rgba(16,185,129,0.1)", display: "flex", alignItems: "center", gap: 8 }}>
+                                <div className="pulse-dot" style={{ background: "#10b981", width: 6, height: 6 }} />
+                                <span style={{ fontSize: 11, color: "#10b981", fontWeight: 700 }}>Live Updates</span>
+                            </div>
+                        </div>
+
+                        {/* Status Header Cards */}
+                        <div style={{ display: "grid", gridTemplateColumns: "repeat(5, 1fr)", gap: 16, marginBottom: 40 }}>
+                            {[
+                                { icon: <Zap size={16} />, label: "STATUS", val: "All Systems Go", color: tokens.colors.green },
+                                { icon: <Signal size={16} />, label: "SIGNAL", val: "-60 dBm", color: tokens.colors.blue },
+                                { icon: <Clock size={16} />, label: "UPTIME", val: "2h 45m", color: tokens.colors.purple },
+                                { icon: <Activity size={16} />, label: "SENSORS", val: "15 Active", color: "#f59e0b" },
+                                { icon: <Server size={16} />, label: "DEVICE", val: "virt_lab_01", color: tokens.colors.cyan },
+                            ].map((s, i) => (
+                                <div key={i} style={{ background: "rgba(255,255,255,0.02)", borderRadius: 8, padding: "16px", border: "1px solid rgba(255,255,255,0.04)", display: "flex", alignItems: "center", gap: 12 }}>
+                                    <div style={{ width: 32, height: 32, borderRadius: 6, background: "rgba(255,255,255,0.02)", display: "flex", alignItems: "center", justifyContent: "center", color: s.color }}>{s.icon}</div>
+                                    <div>
+                                        <div style={{ fontSize: 8, color: tokens.colors.textMuted, marginBottom: 2 }}>{s.label}</div>
+                                        <div style={{ fontSize: 11, fontWeight: 700, color: i === 0 ? s.color : "#fff" }}>{s.val}</div>
+                                    </div>
                                 </div>
                             ))}
                         </div>
 
-                        {/* Main content */}
-                        <div className="col-span-10 space-y-3">
-                            {/* Header */}
-                            <div className="flex justify-between items-center bg-white/[0.02] rounded-lg px-4 py-2">
-                                <div>
-                                    <p className="text-xs font-semibold text-white">Live Monitoring</p>
-                                    <p className="text-[9px] text-slate-600">Real-time sensor data stream</p>
-                                </div>
-                                <div className="flex items-center gap-1.5">
-                                    <span className="pulse-dot" style={{ width: 6, height: 6 }} />
-                                    <span className="text-[9px] text-emerald-400">Connected</span>
-                                </div>
-                            </div>
+                        <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 20, color: tokens.colors.textMuted, fontSize: 11, fontWeight: 700 }}>
+                            <Activity size={14} /> LIVE READINGS
+                        </div>
 
-                            {/* Cards grid */}
-                            <div className="grid grid-cols-4 gap-2">
-                                {[
-                                    { name: "Temperature", value: "24.5°C", color: "border-orange-500/20" },
-                                    { name: "Humidity", value: "62.3%", color: "border-blue-500/20" },
-                                    { name: "Gas (MQ-2)", value: "152 ppm", color: "border-red-500/20" },
-                                    { name: "Ultrasonic", value: "47.2 cm", color: "border-cyan-500/20" },
-                                ].map(card => (
-                                    <div key={card.name} className={`bg-white/[0.02] border ${card.color} rounded-lg p-3`}>
-                                        <p className="text-[9px] text-slate-500">{card.name}</p>
-                                        <p className="text-sm font-bold text-white mt-1">{card.value}</p>
+                        {/* Sensor Grid - Matching the screenshot exactly */}
+                        <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 16 }}>
+                            {sensorCards.map((s, i) => (
+                                <div key={i} style={{ background: "rgba(255,255,255,0.02)", borderRadius: 10, padding: 20, border: "1px solid rgba(255,255,255,0.04)", position: "relative" }}>
+                                    <div style={{ position: "absolute", top: 12, right: 12, display: "flex", alignItems: "center", gap: 4, background: "rgba(16,185,129,0.05)", padding: "2px 8px", borderRadius: 99, border: "1px solid rgba(16,185,129,0.1)" }}>
+                                        <div style={{ width: 4, height: 4, background: "#10b981", borderRadius: "50%" }} />
+                                        <span style={{ fontSize: 8, color: "#10b981", fontWeight: 700 }}>Online</span>
                                     </div>
-                                ))}
-                            </div>
-
-                            {/* Chart area */}
-                            <div className="bg-white/[0.02] rounded-lg p-4 flex-1">
-                                <p className="text-[10px] font-mono text-slate-500 mb-2">Real-Time Waveform — Raw vs Processed</p>
-                                <svg viewBox="0 0 600 120" className="w-full h-32" preserveAspectRatio="none">
-                                    {/* Raw (noisy) */}
-                                    <path d="M 0 60 L 15 55 L 30 65 L 45 50 L 60 70 L 75 45 L 90 68 L 105 42 L 120 62 L 135 48 L 150 58 L 165 40 L 180 65 L 195 38 L 210 55 L 225 70 L 240 35 L 255 60 L 270 45 L 285 65 L 300 42 L 315 55 L 330 68 L 345 40 L 360 58 L 375 48 L 390 62 L 405 38 L 420 55 L 435 65 L 450 42 L 465 60 L 480 48 L 495 58 L 510 42 L 525 65 L 540 50 L 555 55 L 570 45 L 585 60 L 600 50" stroke="#00f2fe" strokeWidth="1.5" fill="none" opacity="0.4" />
-                                    {/* Processed (smooth) */}
-                                    <path d="M 0 58 Q 75 50 150 52 Q 225 48 300 50 Q 375 52 450 48 Q 525 50 600 52" stroke="#ffffff" strokeWidth="2" fill="none" opacity="0.9" />
-                                </svg>
-                                <div className="flex items-center gap-4 mt-2">
-                                    <div className="flex items-center gap-1.5">
-                                        <div className="w-3 h-0.5 bg-cyan-400/40 rounded" />
-                                        <span className="text-[9px] text-slate-600">Raw</span>
+                                    <div style={{ width: 32, height: 32, background: "rgba(255,255,255,0.02)", borderRadius: 6, display: "flex", alignItems: "center", justifyContent: "center", color: s.color, marginBottom: 16 }}>
+                                        {s.icon}
                                     </div>
-                                    <div className="flex items-center gap-1.5">
-                                        <div className="w-3 h-0.5 bg-white rounded" />
-                                        <span className="text-[9px] text-slate-600">Processed</span>
+                                    <div style={{ fontSize: 9, color: tokens.colors.textMuted, marginBottom: 4 }}>{s.label}</div>
+                                    <div style={{ display: "flex", alignItems: "baseline", gap: 4, marginBottom: 4 }}>
+                                        <span style={{ fontSize: 22, fontWeight: 800, color: "#fff" }}>{s.val}</span>
+                                        {s.unit && <span style={{ fontSize: 11, color: tokens.colors.textMuted }}>{s.unit}</span>}
                                     </div>
+                                    <div style={{ fontSize: 9, color: tokens.colors.textMuted }}>{s.model}</div>
                                 </div>
-                            </div>
+                            ))}
                         </div>
                     </div>
                 </div>

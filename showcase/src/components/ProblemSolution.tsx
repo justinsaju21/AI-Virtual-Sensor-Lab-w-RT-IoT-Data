@@ -1,94 +1,60 @@
 "use client";
-
 import React from "react";
 import { motion } from "framer-motion";
-import { X, Check } from "lucide-react";
-
-const problems = [
-    "Limited access to physical hardware",
-    "Risk of damaging real components",
-    "No real-time sensor behavior visibility",
-    "Zero debugging experience",
-    "Not scalable to large batches",
-];
-
-const solutions = [
-    "17-sensor digital twin system",
-    "Safe virtual experimentation",
-    "Real-time oscilloscopic charts",
-    "Fault Injection & AI diagnostics",
-    "Scalable to 1000+ students",
-];
+import { XCircle, CheckCircle2 } from "lucide-react";
+import { tokens, cardStyle } from "./Styles";
+import SectionHeading from "./SectionHeading";
 
 export default function ProblemSolution() {
-    return (
-        <section className="max-w-6xl mx-auto">
-            <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true, margin: "-100px" }}
-                className="text-center mb-16"
-            >
-                <p className="text-sm font-mono text-cyan-400 mb-3 tracking-widest uppercase">The Challenge</p>
-                <h2 className="text-3xl md:text-5xl font-bold text-white">
-                    Traditional Labs Are{" "}
-                    <span className="text-red-400">Broken</span>
-                </h2>
-            </motion.div>
+    const problems = ["Fragile & Expensive Kits", "Limited Lab Accessibility", "Zero Real-Time Visibility", "No Safe Fault Testing"];
+    const solutions = ["Robust Digital Twin v2.0", "Infinite Cloud Scalability", "Oscilloscopic Live Streaming", "AI-Guided Fault Injection"];
 
-            <div className="grid md:grid-cols-2 gap-6 md:gap-8">
-                {/* Problems */}
+    return (
+        <section style={{ padding: "100px 24px", maxWidth: 1200, margin: "0 auto" }}>
+            <SectionHeading
+                pill="The Philosophy"
+                title="Modern Problems Require"
+                gradientText="Modern Solutions"
+                subtitle="Moving beyond simulation. Moving beyond restrictive hardware. Bridging the gap."
+            />
+
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))", gap: 32 }}>
                 <motion.div
                     initial={{ opacity: 0, x: -30 }}
                     whileInView={{ opacity: 1, x: 0 }}
-                    viewport={{ once: true, margin: "-100px" }}
-                    transition={{ duration: 0.6 }}
-                    className="glass p-6 md:p-8"
+                    viewport={{ once: true }}
+                    style={{ ...cardStyle, padding: 40, border: `1px solid ${tokens.colors.red}22` }}
                 >
-                    <h3 className="text-lg font-semibold text-red-400 mb-6 flex items-center gap-2">
-                        <X className="w-5 h-5" /> The Problem
-                    </h3>
-                    <div className="space-y-4">
+                    <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 32 }}>
+                        <XCircle color={tokens.colors.red} size={24} />
+                        <h3 style={{ color: tokens.colors.red, fontSize: 18, fontWeight: 700 }}>Legacy Methodology</h3>
+                    </div>
+                    <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
                         {problems.map((p, i) => (
-                            <motion.div
-                                key={p}
-                                initial={{ opacity: 0, x: -10 }}
-                                whileInView={{ opacity: 1, x: 0 }}
-                                viewport={{ once: true }}
-                                transition={{ delay: i * 0.1 }}
-                                className="flex items-start gap-3 p-3 rounded-lg bg-red-500/5 border border-red-500/10"
-                            >
-                                <X className="w-4 h-4 text-red-400 mt-0.5 shrink-0" />
-                                <span className="text-sm text-slate-300">{p}</span>
-                            </motion.div>
+                            <div key={i} style={{ display: "flex", gap: 12, alignItems: "center", color: tokens.colors.textSecondary, fontSize: 15 }}>
+                                <span style={{ color: tokens.colors.red, opacity: 0.5 }}>✕</span>
+                                {p}
+                            </div>
                         ))}
                     </div>
                 </motion.div>
 
-                {/* Solutions */}
                 <motion.div
                     initial={{ opacity: 0, x: 30 }}
                     whileInView={{ opacity: 1, x: 0 }}
-                    viewport={{ once: true, margin: "-100px" }}
-                    transition={{ duration: 0.6, delay: 0.2 }}
-                    className="glass p-6 md:p-8 glow-emerald"
+                    viewport={{ once: true }}
+                    style={{ ...cardStyle, padding: 40, border: `1px solid ${tokens.colors.green}22`, background: "rgba(16, 185, 129, 0.03)" }}
                 >
-                    <h3 className="text-lg font-semibold text-emerald-400 mb-6 flex items-center gap-2">
-                        <Check className="w-5 h-5" /> Our Solution
-                    </h3>
-                    <div className="space-y-4">
+                    <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 32 }}>
+                        <CheckCircle2 color={tokens.colors.green} size={24} />
+                        <h3 style={{ color: tokens.colors.green, fontSize: 18, fontWeight: 700 }}>The VirtSensorLab Edge</h3>
+                    </div>
+                    <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
                         {solutions.map((s, i) => (
-                            <motion.div
-                                key={s}
-                                initial={{ opacity: 0, x: 10 }}
-                                whileInView={{ opacity: 1, x: 0 }}
-                                viewport={{ once: true }}
-                                transition={{ delay: 0.2 + i * 0.1 }}
-                                className="flex items-start gap-3 p-3 rounded-lg bg-emerald-500/5 border border-emerald-500/10"
-                            >
-                                <Check className="w-4 h-4 text-emerald-400 mt-0.5 shrink-0" />
-                                <span className="text-sm text-slate-300">{s}</span>
-                            </motion.div>
+                            <div key={i} style={{ display: "flex", gap: 12, alignItems: "center", color: "#fff", fontSize: 15, fontWeight: 500 }}>
+                                <span style={{ color: tokens.colors.green }}>✓</span>
+                                {s}
+                            </div>
                         ))}
                     </div>
                 </motion.div>

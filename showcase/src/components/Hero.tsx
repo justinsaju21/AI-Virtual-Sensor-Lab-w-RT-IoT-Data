@@ -1,119 +1,159 @@
 "use client";
-
 import React from "react";
-import { motion } from "framer-motion";
-import { ArrowRight, ExternalLink, Activity, Cpu, Wifi, Brain } from "lucide-react";
+import { motion, Variants } from "framer-motion";
+import { ExternalLink, Activity, Cpu, Wifi, Brain } from "lucide-react";
+import { tokens, gradientText, cardStyle } from "./Styles";
 
 export default function Hero() {
+    const waveVariants: Variants = {
+        animate: (i: number) => ({
+            y: [-8, 8, -8],
+            transition: {
+                duration: 4,
+                repeat: Infinity,
+                ease: "easeInOut",
+                delay: i * 0.2
+            }
+        })
+    };
+
+    const features = [
+        { icon: <Activity color={tokens.colors.cyan} />, title: "Real-Time Data", desc: "5Hz Live Stream" },
+        { icon: <Brain color={tokens.colors.purple} />, title: "AI Analytics", desc: "Predictive Health" },
+        { icon: <Wifi color={tokens.colors.blue} />, title: "Cloud Native", desc: "Edge to Portal" },
+        { icon: <Cpu color={tokens.colors.green} />, title: "17+ Sensors", desc: "Dual-MCU Protocol" },
+    ];
+
     return (
-        <section className="relative min-h-screen flex items-center justify-center overflow-hidden" style={{ padding: "2rem 1.5rem" }}>
-            {/* Radial glow */}
-            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-cyan-500/5 rounded-full blur-[150px] pointer-events-none" />
-            <div className="absolute top-1/3 right-1/4 w-[400px] h-[400px] bg-purple-500/5 rounded-full blur-[120px] pointer-events-none" />
+        <section style={{
+            minHeight: "100vh",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            position: "relative",
+            overflow: "hidden",
+            padding: "120px 24px 60px",
+            backgroundImage: "linear-gradient(rgba(255,255,255,0.025) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,0.025) 1px,transparent 1px)",
+            backgroundSize: "64px 64px",
+        }}>
+            {/* Dynamic Glows */}
+            <motion.div
+                animate={{ scale: [1, 1.2, 1], opacity: [0.06, 0.1, 0.06] }}
+                transition={{ duration: 8, repeat: Infinity }}
+                style={{ position: "absolute", top: "20%", left: "50%", transform: "translateX(-50%)", width: 800, height: 800, background: `radial-gradient(circle, ${tokens.colors.cyan}44 0%, transparent 70%)`, pointerEvents: "none", zIndex: 0 }}
+            />
 
-            <div className="relative z-10 max-w-6xl mx-auto text-center">
-                {/* Status badge */}
+            <div style={{ position: "relative", zIndex: 1, maxWidth: 1200, textAlign: "center", width: "100%" }}>
                 <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.6 }}
-                    className="inline-flex items-center gap-2 px-4 py-2 rounded-full glass mb-8"
+                    style={{ display: "inline-flex", alignItems: "center", gap: 8, ...cardStyle, padding: "8px 24px", borderRadius: 999, marginBottom: 32 }}
                 >
-                    <span className="pulse-dot" />
-                    <span className="text-sm text-slate-400 font-medium">System Live — Virtual Mode Active</span>
+                    <span className="pulse-dot" style={{ background: tokens.colors.green }} />
+                    <span style={{ fontSize: 13, color: tokens.colors.textSecondary, fontFamily: "monospace", letterSpacing: "0.05em" }}>
+                        v2.0 — AI INFUSED DIGITAL TWIN ACTIVE
+                    </span>
                 </motion.div>
 
-                {/* Title */}
-                <motion.h1
-                    initial={{ opacity: 0, y: 30 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.7, delay: 0.15 }}
-                    className="text-4xl md:text-6xl lg:text-7xl font-bold tracking-tight leading-[1.1] mb-6"
+                <h1
+                    style={{
+                        fontSize: "clamp(2.5rem, 6vw, 5rem)",
+                        fontWeight: 900,
+                        lineHeight: 1.1,
+                        marginBottom: 24,
+                        letterSpacing: "-0.03em",
+                        display: "flex",
+                        flexWrap: "wrap",
+                        justifyContent: "center",
+                        gap: "0.3em"
+                    }}
                 >
-                    <span className="text-white">AI-Enabled IoT</span>
-                    <br />
-                    <span className="gradient-text">Virtual Sensor Laboratory</span>
-                </motion.h1>
-
-                {/* Subtitle */}
-                <motion.p
-                    initial={{ opacity: 0, y: 30 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.7, delay: 0.3 }}
-                    className="text-lg md:text-xl text-slate-400 max-w-2xl mx-auto mb-4 leading-relaxed"
-                >
-                    Hybrid Digital Twin Virtual Lab for Scalable IoT Education
-                </motion.p>
-                <motion.p
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    transition={{ duration: 0.7, delay: 0.45 }}
-                    className="text-sm md:text-base text-slate-500 mb-10 font-mono"
-                >
-                    Real hardware. Real-time data. AI-driven diagnostics.
-                </motion.p>
-
-                {/* CTA Buttons */}
-                <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.6, delay: 0.6 }}
-                    className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-16"
-                >
-                    <a
-                        href="https://ai-virtual-sensor-lab-w-rt-iot-data.vercel.app"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="group flex items-center gap-2 px-6 py-3 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-500 text-white font-semibold transition-all hover:shadow-[0_0_30px_rgba(0,242,254,0.3)] hover:scale-105"
-                    >
-                        View Live System
-                        <ExternalLink className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
-                    </a>
-                    <a
-                        href="#architecture"
-                        className="flex items-center gap-2 px-6 py-3 rounded-xl glass text-slate-300 font-semibold transition-all hover:bg-white/10 hover:scale-105"
-                    >
-                        Explore Architecture
-                        <ArrowRight className="w-4 h-4" />
-                    </a>
-                </motion.div>
-
-                {/* Floating architecture preview */}
-                <motion.div
-                    initial={{ opacity: 0, y: 40 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.8, delay: 0.8 }}
-                    className="relative max-w-4xl mx-auto"
-                >
-                    <div className="glass-strong p-6 md:p-8 glow-cyan">
-                        <div className="grid grid-cols-4 gap-3 md:gap-4">
-                            {[
-                                { icon: Cpu, label: "Edge", sub: "Arduino Mega", color: "text-blue-400" },
-                                { icon: Wifi, label: "Gateway", sub: "ESP8266 WiFi", color: "text-cyan-400" },
-                                { icon: Activity, label: "Cloud", sub: "Node.js + Socket.io", color: "text-emerald-400" },
-                                { icon: Brain, label: "Client", sub: "Next.js + AI", color: "text-purple-400" },
-                            ].map((item, i) => (
-                                <motion.div
-                                    key={item.label}
-                                    initial={{ opacity: 0, scale: 0.8 }}
-                                    animate={{ opacity: 1, scale: 1 }}
-                                    transition={{ duration: 0.5, delay: 1 + i * 0.1 }}
-                                    className="flex flex-col items-center gap-2 p-3 md:p-4 rounded-xl bg-white/[0.03] border border-white/[0.06]"
-                                >
-                                    <item.icon className={`w-6 h-6 md:w-8 md:h-8 ${item.color}`} />
-                                    <span className="text-xs md:text-sm font-semibold text-white">{item.label}</span>
-                                    <span className="text-[10px] md:text-xs text-slate-500 font-mono text-center">{item.sub}</span>
-                                </motion.div>
-                            ))}
-                        </div>
-                        {/* Connection lines */}
-                        <div className="flex items-center justify-between px-8 md:px-12 mt-3">
-                            {[0, 1, 2].map(i => (
-                                <div key={i} className="flex-1 h-[2px] bg-gradient-to-r from-cyan-500/40 to-purple-500/40 mx-2 rounded-full" />
-                            ))}
-                        </div>
+                    <div style={{ display: "flex", gap: "0.3em", flexWrap: "wrap", justifyContent: "center" }}>
+                        {["AI-Enabled", "IoT"].map((word, i) => (
+                            <motion.span
+                                key={word}
+                                custom={i}
+                                variants={waveVariants}
+                                animate="animate"
+                                style={{ color: "#fff", display: "inline-block" }}
+                            >
+                                {word}
+                            </motion.span>
+                        ))}
                     </div>
+                    <div style={{ width: "100%" }} />
+                    <div style={{ display: "flex", gap: "0.3em", flexWrap: "wrap", justifyContent: "center" }}>
+                        {["Virtual", "Laboratory"].map((word, i) => (
+                            <motion.span
+                                key={word}
+                                custom={i + 2}
+                                variants={waveVariants}
+                                animate="animate"
+                                style={{ ...gradientText, display: "inline-block" }}
+                            >
+                                {word}
+                            </motion.span>
+                        ))}
+                    </div>
+                </h1>
+
+                <motion.p
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.2 }}
+                    style={{ fontSize: "clamp(1.1rem, 2vw, 1.4rem)", color: tokens.colors.textSecondary, marginBottom: 40, maxWidth: 800, margin: "0 auto 40px", lineHeight: 1.6 }}
+                >
+                    A hybrid Digital Twin platform that bridges real hardware precision with virtual scalability.
+                    Built for the future of engineering education.
+                </motion.p>
+
+                <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.3 }}
+                    style={{ display: "flex", flexWrap: "wrap", gap: 16, justifyContent: "center", marginBottom: 80 }}
+                >
+                    <a href="https://ai-virtual-sensor-lab-w-rt-iot-data.vercel.app" target="_blank" style={{
+                        display: "flex", alignItems: "center", gap: 10, padding: "16px 32px", background: `linear-gradient(135deg, ${tokens.colors.cyan}, ${tokens.colors.blue})`, color: "#030712", fontWeight: 700, borderRadius: 12, textDecoration: "none", boxShadow: `0 20px 40px ${tokens.colors.cyan}33`
+                    }}>
+                        Explore Live Lab <ExternalLink size={18} />
+                    </a>
+                    <a href="#architecture" style={{
+                        display: "flex", alignItems: "center", gap: 10, padding: "16px 32px", ...cardStyle, color: "#fff", fontWeight: 600, textDecoration: "none"
+                    }}>
+                        View Stack Details
+                    </a>
                 </motion.div>
+
+                {/* Feature Strip - Fixed to be exactly on one line on desktop */}
+                <div style={{ maxWidth: 1100, margin: "0 auto" }}>
+                    <motion.div
+                        initial={{ opacity: 0, scale: 0.95 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        transition={{ delay: 0.4 }}
+                        style={{
+                            display: "flex",
+                            justifyContent: "space-between",
+                            gap: 20,
+                            width: "100%",
+                            flexWrap: "nowrap"
+                        }}
+                    >
+                        {features.map((item, i) => (
+                            <div key={i} style={{
+                                ...cardStyle,
+                                padding: "24px 20px",
+                                textAlign: "left",
+                                flex: 1,
+                                minWidth: 0
+                            }}>
+                                <div style={{ marginBottom: 16 }}>{item.icon}</div>
+                                <h3 style={{ color: "#fff", fontSize: 16, fontWeight: 700, marginBottom: 4, whiteSpace: "nowrap" }}>{item.title}</h3>
+                                <p style={{ color: tokens.colors.textMuted, fontSize: 12, fontFamily: "monospace" }}>{item.desc}</p>
+                            </div>
+                        ))}
+                    </motion.div>
+                </div>
             </div>
         </section>
     );
