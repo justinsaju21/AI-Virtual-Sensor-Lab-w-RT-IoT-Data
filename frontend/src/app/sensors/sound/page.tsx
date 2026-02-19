@@ -77,7 +77,7 @@ export default function SoundPage() {
     const [dismissedAnomalies, setDismissedAnomalies] = useState<number[]>([]);
     const [calibrationOffset, setCalibrationOffset] = useState(0);
 
-    const rawVal = data?.sensors.mic?.level ?? data?.sensors.sound?.value ?? 0;
+    const rawVal = data?.sensors.mic?.level ?? 0;
     const { injectedValue, fault, setFault } = useFaultInjector(rawVal);
     const calibratedValue = (typeof injectedValue === 'number') ? injectedValue + calibrationOffset : injectedValue;
     const { filter, setFilter, processedData } = useSignalProcessing(history.map(d => d.value));

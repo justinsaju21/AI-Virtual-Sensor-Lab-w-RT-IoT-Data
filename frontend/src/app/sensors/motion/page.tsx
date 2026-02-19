@@ -65,7 +65,7 @@ export default function MotionPage() {
     const [dismissedAnomalies, setDismissedAnomalies] = useState<number[]>([]);
 
     // Convert boolean to number for fault injection (0 or 1)
-    const rawVal = data?.sensors.pir?.detected ? 1 : 0;
+    const rawVal = data?.sensors.ir?.detected ? 1 : 0;
     const { injectedValue, fault, setFault } = useFaultInjector(rawVal);
 
     // Convert back to boolean
