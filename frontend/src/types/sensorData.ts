@@ -1,3 +1,10 @@
+export interface SystemInfo {
+    uptime_ms: number;
+    version: string;
+    wifi_rssi?: number;
+    free_heap?: number;
+}
+
 export interface SensorData {
     device_id: string;
     timestamp: string;
@@ -60,10 +67,5 @@ export interface SensorData {
             btn: boolean;
         };
     };
-    system: {
-        uptime_ms: number;
-        version: string;
-        wifi_rssi?: number;
-        free_heap?: number;
-    };
+    system: SystemInfo;
 }
