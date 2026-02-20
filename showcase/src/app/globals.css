@@ -50,18 +50,7 @@ body {
   }
 }
 
-/* Custom Utilities for those tricky Tailwind moments */
-@media (max-width: 768px) {
-  .md\:flex {
-    display: none !important;
-  }
-}
 
-@media (min-width: 769px) {
-  .hidden {
-    display: none !important;
-  }
-}
 
 ::-webkit-scrollbar {
   width: 4px;
