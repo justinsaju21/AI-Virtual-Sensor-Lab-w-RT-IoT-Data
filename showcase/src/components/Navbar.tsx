@@ -1,7 +1,7 @@
 "use client";
 import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Activity, Menu, X, Cpu } from "lucide-react";
+import { Activity, Menu, X, Cpu, ExternalLink } from "lucide-react";
 import { tokens, glass } from "./Styles";
 
 export default function Navbar() {
@@ -22,64 +22,56 @@ export default function Navbar() {
     ];
 
     return (
-        <nav style={{
-            position: "fixed",
-            top: 0,
-            left: 0,
-            right: 0,
-            zIndex: 100,
-            padding: scrolled ? "12px 24px" : "20px 24px",
-            transition: "all 0.3s ease",
-            background: scrolled ? "rgba(3, 7, 18, 0.8)" : "transparent",
-            ...glass,
-            borderBottom: scrolled ? `1px solid ${tokens.colors.border}` : "1px solid transparent",
-        }}>
-            <div style={{ maxWidth: 1200, margin: "0 auto", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-                <a href="#" style={{ display: "flex", alignItems: "center", gap: 10, textDecoration: "none" }}>
-                    <div style={{
-                        width: 32,
-                        height: 32,
-                        borderRadius: 8,
-                        background: `linear-gradient(135deg, ${tokens.colors.cyan}, ${tokens.colors.purple})`,
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        boxShadow: `0 0 20px ${tokens.colors.cyan}44`
-                    }}>
+        <nav
+            className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${scrolled ? "py-3 border-b border-white/10 bg-slate-950/80 backdrop-blur-md" : "py-5 border-b border-transparent bg-transparent"}`}
+        >
+            <div className="max-w-7xl mx-auto px-6 flex items-center justify-between">
+                {/* Logo */}
+                <a href="#" className="flex items-center gap-3 no-underline group">
+                    <div className="w-8 h-8 rounded-lg flex items-center justify-center shadow-[0_0_20px_rgba(0,242,254,0.3)] bg-gradient-to-br from-cyan-400 to-purple-500 group-hover:scale-105 transition-transform">
                         <Cpu size={18} color="#030712" />
                     </div>
-                    <span style={{ color: "#fff", fontWeight: 800, fontSize: 18, letterSpacing: "-0.02em" }}>VirtSensorLab</span>
+                    <span className="text-white font-extrabold text-lg tracking-tight group-hover:text-cyan-400 transition-colors">
+                        VirtSensorLab
+                    </span>
                 </a>
 
-                {/* Desktop Nav */}
-                <div style={{ display: "flex", alignItems: "center", gap: 32 }} className="hidden md:flex">
-                    {navLinks.map((link) => (
-                        <a key={link.name} href={link.href} style={{
-                            color: tokens.colors.textSecondary,
-                            fontSize: 14,
-                            fontWeight: 500,
-                            textDecoration: "none",
-                            transition: "color 0.2s",
-                        }} onMouseEnter={(e) => (e.currentTarget.style.color = "#fff")} onMouseLeave={(e) => (e.currentTarget.style.color = tokens.colors.textSecondary)}>
-                            {link.name}
+                {/* Desktop Nav - Tailwind Hidden/Flex */}
+                <div className="hidden md:flex items-center gap-8">
+                    <div className="flex gap-6">
+                        {navLinks.map((link) => (
+                            <a
+                                key={link.name}
+                                href={link.href}
+                                className="text-slate-400 text-sm font-medium hover:text-white transition-colors"
+                            >
+                                {link.name}
+                            </a>
+                        ))}
+                    </div>
+
+                    <div className="flex items-center gap-3">
+                        <a
+                            href="/ppt"
+                            className="px-4 py-2 bg-white/5 border border-white/10 hover:bg-white/10 text-white rounded-lg text-sm font-semibold transition-all hover:scale-105"
+                        >
+                            Presentation
                         </a>
-                    ))}
-                    <a href="https://ai-virtual-sensor-lab-w-rt-iot-data.vercel.app" target="_blank" style={{
-                        padding: "8px 18px",
-                        background: `linear-gradient(135deg, ${tokens.colors.cyan}, ${tokens.colors.blue})`,
-                        color: "#030712",
-                        borderRadius: 8,
-                        fontSize: 13,
-                        fontWeight: 700,
-                        textDecoration: "none",
-                        boxShadow: `0 0 20px ${tokens.colors.cyan}33`
-                    }}>
-                        Live Demo
-                    </a>
+                        <a
+                            href="https://ai-virtual-sensor-lab-w-rt-iot-data.vercel.app"
+                            target="_blank"
+                            className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-cyan-500 to-blue-500 text-slate-950 rounded-lg text-sm font-bold shadow-[0_0_20px_rgba(6,182,212,0.2)] hover:shadow-[0_0_30px_rgba(6,182,212,0.4)] hover:scale-105 transition-all"
+                        >
+                            Live Demo <ExternalLink size={14} />
+                        </a>
+                    </div>
                 </div>
 
                 {/* Mobile Toggle */}
-                <button onClick={() => setIsOpen(!isOpen)} style={{ background: "transparent", border: "none", color: "#fff", cursor: "pointer" }} className="md:hidden">
+                <button
+                    onClick={() => setIsOpen(!isOpen)}
+                    className="md:hidden text-white hover:text-cyan-400 transition-colors"
+                >
                     {isOpen ? <X size={24} /> : <Menu size={24} />}
                 </button>
             </div>
@@ -88,38 +80,35 @@ export default function Navbar() {
             <AnimatePresence>
                 {isOpen && (
                     <motion.div
-                        initial={{ opacity: 0, y: -20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        exit={{ opacity: 0, y: -20 }}
-                        style={{
-                            position: "absolute",
-                            top: "100%",
-                            left: 0,
-                            right: 0,
-                            background: "#030712",
-                            padding: "24px",
-                            borderBottom: `1px solid ${tokens.colors.border}`,
-                            display: "flex",
-                            flexDirection: "column",
-                            gap: 20
-                        }}
+                        initial={{ opacity: 0, height: 0 }}
+                        animate={{ opacity: 1, height: "auto" }}
+                        exit={{ opacity: 0, height: 0 }}
+                        className="md:hidden overflow-hidden bg-slate-950 border-b border-white/10 absolute top-full left-0 right-0 px-6 py-4 flex flex-col gap-4 shadow-2xl"
                     >
                         {navLinks.map((link) => (
-                            <a key={link.name} href={link.href} onClick={() => setIsOpen(false)} style={{ color: "#fff", fontSize: 16, textDecoration: "none" }}>
+                            <a
+                                key={link.name}
+                                href={link.href}
+                                onClick={() => setIsOpen(false)}
+                                className="text-slate-300 text-lg font-medium hover:text-white transition-colors py-2 border-b border-white/5"
+                            >
                                 {link.name}
                             </a>
                         ))}
-                        <a href="https://ai-virtual-sensor-lab-w-rt-iot-data.vercel.app" style={{
-                            padding: "12px",
-                            background: `linear-gradient(135deg, ${tokens.colors.cyan}, ${tokens.colors.blue})`,
-                            color: "#030712",
-                            textAlign: "center",
-                            borderRadius: 8,
-                            fontWeight: 700,
-                            textDecoration: "none"
-                        }}>
-                            Live Demo
-                        </a>
+                        <div className="flex flex-col gap-3 mt-2">
+                            <a
+                                href="/ppt"
+                                className="w-full py-3 text-center bg-white/5 border border-white/10 text-white rounded-lg font-semibold hover:bg-white/10 transition-colors"
+                            >
+                                View Presentation
+                            </a>
+                            <a
+                                href="https://ai-virtual-sensor-lab-w-rt-iot-data.vercel.app"
+                                className="w-full py-3 text-center bg-gradient-to-r from-cyan-500 to-blue-500 text-slate-950 rounded-lg font-bold shadow-lg hover:shadow-cyan-500/20 transition-all"
+                            >
+                                Launch Live Demoo
+                            </a>
+                        </div>
                     </motion.div>
                 )}
             </AnimatePresence>
