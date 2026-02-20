@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import {
     ChevronRight, ChevronLeft, Home, Cpu, Target, AlertTriangle, Lightbulb, Layers,
     HardDrive, Code2, GitBranch, Brain, Users, Play, CheckCircle2, Rocket, BookOpen, Award, FileText, List, Calendar, Layout, Search, User,
-    X, Wifi, Activity, Zap, ThumbsUp
+    X, Wifi, Activity, Zap, ThumbsUp, Database
 } from "lucide-react";
 import Link from "next/link";
 import { tokens } from "@/components/Styles";
@@ -257,53 +257,102 @@ const slides: Slide[] = [
     {
         id: "blockdiagram",
         icon: <Layers size={28} />,
-        badge: "BLOCK DIAGRAM",
+        badge: "SYSTEM ARCHITECTURE",
         badgeColor: "#a855f7",
-        title: "System Architecture",
+        title: "Architecture Block Diagram",
         content: (
-            <div style={{ display: "flex", flexDirection: "column", gap: 20, alignItems: "center" }}>
-                {/* Horizontal Flow Diagram Implementation */}
-                <div style={{ display: "flex", alignItems: "center", gap: 20, width: "100%", justifyContent: "center" }}>
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1.2fr 1fr", gap: 24, height: "100%", alignItems: "center" }}>
 
-                    {/* Edge */}
-                    <div style={{ padding: 20, background: "rgba(0,242,254,0.1)", border: "1px solid rgba(0,242,254,0.2)", borderRadius: 12, textAlign: "center", width: 180 }}>
-                        <HardDrive size={24} color="#00f2fe" style={{ margin: "0 auto 10px" }} />
-                        <div style={{ color: "#fff", fontWeight: 700, marginBottom: 4 }}>Edge Layer</div>
-                        <div style={{ color: "#94a3b8", fontSize: 12 }}>Arduino Mega 2560<br />Sensors (17+)</div>
+                {/* 1. Hardware Layer */}
+                <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
+                    <div style={{ padding: 12, border: "1px dashed rgba(255,255,255,0.2)", borderRadius: 12, textAlign: "center" }}>
+                        <h4 style={{ color: "#f59e0b", fontSize: 13, fontWeight: 700, marginBottom: 12, letterSpacing: "1px" }}>SENSOR LAYER (INPUT)</h4>
+                        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
+                            <div style={{ background: "rgba(245,158,11,0.1)", padding: 8, borderRadius: 8, fontSize: 11, color: "#fcd34d" }}>DHT11 (Temp/Hum)</div>
+                            <div style={{ background: "rgba(245,158,11,0.1)", padding: 8, borderRadius: 8, fontSize: 11, color: "#fcd34d" }}>LDR (Light)</div>
+                            <div style={{ background: "rgba(245,158,11,0.1)", padding: 8, borderRadius: 8, fontSize: 11, color: "#fcd34d" }}>MQ2 (Gas)</div>
+                            <div style={{ background: "rgba(245,158,11,0.1)", padding: 8, borderRadius: 8, fontSize: 11, color: "#fcd34d" }}>Ultrasonic</div>
+                        </div>
                     </div>
 
-                    <div style={{ height: 2, width: 40, background: "#334155" }} />
-
-                    {/* Gateway */}
-                    <div style={{ padding: 20, background: "rgba(79,172,254,0.1)", border: "1px solid rgba(79,172,254,0.2)", borderRadius: 12, textAlign: "center", width: 180 }}>
-                        <Wifi size={24} color="#4facfe" style={{ margin: "0 auto 10px" }} />
-                        <div style={{ color: "#fff", fontWeight: 700, marginBottom: 4 }}>Gateway Layer</div>
-                        <div style={{ color: "#94a3b8", fontSize: 12 }}>ESP8266 WiFi<br />UART Bridge</div>
+                    <div style={{ position: "relative", padding: 16, background: "linear-gradient(135deg, rgba(59,130,246,0.1), rgba(59,130,246,0.05))", border: "1px solid rgba(59,130,246,0.3)", borderRadius: 12 }}>
+                        <h4 style={{ color: "#3b82f6", fontSize: 14, fontWeight: 700, marginBottom: 10 }}>ARDUINO MEGA 2560</h4>
+                        <ul style={{ paddingLeft: 16, margin: 0, color: "#93c5fd", fontSize: 12, lineHeight: 1.6 }}>
+                            <li>ADC Conversion (10-bit)</li>
+                            <li>Data Acquisition Loop</li>
+                            <li>Serial JSON Encoding</li>
+                        </ul>
+                        <div style={{ position: "absolute", right: -12, top: "50%", marginTop: -6 }}>
+                            <ChevronRight size={20} color="#3b82f6" />
+                        </div>
                     </div>
 
-                    <div style={{ height: 2, width: 40, background: "#334155" }} />
-
-                    {/* Cloud */}
-                    <div style={{ padding: 20, background: "rgba(168,85,247,0.1)", border: "1px solid rgba(168,85,247,0.2)", borderRadius: 12, textAlign: "center", width: 180 }}>
-                        <Layers size={24} color="#a855f7" style={{ margin: "0 auto 10px" }} />
-                        <div style={{ color: "#fff", fontWeight: 700, marginBottom: 4 }}>Cloud Layer</div>
-                        <div style={{ color: "#94a3b8", fontSize: 12 }}>Node.js Backend<br />Socket.io Stream</div>
-                    </div>
-
-                    <div style={{ height: 2, width: 40, background: "#334155" }} />
-
-                    {/* Client */}
-                    <div style={{ padding: 20, background: "rgba(16,185,129,0.1)", border: "1px solid rgba(16,185,129,0.2)", borderRadius: 12, textAlign: "center", width: 180 }}>
-                        <Layout size={24} color="#10b981" style={{ margin: "0 auto 10px" }} />
-                        <div style={{ color: "#fff", fontWeight: 700, marginBottom: 4 }}>Client Layer</div>
-                        <div style={{ color: "#94a3b8", fontSize: 12 }}>Next.js Dashboard<br />AI Diagnostics</div>
+                    <div style={{ padding: 16, background: "rgba(16,185,129,0.1)", border: "1px solid rgba(16,185,129,0.3)", borderRadius: 12 }}>
+                        <h4 style={{ color: "#10b981", fontSize: 14, fontWeight: 700, marginBottom: 4 }}>ESP8266 WIFI</h4>
+                        <div style={{ color: "#6ee7b7", fontSize: 12 }}>TCP/IP Transmission</div>
+                        <div style={{ color: "#6ee7b7", fontSize: 12 }}>HTTP POST Payload</div>
                     </div>
                 </div>
 
-                <div style={{ padding: "16px 32px", background: "rgba(255,255,255,0.03)", borderRadius: 12, textAlign: "center", maxWidth: 640, marginTop: 10 }}>
-                    <p style={{ color: "#94a3b8", fontSize: 14 }}>
-                        <strong>Hardware Used:</strong> Arduino Mega 2560, ESP8266, DHT11 (Temp/Hum), MQ-2 (Gas), LDR, HC-SR04 (Ultrasonic), PIR Motion, Pulse Sensor.
-                    </p>
+                {/* 2. Processing Layer (Cloud) */}
+                <div style={{ display: "flex", flexDirection: "column", gap: 16, padding: 20, background: "rgba(168,85,247,0.05)", borderRadius: 20, border: "1px solid rgba(168,85,247,0.2)" }}>
+                    <div style={{ textAlign: "center", marginBottom: 8 }}>
+                        <h3 style={{ color: "#fff", fontWeight: 800, fontSize: 16 }}>NODE.JS SERVER</h3>
+                        <span style={{ color: "#a855f7", fontSize: 12 }}>Processing Core</span>
+                    </div>
+
+                    <div style={{ display: "flex", gap: 10 }}>
+                        <div style={{ flex: 1, padding: 12, background: "rgba(255,255,255,0.05)", borderRadius: 8, textAlign: "center" }}>
+                            <div style={{ color: "#e2e8f0", fontWeight: 700, fontSize: 13 }}>Real-Time Data</div>
+                            <div style={{ color: "#94a3b8", fontSize: 10 }}>WebSocket Stream</div>
+                        </div>
+                        <div style={{ flex: 1, padding: 12, background: "rgba(255,255,255,0.05)", borderRadius: 8, textAlign: "center" }}>
+                            <div style={{ color: "#e2e8f0", fontWeight: 700, fontSize: 13 }}>Digital Twin</div>
+                            <div style={{ color: "#94a3b8", fontSize: 10 }}>Virtual Physics Model</div>
+                        </div>
+                    </div>
+
+                    <div style={{ padding: 12, background: "rgba(245,158,11,0.1)", borderRadius: 8, borderLeft: "3px solid #f59e0b" }}>
+                        <h5 style={{ color: "#f59e0b", fontSize: 13, fontWeight: 700 }}>DSP Processing Engine</h5>
+                        <div style={{ display: "flex", gap: 8, marginTop: 4 }}>
+                            <span style={{ fontSize: 10, color: "#fcd34d", background: "rgba(245,158,11,0.1)", padding: "2px 6px", borderRadius: 4 }}>Moving Avg Filter</span>
+                            <span style={{ fontSize: 10, color: "#fcd34d", background: "rgba(245,158,11,0.1)", padding: "2px 6px", borderRadius: 4 }}>Noise Reduction</span>
+                        </div>
+                    </div>
+
+                    <div style={{ padding: 12, background: "rgba(239,68,68,0.1)", borderRadius: 8, borderLeft: "3px solid #ef4444" }}>
+                        <h5 style={{ color: "#ef4444", fontSize: 13, fontWeight: 700 }}>Fault Injection Module</h5>
+                        <span style={{ fontSize: 11, color: "#fca5a5" }}>Simulated Errors: Drift, Noise, Stuck-at High</span>
+                    </div>
+
+                    <div style={{ padding: 12, background: "rgba(16,185,129,0.1)", borderRadius: 8, borderLeft: "3px solid #10b981" }}>
+                        <h5 style={{ color: "#10b981", fontSize: 13, fontWeight: 700 }}>AI Diagnostic Engine</h5>
+                        <ul style={{ margin: 0, paddingLeft: 16, color: "#6ee7b7", fontSize: 11 }}>
+                            <li>Anomaly Detection (Rule-Based)</li>
+                            <li>Correlative Inference</li>
+                        </ul>
+                    </div>
+                </div>
+
+                {/* 3. Presentation Layer */}
+                <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
+                    <div style={{ padding: 20, background: "linear-gradient(135deg, rgba(6,182,212,0.1), rgba(6,182,212,0.05))", border: "1px solid rgba(6,182,212,0.3)", borderRadius: 16 }}>
+                        <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 12 }}>
+                            <Layout size={20} color="#22d3ee" />
+                            <h4 style={{ color: "#22d3ee", fontSize: 14, fontWeight: 700 }}>WEB DASHBOARD</h4>
+                        </div>
+                        <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                            <div style={{ padding: 8, background: "rgba(6,182,212,0.1)", borderRadius: 6, fontSize: 12, color: "#a5f3fc" }}>Live Sensor Graphs</div>
+                            <div style={{ padding: 8, background: "rgba(239,68,68,0.1)", borderRadius: 6, fontSize: 12, color: "#fca5a5" }}>Fault Alerts</div>
+                            <div style={{ padding: 8, background: "rgba(16,185,129,0.1)", borderRadius: 6, fontSize: 12, color: "#6ee7b7" }}>AI Feedback</div>
+                        </div>
+                    </div>
+
+                    <div style={{ padding: 16, background: "rgba(147,51,234,0.1)", border: "1px dashed rgba(147,51,234,0.3)", borderRadius: 12, textAlign: "center" }}>
+                        <Database size={20} color="#c084fc" style={{ marginBottom: 8 }} />
+                        <h4 style={{ color: "#c084fc", fontSize: 13, fontWeight: 700 }}>POSTGRES DATABASE</h4>
+                        <div style={{ color: "#e9d5ff", fontSize: 11 }}>Performance Logs & User History</div>
+                    </div>
                 </div>
             </div>
         )
