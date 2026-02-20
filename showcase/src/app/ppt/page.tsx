@@ -261,97 +261,153 @@ const slides: Slide[] = [
         badgeColor: "#a855f7",
         title: "Architecture Block Diagram",
         content: (
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1.2fr 1fr", gap: 24, height: "100%", alignItems: "center" }}>
+            <div style={{ display: "flex", flexDirection: "column", gap: 14, height: "100%" }}>
+                {/* Main 5-Column Grid: HW | Arrow | Server | Arrow | UI */}
+                <div style={{ display: "grid", gridTemplateColumns: "1.1fr 28px 1.4fr 28px 1fr", gap: 0, flex: 1, alignItems: "stretch" }}>
 
-                {/* 1. Hardware Layer */}
-                <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
-                    <div style={{ padding: 12, border: "1px dashed rgba(255,255,255,0.2)", borderRadius: 12, textAlign: "center" }}>
-                        <h4 style={{ color: "#f59e0b", fontSize: 13, fontWeight: 700, marginBottom: 12, letterSpacing: "1px" }}>SENSOR LAYER (INPUT)</h4>
-                        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
-                            <div style={{ background: "rgba(245,158,11,0.1)", padding: 8, borderRadius: 8, fontSize: 11, color: "#fcd34d" }}>DHT11 (Temp/Hum)</div>
-                            <div style={{ background: "rgba(245,158,11,0.1)", padding: 8, borderRadius: 8, fontSize: 11, color: "#fcd34d" }}>LDR (Light)</div>
-                            <div style={{ background: "rgba(245,158,11,0.1)", padding: 8, borderRadius: 8, fontSize: 11, color: "#fcd34d" }}>MQ2 (Gas)</div>
-                            <div style={{ background: "rgba(245,158,11,0.1)", padding: 8, borderRadius: 8, fontSize: 11, color: "#fcd34d" }}>Ultrasonic</div>
+                    {/* COL 1: HARDWARE */}
+                    <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+                        <div style={{ padding: "10px 12px", border: "1px dashed rgba(245,158,11,0.4)", borderRadius: 10 }}>
+                            <h4 style={{ color: "#f59e0b", fontSize: 11, fontWeight: 800, letterSpacing: "1px", marginBottom: 8, textAlign: "center" }}>1. SENSOR LAYER</h4>
+                            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 5 }}>
+                                {["DHT11", "LDR", "MQ-2", "HC-SR04", "PIR", "Pulse", "Flame", "Hall"].map(s => (
+                                    <div key={s} style={{ background: "rgba(245,158,11,0.08)", padding: "3px 6px", borderRadius: 5, fontSize: 9, color: "#fcd34d", textAlign: "center" }}>{s}</div>
+                                ))}
+                            </div>
+                            <div style={{ textAlign: "center", color: "#92400e", fontSize: 8, marginTop: 5, fontWeight: 600 }}>+ Joystick, Touch, Tilt, IR, BMP180, Sound</div>
+                        </div>
+
+                        <div style={{ padding: "10px 12px", background: "linear-gradient(135deg, rgba(59,130,246,0.1), rgba(59,130,246,0.03))", border: "1px solid rgba(59,130,246,0.25)", borderRadius: 10, flex: 1 }}>
+                            <h4 style={{ color: "#3b82f6", fontSize: 12, fontWeight: 800, marginBottom: 6 }}>2. ARDUINO MEGA</h4>
+                            {["ADC (10-bit, 16 channels)", "Data Acquisition Loop", "JSON Serialization", "Serial @ 115200 Baud"].map(t => (
+                                <div key={t} style={{ display: "flex", alignItems: "center", gap: 5, marginBottom: 3 }}>
+                                    <div style={{ width: 3, height: 3, borderRadius: 1, background: "#3b82f6", flexShrink: 0 }} />
+                                    <span style={{ fontSize: 10, color: "#93c5fd" }}>{t}</span>
+                                </div>
+                            ))}
+                        </div>
+
+                        <div style={{ padding: "10px 12px", background: "rgba(16,185,129,0.08)", border: "1px solid rgba(16,185,129,0.25)", borderRadius: 10 }}>
+                            <h4 style={{ color: "#10b981", fontSize: 12, fontWeight: 800, marginBottom: 3 }}>3. ESP8266</h4>
+                            <div style={{ fontSize: 10, color: "#6ee7b7", lineHeight: 1.5 }}>WiFi Bridge (TCP/IP)<br />HTTP POST → Cloud API</div>
                         </div>
                     </div>
 
-                    <div style={{ position: "relative", padding: 16, background: "linear-gradient(135deg, rgba(59,130,246,0.1), rgba(59,130,246,0.05))", border: "1px solid rgba(59,130,246,0.3)", borderRadius: 12 }}>
-                        <h4 style={{ color: "#3b82f6", fontSize: 14, fontWeight: 700, marginBottom: 10 }}>ARDUINO MEGA 2560</h4>
-                        <ul style={{ paddingLeft: 16, margin: 0, color: "#93c5fd", fontSize: 12, lineHeight: 1.6 }}>
-                            <li>ADC Conversion (10-bit)</li>
-                            <li>Data Acquisition Loop</li>
-                            <li>Serial JSON Encoding</li>
-                        </ul>
-                        <div style={{ position: "absolute", right: -12, top: "50%", marginTop: -6 }}>
-                            <ChevronRight size={20} color="#3b82f6" />
+                    {/* ARROW 1 */}
+                    <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 4 }}>
+                        <span style={{ writingMode: "vertical-rl", color: "#475569", fontSize: 8, fontWeight: 700, letterSpacing: "1px" }}>UART</span>
+                        <div style={{ width: 2, height: 24, background: "linear-gradient(180deg, #3b82f6, #10b981)", borderRadius: 2 }} />
+                        <ChevronRight size={14} color="#10b981" />
+                        <div style={{ width: 2, height: 24, background: "linear-gradient(180deg, #10b981, #a855f7)", borderRadius: 2 }} />
+                        <span style={{ writingMode: "vertical-rl", color: "#475569", fontSize: 8, fontWeight: 700, letterSpacing: "1px" }}>HTTP</span>
+                    </div>
+
+                    {/* COL 2: PROCESSING */}
+                    <div style={{ display: "flex", flexDirection: "column", gap: 7, padding: "12px 14px", background: "rgba(168,85,247,0.04)", borderRadius: 14, border: "1px solid rgba(168,85,247,0.2)" }}>
+                        <div style={{ textAlign: "center" }}>
+                            <h3 style={{ color: "#fff", fontWeight: 800, fontSize: 14, marginBottom: 1 }}>4. NODE.JS SERVER</h3>
+                            <span style={{ color: "#a855f7", fontSize: 10 }}>Processing Unit (Render Cloud)</span>
+                        </div>
+
+                        <div style={{ display: "flex", gap: 7 }}>
+                            <div style={{ flex: 1, padding: "7px 10px", background: "rgba(59,130,246,0.1)", borderRadius: 6, borderLeft: "3px solid #3b82f6" }}>
+                                <div style={{ color: "#93c5fd", fontWeight: 700, fontSize: 11 }}>Real-Time Data</div>
+                                <div style={{ color: "#64748b", fontSize: 9 }}>WebSocket Ingestion</div>
+                            </div>
+                            <div style={{ flex: 1, padding: "7px 10px", background: "rgba(168,85,247,0.1)", borderRadius: 6, borderLeft: "3px solid #a855f7" }}>
+                                <div style={{ color: "#c4b5fd", fontWeight: 700, fontSize: 11 }}>Digital Twin</div>
+                                <div style={{ color: "#64748b", fontSize: 9 }}>Virtual Physics Model</div>
+                            </div>
+                        </div>
+
+                        <div style={{ padding: "5px 10px", background: "rgba(6,182,212,0.08)", borderRadius: 6, textAlign: "center", borderLeft: "3px solid #22d3ee" }}>
+                            <span style={{ color: "#22d3ee", fontSize: 11, fontWeight: 700 }}>Data Fusion</span>
+                            <span style={{ color: "#64748b", fontSize: 9, marginLeft: 8 }}>Real + Virtual Merge</span>
+                        </div>
+
+                        <div style={{ padding: "7px 10px", background: "rgba(245,158,11,0.06)", borderRadius: 6, borderLeft: "3px solid #f59e0b" }}>
+                            <h5 style={{ color: "#f59e0b", fontSize: 11, fontWeight: 700, marginBottom: 2 }}>DSP Processing</h5>
+                            <div style={{ display: "flex", gap: 5, flexWrap: "wrap" }}>
+                                {["Moving Avg", "Noise Filter", "Thresholding"].map(t => (
+                                    <span key={t} style={{ fontSize: 8, color: "#fcd34d", background: "rgba(245,158,11,0.1)", padding: "2px 5px", borderRadius: 3 }}>{t}</span>
+                                ))}
+                            </div>
+                        </div>
+
+                        <div style={{ padding: "7px 10px", background: "rgba(239,68,68,0.06)", borderRadius: 6, borderLeft: "3px solid #ef4444" }}>
+                            <h5 style={{ color: "#ef4444", fontSize: 11, fontWeight: 700, marginBottom: 2 }}>Fault Injection</h5>
+                            <div style={{ display: "flex", gap: 5 }}>
+                                {["Drift", "Noise", "Stuck-at", "Open"].map(t => (
+                                    <span key={t} style={{ fontSize: 8, color: "#fca5a5", background: "rgba(239,68,68,0.06)", padding: "2px 5px", borderRadius: 3 }}>{t}</span>
+                                ))}
+                            </div>
+                        </div>
+
+                        <div style={{ padding: "7px 10px", background: "rgba(16,185,129,0.06)", borderRadius: 6, borderLeft: "3px solid #10b981" }}>
+                            <h5 style={{ color: "#10b981", fontSize: 11, fontWeight: 700, marginBottom: 2 }}>AI Diagnostic Engine</h5>
+                            <div style={{ display: "flex", gap: 5 }}>
+                                {["Anomaly Detection", "Correlative Inference"].map(t => (
+                                    <span key={t} style={{ fontSize: 8, color: "#6ee7b7", background: "rgba(16,185,129,0.06)", padding: "2px 5px", borderRadius: 3 }}>{t}</span>
+                                ))}
+                            </div>
                         </div>
                     </div>
 
-                    <div style={{ padding: 16, background: "rgba(16,185,129,0.1)", border: "1px solid rgba(16,185,129,0.3)", borderRadius: 12 }}>
-                        <h4 style={{ color: "#10b981", fontSize: 14, fontWeight: 700, marginBottom: 4 }}>ESP8266 WIFI</h4>
-                        <div style={{ color: "#6ee7b7", fontSize: 12 }}>TCP/IP Transmission</div>
-                        <div style={{ color: "#6ee7b7", fontSize: 12 }}>HTTP POST Payload</div>
+                    {/* ARROW 2 */}
+                    <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 4 }}>
+                        <span style={{ writingMode: "vertical-rl", color: "#475569", fontSize: 8, fontWeight: 700, letterSpacing: "1px" }}>WS</span>
+                        <div style={{ width: 2, height: 24, background: "linear-gradient(180deg, #a855f7, #22d3ee)", borderRadius: 2 }} />
+                        <ChevronRight size={14} color="#22d3ee" />
+                        <div style={{ width: 2, height: 24, background: "linear-gradient(180deg, #22d3ee, #22d3ee)", borderRadius: 2 }} />
+                        <span style={{ writingMode: "vertical-rl", color: "#475569", fontSize: 8, fontWeight: 700, letterSpacing: "1px" }}>5Hz</span>
+                    </div>
+
+                    {/* COL 3: PRESENTATION */}
+                    <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+                        <div style={{ flex: 1, padding: "12px 14px", background: "linear-gradient(135deg, rgba(6,182,212,0.08), rgba(6,182,212,0.02))", border: "1px solid rgba(6,182,212,0.25)", borderRadius: 12 }}>
+                            <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 8 }}>
+                                <Layout size={14} color="#22d3ee" />
+                                <h4 style={{ color: "#22d3ee", fontSize: 12, fontWeight: 800 }}>6. WEB DASHBOARD</h4>
+                            </div>
+                            {[
+                                { label: "Live Sensor Graphs", sub: "Raw vs Filtered", color: "#a5f3fc", bg: "rgba(6,182,212,0.06)" },
+                                { label: "Fault Alerts", sub: "Real-time Warnings", color: "#fca5a5", bg: "rgba(239,68,68,0.06)" },
+                                { label: "AI Feedback", sub: "Diagnostic Panel", color: "#6ee7b7", bg: "rgba(16,185,129,0.06)" },
+                                { label: "Performance Logs", sub: "CSV / PDF Export", color: "#c4b5fd", bg: "rgba(168,85,247,0.06)" },
+                                { label: "Educational Modules", sub: "Theory + Code", color: "#fde68a", bg: "rgba(234,179,8,0.06)" },
+                            ].map(item => (
+                                <div key={item.label} style={{ padding: "4px 8px", marginBottom: 4, background: item.bg, borderRadius: 5, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                                    <span style={{ fontSize: 10, color: item.color, fontWeight: 600 }}>{item.label}</span>
+                                    <span style={{ fontSize: 8, color: "#475569" }}>{item.sub}</span>
+                                </div>
+                            ))}
+                        </div>
+
+                        <div style={{ padding: "8px 12px", background: "rgba(234,179,8,0.06)", border: "1px dashed rgba(234,179,8,0.25)", borderRadius: 10, textAlign: "center" }}>
+                            <Zap size={12} color="#eab308" style={{ marginBottom: 2 }} />
+                            <h4 style={{ color: "#eab308", fontSize: 10, fontWeight: 700 }}>7. POWER SUPPLY</h4>
+                            <div style={{ color: "#fde68a", fontSize: 9 }}>5V Regulator → Arduino + ESP</div>
+                        </div>
                     </div>
                 </div>
 
-                {/* 2. Processing Layer (Cloud) */}
-                <div style={{ display: "flex", flexDirection: "column", gap: 16, padding: 20, background: "rgba(168,85,247,0.05)", borderRadius: 20, border: "1px solid rgba(168,85,247,0.2)" }}>
-                    <div style={{ textAlign: "center", marginBottom: 8 }}>
-                        <h3 style={{ color: "#fff", fontWeight: 800, fontSize: 16 }}>NODE.JS SERVER</h3>
-                        <span style={{ color: "#a855f7", fontSize: 12 }}>Processing Core</span>
-                    </div>
-
-                    <div style={{ display: "flex", gap: 10 }}>
-                        <div style={{ flex: 1, padding: 12, background: "rgba(255,255,255,0.05)", borderRadius: 8, textAlign: "center" }}>
-                            <div style={{ color: "#e2e8f0", fontWeight: 700, fontSize: 13 }}>Real-Time Data</div>
-                            <div style={{ color: "#94a3b8", fontSize: 10 }}>WebSocket Stream</div>
-                        </div>
-                        <div style={{ flex: 1, padding: 12, background: "rgba(255,255,255,0.05)", borderRadius: 8, textAlign: "center" }}>
-                            <div style={{ color: "#e2e8f0", fontWeight: 700, fontSize: 13 }}>Digital Twin</div>
-                            <div style={{ color: "#94a3b8", fontSize: 10 }}>Virtual Physics Model</div>
-                        </div>
-                    </div>
-
-                    <div style={{ padding: 12, background: "rgba(245,158,11,0.1)", borderRadius: 8, borderLeft: "3px solid #f59e0b" }}>
-                        <h5 style={{ color: "#f59e0b", fontSize: 13, fontWeight: 700 }}>DSP Processing Engine</h5>
-                        <div style={{ display: "flex", gap: 8, marginTop: 4 }}>
-                            <span style={{ fontSize: 10, color: "#fcd34d", background: "rgba(245,158,11,0.1)", padding: "2px 6px", borderRadius: 4 }}>Moving Avg Filter</span>
-                            <span style={{ fontSize: 10, color: "#fcd34d", background: "rgba(245,158,11,0.1)", padding: "2px 6px", borderRadius: 4 }}>Noise Reduction</span>
-                        </div>
-                    </div>
-
-                    <div style={{ padding: 12, background: "rgba(239,68,68,0.1)", borderRadius: 8, borderLeft: "3px solid #ef4444" }}>
-                        <h5 style={{ color: "#ef4444", fontSize: 13, fontWeight: 700 }}>Fault Injection Module</h5>
-                        <span style={{ fontSize: 11, color: "#fca5a5" }}>Simulated Errors: Drift, Noise, Stuck-at High</span>
-                    </div>
-
-                    <div style={{ padding: 12, background: "rgba(16,185,129,0.1)", borderRadius: 8, borderLeft: "3px solid #10b981" }}>
-                        <h5 style={{ color: "#10b981", fontSize: 13, fontWeight: 700 }}>AI Diagnostic Engine</h5>
-                        <ul style={{ margin: 0, paddingLeft: 16, color: "#6ee7b7", fontSize: 11 }}>
-                            <li>Anomaly Detection (Rule-Based)</li>
-                            <li>Correlative Inference</li>
-                        </ul>
-                    </div>
-                </div>
-
-                {/* 3. Presentation Layer */}
-                <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
-                    <div style={{ padding: 20, background: "linear-gradient(135deg, rgba(6,182,212,0.1), rgba(6,182,212,0.05))", border: "1px solid rgba(6,182,212,0.3)", borderRadius: 16 }}>
-                        <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 12 }}>
-                            <Layout size={20} color="#22d3ee" />
-                            <h4 style={{ color: "#22d3ee", fontSize: 14, fontWeight: 700 }}>WEB DASHBOARD</h4>
-                        </div>
-                        <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-                            <div style={{ padding: 8, background: "rgba(6,182,212,0.1)", borderRadius: 6, fontSize: 12, color: "#a5f3fc" }}>Live Sensor Graphs</div>
-                            <div style={{ padding: 8, background: "rgba(239,68,68,0.1)", borderRadius: 6, fontSize: 12, color: "#fca5a5" }}>Fault Alerts</div>
-                            <div style={{ padding: 8, background: "rgba(16,185,129,0.1)", borderRadius: 6, fontSize: 12, color: "#6ee7b7" }}>AI Feedback</div>
-                        </div>
-                    </div>
-
-                    <div style={{ padding: 16, background: "rgba(147,51,234,0.1)", border: "1px dashed rgba(147,51,234,0.3)", borderRadius: 12, textAlign: "center" }}>
-                        <Database size={20} color="#c084fc" style={{ marginBottom: 8 }} />
-                        <h4 style={{ color: "#c084fc", fontSize: 13, fontWeight: 700 }}>POSTGRES DATABASE</h4>
-                        <div style={{ color: "#e9d5ff", fontSize: 11 }}>Performance Logs & User History</div>
+                {/* FLOW SUMMARY BAR */}
+                <div style={{ padding: "7px 16px", background: "rgba(255,255,255,0.02)", borderRadius: 8, border: "1px solid rgba(255,255,255,0.06)" }}>
+                    <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 6 }}>
+                        <span style={{ fontSize: 9, fontWeight: 700, color: "#475569", letterSpacing: "1px", marginRight: 6 }}>FLOW:</span>
+                        {[
+                            { label: "Sensors", color: "#f59e0b" },
+                            { label: "Arduino", color: "#3b82f6" },
+                            { label: "ESP8266", color: "#10b981" },
+                            { label: "Node.js", color: "#a855f7" },
+                            { label: "DSP + AI", color: "#ef4444" },
+                            { label: "Dashboard", color: "#22d3ee" },
+                        ].map((item, i) => (
+                            <React.Fragment key={item.label}>
+                                <span style={{ fontSize: 9, color: item.color, fontWeight: 700, padding: "2px 7px", background: `${item.color}12`, borderRadius: 4 }}>{item.label}</span>
+                                {i < 5 && <ChevronRight size={10} color="#334155" />}
+                            </React.Fragment>
+                        ))}
                     </div>
                 </div>
             </div>
