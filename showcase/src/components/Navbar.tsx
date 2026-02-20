@@ -16,7 +16,7 @@ export default function Navbar() {
 
     const navLinks = [
         { name: "Architecture", href: "#architecture" },
-        { name: "Hardware", href: "#hardware" },
+        { name: "Hardware", href: "#tech" },
         { name: "Digital Twin", href: "#twin" },
         { name: "Diagnostics", href: "#intelligence" },
     ];
