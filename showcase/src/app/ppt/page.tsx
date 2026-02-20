@@ -715,8 +715,7 @@ export default function PresentationPage() {
                 <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
                     <Cpu size={16} color="#00f2fe" />
                     <span style={{ color: "#fff", fontWeight: 700, fontSize: 15 }}>VirtSensorLab</span>
-                    <span style={{ color: "#475569", margin: "0 8px" }}>|</span>
-                    <span style={{ color: "#94a3b8", fontSize: 13 }}>Final Year Project</span>
+
                 </div>
                 <span style={{ color: "#475569", fontSize: 13, fontFamily: "monospace" }}>
                     {String(current + 1).padStart(2, "0")} / {String(total).padStart(2, "0")}
