@@ -5,7 +5,8 @@ import { motion, AnimatePresence } from "framer-motion";
 import {
     ChevronRight, ChevronLeft, Home, Cpu, Target, AlertTriangle, Lightbulb, Layers,
     HardDrive, Code2, GitBranch, Brain, Users, Play, CheckCircle2, Rocket, BookOpen, Award, FileText, List, Calendar, Layout, Search, User,
-    X, Wifi, Activity, Zap, ThumbsUp, Database, Sun, Moon } from "lucide-react";
+    X, Wifi, Activity, Zap, ThumbsUp, Database, Sun, Moon
+} from "lucide-react";
 import Link from "next/link";
 import { tokens } from "@/components/Styles";
 
@@ -659,7 +660,7 @@ const getSlides = (isDark: boolean): Slide[] => [
                         display: "flex", alignItems: "center", justifyContent: "center", padding: 4, margin: "0 auto 30px"
                     }}>
                         <div style={{ width: "100%", height: "100%", borderRadius: "50%", background: (isDark ? "#030712" : "#f8fafc"), display: "flex", alignItems: "center", justifyContent: "center" }}>
-                            <ThumbsUp size={32} color={isDark ? "#fff" : "#0f172a" : "#0f172a"} />
+                            <ThumbsUp size={32} color={isDark ? "#fff" : "#0f172a"} />
                         </div>
                     </div>
                     <h1 style={{
