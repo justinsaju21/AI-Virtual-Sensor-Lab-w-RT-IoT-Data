@@ -3,6 +3,8 @@ const express = require('express');
 const http = require('http');
 const { Server } = require('socket.io');
 const cors = require('cors');
+const fs = require('fs');
+const path = require('path');
 const { generateMockData } = require('./mockDataGenerator');
 
 const app = express();
@@ -111,26 +113,133 @@ app.post("/api/ai-chat", (req, res) => {
   }, 1000);
 });
 
+// Helper to parse markdown files for quiz questions
+function parseQuizFromMarkdown(filePath) {
+  try {
+    if (!fs.existsSync(filePath)) return null;
+    const content = fs.readFileSync(filePath, 'utf8');
+
+    const quizSectionMatch = content.match(/## AI Assessment Questions[^]*?(?=(?:## )|$)/i);
+    if (!quizSectionMatch) return null;
+
+    const quizText = quizSectionMatch[0];
+    const questions = [];
+
+    // Split by **Q1:, **Q2:, etc.
+    const qBlocks = quizText.split(/\*\*(Q\d+:.*?)\*\*/g).filter(Boolean);
+
+    // qBlocks will have pairs: [ "Q1: Question text", "\n- A) ...\n- B) ... \n", "Q2... " ]
+    for (let i = 0; i < qBlocks.length; i += 2) {
+      if (!qBlocks[i].startsWith('Q')) continue;
+
+      const qText = qBlocks[i].replace(/Q\d+:\s*/, '').trim();
+      const optionsRaw = qBlocks[i + 1];
+
+      const options = [];
+      let correctIndex = 0;
+
+      const optionLines = optionsRaw.split('\n').map(l => l.trim()).filter(l => l.startsWith('-'));
+      optionLines.forEach((ol, idx) => {
+        let optText = ol.replace(/^-\s*[A-D]\)\s*/, '').trim();
+        if (optText.includes('*(Correct)*')) {
+          correctIndex = idx;
+          optText = optText.replace('*(Correct)*', '').trim();
+        }
+        options.push(optText);
+      });
+
+      if (options.length > 0) {
+        questions.push({
+          question: qText,
+          options,
+          correctIndex,
+          explanation: "Reviewed from documentation physics."
+        });
+      }
+    }
+
+    return questions.length > 0 ? questions : null;
+  } catch (err) {
+    console.error(`Error parsing quiz from ${filePath}:`, err);
+    return null;
+  }
+}
+
+// Map sensor names to markdown filenames
+const sensorFileMap = {
+  "Ultrasonic Sensor": "HC-SR04.md",
+  "Temperature Sensor": "DHT11.md", // Or LM35, we'll default to DHT11 for now
+  "Pressure Sensor": "BMP280.md",
+  "Sound Sensor": "Sound.md",
+  "Flame Sensor": "Flame.md",
+  "IR Sensor": "IR.md",
+  "Proximity Sensor": "Proximity.md", // or IR for E18-D80NK, but Proximity.md has inductive
+  "LDR Sensor": "LDR.md",
+  "Light Sensor": "LDR.md",
+  "Touch Sensor": "Touch.md",
+  "Tilt Sensor": "Tilt.md",
+  "Motion Sensor": "PIR.md",
+  "PIR Sensor": "PIR.md",
+  "Hall Sensor": "Hall.md",
+  "Magnetic Sensor": "Hall.md",
+  "Joystick": "Joystick.md",
+  "Gas Sensor (MQ-2)": "MQ2.md",
+  "Alcohol Sensor": "MQ3.md",
+  "Heart Rate Sensor": "MAX30102.md",
+  "Pulse Oximeter": "MAX30102.md"
+};
+
 // AI Quiz Generation Endpoint
 app.post("/api/ai-quiz", (req, res) => {
   const { sensorName, sensorId } = req.body;
-  console.log("Generating quiz for:", sensorName);
+  console.log("Generating quiz for:", sensorName, "ID:", sensorId);
 
-  // Mock quiz questions - In production, use Gemini to generate these
-  const quizBank = {
-    "Temperature Sensor": [
-      { question: "What type of resistor does the DHT22 use for temperature sensing?", options: ["PTC Thermistor", "NTC Thermistor", "Fixed Resistor", "Photoresistor"], correctIndex: 1, explanation: "NTC (Negative Temperature Coefficient) thermistors decrease resistance as temperature increases." },
-      { question: "What equation describes the thermistor's resistance-temperature relationship?", options: ["Ohm's Law", "Steinhart-Hart Equation", "Newton's Law", "Kirchhoff's Law"], correctIndex: 1, explanation: "The Steinhart-Hart equation precisely models the non-linear relationship between temperature and resistance." },
-      { question: "How many bits of data does the DHT22 transmit per reading?", options: ["8 bits", "16 bits", "32 bits", "40 bits"], correctIndex: 3, explanation: "The DHT22 sends 40 bits: 16 for humidity, 16 for temperature, and 8 for checksum." }
-    ],
-    "default": [
-      { question: "What is the purpose of an ADC in sensor circuits?", options: ["Amplify signals", "Convert analog to digital", "Filter noise", "Store data"], correctIndex: 1, explanation: "ADC (Analog-to-Digital Converter) converts continuous analog signals to discrete digital values." },
-      { question: "Why is calibration important for sensors?", options: ["Makes them faster", "Corrects manufacturing variations", "Reduces power consumption", "Changes the sensing range"], correctIndex: 1, explanation: "Calibration compensates for individual sensor variations to ensure accurate measurements." },
-      { question: "What causes electrical noise in sensor readings?", options: ["Too much light", "Electromagnetic interference", "High temperature", "Low humidity"], correctIndex: 1, explanation: "EMI from nearby electronics, long wires, and power supply fluctuations cause noise." }
-    ]
-  };
+  let questions = null;
+  const docsDir = path.join(__dirname, '..', 'documentation', 'sensors');
 
-  const questions = quizBank[sensorName] || quizBank["default"];
+  // Try to find a matching file
+  let mappedFilename = sensorFileMap[sensorName];
+
+  // Try to match by sensorId
+  if (!mappedFilename && sensorId) {
+    if (sensorId.includes('DHT')) mappedFilename = 'DHT11.md';
+    else if (sensorId.includes('HC-SR04')) mappedFilename = 'HC-SR04.md';
+    else if (sensorId.includes('HC-SR501')) mappedFilename = 'PIR.md';
+    else if (sensorId.includes('BMP')) mappedFilename = 'BMP280.md';
+    else if (sensorId.includes('MQ2') || sensorId.includes('MQ-2')) mappedFilename = 'MQ2.md';
+    else if (sensorId.includes('MQ3') || sensorId.includes('MQ-3')) mappedFilename = 'MQ3.md';
+    else if (sensorId.includes('TTP223')) mappedFilename = 'Touch.md';
+    else if (sensorId.includes('SW-520D')) mappedFilename = 'Tilt.md';
+    else if (sensorId.includes('KEYES') || sensorId.includes('KY-038')) mappedFilename = 'Sound.md';
+    else if (sensorId.includes('E18-D80NK')) mappedFilename = 'IR.md';
+    // generic fallback logic
+    else {
+      const files = fs.readdirSync(docsDir);
+      for (const file of files) {
+        if (file.toLowerCase().includes(sensorId.toLowerCase()) ||
+          sensorName.toLowerCase().includes(file.replace('.md', '').toLowerCase())) {
+          mappedFilename = file;
+          break;
+        }
+      }
+    }
+  }
+
+  if (mappedFilename) {
+    const filePath = path.join(docsDir, mappedFilename);
+    const parsed = parseQuizFromMarkdown(filePath);
+    if (parsed) questions = parsed;
+  }
+
+  // Fallback if none found
+  if (!questions) {
+    console.log("No specific quiz found, using default fallback.");
+    questions = [
+      { question: "What is the primary function of this sensor?", options: ["To heat up", "To detect environmental changes", "To store data", "To emit light"], correctIndex: 1, explanation: "Sensors detect changes and output signals." },
+      { question: "Why is calibration important?", options: ["Makes them faster", "Corrects manufacturing variations", "Reduces power consumption", "Changes the sensing range"], correctIndex: 1, explanation: "Calibration offsets errors." },
+      { question: "What causes electrical noise in readings?", options: ["Too much light", "Electromagnetic interference", "High temperature", "Low humidity"], correctIndex: 1, explanation: "EMI from nearby electronics causes noise." }
+    ];
+  }
 
   setTimeout(() => {
     res.json({ questions });

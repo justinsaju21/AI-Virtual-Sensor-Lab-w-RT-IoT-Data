@@ -11,11 +11,18 @@ A hybrid "Digital Twin" platform for remote IoT education, SoC reliability testi
 ## 📚 Technical Documentation
 We have simplified the project documentation into several modules for ease of review:
 
-1.  **[System Architecture](documentation/SYSTEM_ARCHITECTURE.md):** Tech stack (Node, Next, Socket.io) and Data Flow.
-2.  **[File Structure](documentation/FILE_STRUCTURE.md):** Granular breakdown of frontend, backend, and firmware files.
-3.  **[Hardware & Sensors](documentation/HARDWARE_AND_SENSORS.md):** Arduino Mega pinouts and ESP8266 bridge logic.
-4.  **[Deployment & Domain](documentation/DEPLOYMENT_AND_DOMAIN.md):** Cloud hosting (Render/Vercel) and environment setup.
+1.  **[System Architecture](documentation/SYSTEM_ARCHITECTURE.md):** Tech stack (Node, Next, Socket.io) and 4-layer Data Flow.
+2.  **[File Structure](documentation/FILE_STRUCTURE.md):** Breakdown of frontend, backend, firmware, and the **Showcase/PPT** project.
+3.  **[Hardware & Sensors](documentation/HARDWARE_AND_SENSORS.md):** Arduino Mega pinouts for 15 active sensors.
+4.  **[Deployment & Domain](documentation/DEPLOYMENT_AND_DOMAIN.md):** Cloud hosting and environment setup.
 5.  **[Algorithms & Logic](documentation/ALGORITHMS_AND_LOGIC.md):** Fault Injection, DSP Filters, and AI Mistake Detector math.
+
+## ✨ Key Features
+- **15 Integrated Sensors:** Real-time acquisition from Analog and Digital sources.
+- **Hybrid Digital Twin:** High-fidelity simulation when hardware is offline.
+- **AI-Driven Diagnostics:** Interactive mistake detection and engineering assistance.
+- **Dual-Theme Showcase:** Professional presentation deck with Light/Dark mode transitions.
+- **Illustration Generator:** Dedicated UI for generating project illustrations.
 
 ---
 

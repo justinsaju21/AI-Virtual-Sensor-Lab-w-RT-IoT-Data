@@ -41,12 +41,14 @@ The system is built on the **Digital Twin** concept—a digital representation o
 ## 🛠 3. The Tech Stack: Rationale
 
 ### **Frontend: Next.js + Tailwind**
-- **Next.js:** Provides "Server-Side Rendering" for fast initial loads and "Client-Side Hydration" for the interactive charts.
+- **Main Dashboard:** Built with Next.js 14, providing "Server-Side Rendering" for fast initial loads and "Client-Side Hydration" for the interactive charts.
+- **Showcase & PPT:** A secondary Next.js 15 site focused on high-fidelity visuals using **Framer Motion**.
+- **Theme Support:** Features a custom **Light/Dark Toggle** using React state and CSS variables, allowing for professional presentations in any lighting condition.
 - **Tailwind CSS:** Used for its **Utility-First** approach. It allows us to create the complex "Glassmorphism" look (blurred overlays) using simple classes like `bg-white/10 backdrop-blur-lg`.
 
 ### **Backend: Node.js + Socket.io**
-- **Node.js:** Its **Non-blocking I/O** is perfect for IoT. It can handle 1,000+ data packets per second without breaking a sweat because it doesn't wait for one packet to finish before processing the next.
-- **Socket.io:** Handles the "Handshake" between the browser and the server. If the connection drops (e.g., bad WiFi), Socket.io automatically tries to reconnect every 5 seconds.
+- **Node.js:** Its **Non-blocking I/O** is perfect for IoT. It handles high-frequency data packets from all 15 sensors concurrently.
+- **Socket.io:** Handles the "Handshake" between the browser and the server. If the connection drops, it automatically tries to reconnect every 5 seconds.
 
 ---
 

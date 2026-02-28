@@ -13,63 +13,55 @@ This document explains the "How it Works" for every physical and virtual compone
 ## 📍 2. Sensor Catalog & Physics
 
 ### **A. Environmental Sensors**
-1.  **Temperature & Humidity (DHT11/22):**
-    - **Principle:** Uses a capacitive humidity sensor and a thermistor to measure the surrounding air.
-    - **Code Logic:** Data is read as a single-wire digital signal.
+1.  **Temperature & Humidity (DHT11):**
+    - **Principle:** Uses a capacitive humidity sensor and a thermistor.
+    - **Code Logic:** Data is read via the DHT library on Digital Pin 2.
 2.  **Pressure & Altitude (BMP180):**
     - **Principle:** Measures barometric pressure using a piezo-resistive sensor.
-    - **Interface:** I2C (SDA/SCL). 
+    - **Interface:** I2C (Pins 20/21 on Mega). 
 
 ### **B. Gas & Chemical Sensors**
 3.  **Smoke/Gas (MQ-2):**
-    - **Principle:** Contains a sensing element (SnO2) that changes resistance when exposed to combustible gases.
+    - **Principle:** Detection of LP gas, Propane, and Hydrogen.
 4.  **Alcohol (MQ-3):**
-    - **Principle:** Similar to MQ-2 but optimized for ethanol molecules.
-    - **Viva Question:** Why does it need a warm-up time? *Answer: The internal heater must reach a stable temperature to oxidize the gas molecules.*
+    - **Principle:** High sensitivity to alcohol and small sensitivity to Benzine.
 
 ### **C. Distance & Physics**
 5.  **Ultrasonic (HC-SR04):**
-    - **Principle:** Emits an ultrasonic burst (40kHz). The distance is calculated based on the "Time of Flight" (echo return time).
+    - **Principle:** Echo-based distance measurement (40kHz).
     - **Formula:** `Distance = (Time * 0.034) / 2`
 6.  **Light (LDR):**
-    - **Principle:** Photoconductivity. Resistance drops when surface is exposed to light.
-    - **Circuit:** Requires a **Voltage Divider** with a 10kΩ resistor.
+    - **Principle:** Resistance decreases as light intensity increases.
 
 ### **D. Motion & Interaction**
-7.  **PIR Motion (HC-SR501):**
-    - **Principle:** Detects changes in Infrared radiation (heat) moving in front of it.
-8.  **Joystick (KY-023):**
-    - **Principle:** Two potentiometers (X and Y axis) and a tactile switch.
-    - **Output:** 0 to 1023 analog values. 512 is center.
-
-### **E. Safety & Specialty**
-9.  **Flame Sensor:**
-    - **Principle:** IR-sensitive photodiode. It is most sensitive to the specific wavelength of a fire's flame (760nm - 1100nm).
-10. **Heartbeat Sensor:**
-    - **Principle:** Photoplethysmogram (PPG). It shines an LED through your finger and measures the slight change in light absorption as blood pulses.
+7.  **Hall Effect (A3144):**
+    - **Principle:** Detects magnetic fields via the Hall Effect.
+8.  **Joystick:**
+    - **Principle:** Dual potentiometers for X/Y and a push-button.
 
 ---
 
 ## 🛠 3. Pin Mapping Reference (Full Table)
 
-| Sensor | Arduino Pin | Input Type | Virtual Logic |
+| Sensor | Arduino Pin | Input Type | Description |
 | :--- | :--- | :--- | :--- |
-| Gas (MQ-2) | A0 | Analog (ADC) | Noise Burst |
-| Light (LDR) | A1 | Analog (ADC) | Day/Night Cycle |
-| Alcohol | A2 | Analog (ADC) | Linear Drift |
-| Sound | A3 | Analog (ADC) | Threshold Spike |
-| Flame | A4 | Analog (ADC) | Inverse Logic |
-| Heartbeat | A5 | Analog (ADC) | Pulse Waveform |
-| Joystick X | A6 | Analog (ADC) | Center 512 |
-| Joystick Y | A7 | Analog (ADC) | Center 512 |
-| Temp/Hum | D2 | 1-Wire Digital | Slow Refresh |
-| Hall Effect | D3 | Digital | Magnetic Logic |
-| IR Obstacle | D4 | Digital | Reflection Logic |
-| Proximity | D5 | Digital | Beam Break |
-| Touch | D6 | Digital | Capacitive |
-| PIR Motion | D7 | Digital | Pulse Logic |
-| Tilt | D8 | Digital | Ball Switch |
-| Ultrasonic | D9, D10 | Pulse Duration | Echo Math |
+| **MQ-2 Gas** | A0 | Analog | Gas/Smoke levels |
+| **LDR Light** | A1 | Analog | Lux intensity |
+| **MQ-3 Alcohol** | A2 | Analog | Ethanol concentration |
+| **Mic/Sound** | A3 | Analog | Acoustic level |
+| **Flame** | A4 | Analog | IR Fire detection |
+| **Heartbeat** | A5 | Analog | PPG Pulse signal |
+| **Joystick X** | A6 | Analog | X-Axis position |
+| **Joystick Y** | A7 | Analog | Y-Axis position |
+| **DHT11** | D2 | Digital | Temp/Humidity data |
+| **Hall Effect** | D3 | Digital | Magnet detect (Active LOW) |
+| **IR Sensor** | D4 | Digital | Obstacle detect (Active LOW) |
+| **Proximity** | D5 | Digital | Generic proximity (Active LOW) |
+| **Touch** | D6 | Digital | Capacitive Touch (Active HIGH) |
+| **Tilt** | D8 | Digital | Ball tilt (Active HIGH) |
+| **Ultrasonic** | D9 (T), D10 (E) | Pulse | Trig/Echo distance |
+| **Joystick Btn**| D11 | Digital | Joystick select (PULLUP) |
+| **BMP180** | 20, 21 | I2C | Pressure/Altitude/Temp |
 
 ---
 

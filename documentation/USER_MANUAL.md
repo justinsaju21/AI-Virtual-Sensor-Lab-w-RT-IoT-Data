@@ -5,14 +5,22 @@ This guide explains how to interact with the **AI-Enabled Virtual Sensor Laborat
 ---
 
 ## 🏠 1. The Main Dashboard
-The home page shows "Live Preview Cards" for all 17 sensors.
+The home page shows "Live Preview Cards" for all 15 sensors (providing 16 real-time metrics).
 - **Green Badge:** Indicates the sensor is receiving live data.
 - **Red Badge:** Indicates a connection issue or that the sensor is currently being simulated (Digital Twin mode).
 - **Clicking a Card:** Transports you to the dedicated "Focus Room" for that specific sensor.
 
 ---
 
-## 📊 2. Reading the Real-Time Charts
+## 🎨 2. Showcase & Presentation
+Access the **Showcase Page** for high-level project analytics and the **Presentation Mode** (`/ppt`) for project defense.
+- **Light/Dark Mode:** Toggle the theme on the presentation page using the Sun/Moon icon in the top header.
+- **Interactive Slides:** Navigate using arrow keys or the on-screen controls.
+- **System Architecture:** View the 4-layer modular design in depth.
+
+---
+
+## 📊 3. Reading the Real-Time Charts
 Each sensor page has a high-fidelity chart.
 - **Raw Data (The spiky line):** Shows the direct signal from the physical sensor or simulator.
 - **Processed Data (The smooth white line):** Appears when you enable **DSP Filters**. It shows the mathematical trend.
@@ -20,7 +28,7 @@ Each sensor page has a high-fidelity chart.
 
 ---
 
-## 🛠 3. The Testing Control Panel (FIT)
+## 🛠 4. The Testing Control Panel (FIT)
 This is where you perform "Stress Testing".
 1. **Enable Testing Mode:** Toggle the switch in the sidebar.
 2. **Inject Faults:** Select a fault (e.g., "Stuck-at-Low") to see how your system handles a failure.
@@ -29,7 +37,7 @@ This is where you perform "Stress Testing".
 
 ---
 
-## 🤖 4. Interacting with the AI
+## 🤖 5. Interacting with the AI
 The laboratory has two AI modes:
 
 ### **A. Global AI Assistant**
@@ -41,7 +49,7 @@ The laboratory has two AI modes:
 
 ---
 
-## 📥 5. Data Exporting & Reporting
+## 📥 6. Data Exporting & Reporting
 To use your lab data for your college records:
 1. Go to any sensor page.
 2. Click the **"Export Report"** button.

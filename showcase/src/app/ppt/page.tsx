@@ -42,7 +42,7 @@ const getSlides = (isDark: boolean): Slide[] => [
                     AI-Enabled IoT<br />Virtual Laboratory
                 </h1>
 
-                <p style={{ fontSize: 20, color: (isDark ? "#94a3b8" : (isDark ? "#475569" : "#94a3b8")), marginBottom: 60, maxWidth: 600 }}>
+                <p style={{ fontSize: 20, color: (isDark ? "#94a3b8" : "#475569"), marginBottom: 60, maxWidth: 600 }}>
                     Hybrid Digital Twin Framework for Real-Time Sensor Data Acquisition & Remote Engineering Education
                 </p>
 
@@ -105,7 +105,7 @@ const getSlides = (isDark: boolean): Slide[] => [
                         animate={{ opacity: 1, x: 0 }}
                         transition={{ delay: i * 0.05 }}
                         style={{
-                            padding: "18px 24px", background: (isDark ? "rgba(255,255,255,0.03)" : "rgba(0,0,0,0.03)"), border: "1px solid rgba(255,255,255,0.08)",
+                            padding: "18px 24px", background: (isDark ? "rgba(255,255,255,0.03)" : "rgba(0,0,0,0.03)"), border: isDark ? "1px solid rgba(255,255,255,0.08)" : "1px solid rgba(0,0,0,0.08)",
                             borderRadius: 12, display: "flex", alignItems: "center", gap: 16
                         }}
                     >
@@ -128,18 +128,18 @@ const getSlides = (isDark: boolean): Slide[] => [
         title: "Introduction",
         content: (
             <div style={{ display: "flex", flexDirection: "column", gap: 24 }}>
-                <p style={{ fontSize: 18, color: (isDark ? "#94a3b8" : (isDark ? "#475569" : "#94a3b8")), lineHeight: 1.8 }}>
+                <p style={{ fontSize: 18, color: (isDark ? "#94a3b8" : "#475569"), lineHeight: 1.8 }}>
                     The Internet of Things (IoT) has transformed the way physical systems interact with digital platforms.
                     However, traditional engineering laboratories face several limitations in the modern era of remote learning.
                 </p>
                 <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
                     <div style={{ padding: 24, background: "rgba(0,242,254,0.05)", borderRadius: 16, border: "1px solid rgba(0,242,254,0.1)" }}>
                         <h3 style={{ color: "#00f2fe", fontSize: 18, fontWeight: 700, marginBottom: 12 }}>The Gap</h3>
-                        <p style={{ color: (isDark ? "#94a3b8" : (isDark ? "#475569" : "#94a3b8")), fontSize: 15 }}>Physical labs restrict access, incur high maintenance costs, and limit student experimentation due to safety risks.</p>
+                        <p style={{ color: (isDark ? "#94a3b8" : "#475569"), fontSize: 15 }}>Physical labs restrict access, incur high maintenance costs, and limit student experimentation due to safety risks.</p>
                     </div>
                     <div style={{ padding: 24, background: "rgba(16,185,129,0.05)", borderRadius: 16, border: "1px solid rgba(16,185,129,0.1)" }}>
                         <h3 style={{ color: "#10b981", fontSize: 18, fontWeight: 700, marginBottom: 12 }}>The Proposition</h3>
-                        <p style={{ color: (isDark ? "#94a3b8" : (isDark ? "#475569" : "#94a3b8")), fontSize: 15 }}>An AI-enabled virtual sensor laboratory that provides real-time interaction with sensor data through a web-based Digital Twin platform.</p>
+                        <p style={{ color: (isDark ? "#94a3b8" : "#475569"), fontSize: 15 }}>An AI-enabled virtual sensor laboratory that provides real-time interaction with sensor data through a web-based Digital Twin platform.</p>
                     </div>
                 </div>
             </div>
@@ -179,7 +179,7 @@ const getSlides = (isDark: boolean): Slide[] => [
                             <FileText size={18} color="#f59e0b" style={{ marginTop: 2, flexShrink: 0 }} />
                             <h4 style={{ color: (isDark ? "#e2e8f0" : "#1e293b"), fontSize: 16, fontWeight: 600, fontStyle: "italic" }}>"{paper.title}"</h4>
                         </div>
-                        <p style={{ color: (isDark ? "#94a3b8" : (isDark ? "#475569" : "#94a3b8")), fontSize: 14, paddingLeft: 30 }}>Analysis: {paper.insight}</p>
+                        <p style={{ color: (isDark ? "#94a3b8" : "#475569"), fontSize: 14, paddingLeft: 30 }}>Analysis: {paper.insight}</p>
                     </motion.div>
                 ))}
             </div>
@@ -205,12 +205,12 @@ const getSlides = (isDark: boolean): Slide[] => [
                         ))}
                     </ul>
                 </div>
-                <div style={{ padding: 24, background: (isDark ? "rgba(255,255,255,0.03)" : "rgba(0,0,0,0.03)"), border: "1px solid rgba(255,255,255,0.08)", borderRadius: 16 }}>
+                <div style={{ padding: 24, background: (isDark ? "rgba(255,255,255,0.03)" : "rgba(0,0,0,0.03)"), border: isDark ? "1px solid rgba(255,255,255,0.08)" : "1px solid rgba(0,0,0,0.08)", borderRadius: 16 }}>
                     <h3 style={{ color: (isDark ? "#fff" : "#0f172a"), fontSize: 18, fontWeight: 700, marginBottom: 20 }}>Simulation Drawbacks</h3>
                     <ul style={{ listStyle: "none", padding: 0, margin: 0, display: "flex", flexDirection: "column", gap: 14 }}>
                         {["Idealized Physics (No Noise)", "Lack of Calibration Training", "Disconnected from Industry Standards", "Passive Learning Experience"].map(item => (
                             <li key={item} style={{ display: "flex", alignItems: "center", gap: 12 }}>
-                                <X size={14} color={isDark ? (isDark ? "#94a3b8" : (isDark ? "#475569" : "#94a3b8")) : (isDark ? "#475569" : "#94a3b8")} />
+                                <X size={14} color={isDark ? (isDark ? "#94a3b8" : "#475569") : (isDark ? "#475569" : "#94a3b8")} />
                                 <span style={{ color: (isDark ? "#cbd5e1" : "#334155"), fontSize: 15 }}>{item}</span>
                             </li>
                         ))}
@@ -427,15 +427,15 @@ const getSlides = (isDark: boolean): Slide[] => [
                     <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
                         <div style={{ display: "flex", justifyContent: "space-between", borderBottom: "1px solid rgba(255,255,255,0.1)", paddingBottom: 8 }}>
                             <span style={{ color: (isDark ? "#cbd5e1" : "#334155") }}>Hardware → Gateway</span>
-                            <span style={{ color: (isDark ? "#94a3b8" : (isDark ? "#475569" : "#94a3b8")), fontFamily: "monospace" }}>UART (Serial 115200)</span>
+                            <span style={{ color: (isDark ? "#94a3b8" : "#475569"), fontFamily: "monospace" }}>UART (Serial 115200)</span>
                         </div>
                         <div style={{ display: "flex", justifyContent: "space-between", borderBottom: "1px solid rgba(255,255,255,0.1)", paddingBottom: 8 }}>
                             <span style={{ color: (isDark ? "#cbd5e1" : "#334155") }}>Gateway → Cloud</span>
-                            <span style={{ color: (isDark ? "#94a3b8" : (isDark ? "#475569" : "#94a3b8")), fontFamily: "monospace" }}>HTTP POST (JSON)</span>
+                            <span style={{ color: (isDark ? "#94a3b8" : "#475569"), fontFamily: "monospace" }}>HTTP POST (JSON)</span>
                         </div>
                         <div style={{ display: "flex", justifyContent: "space-between" }}>
                             <span style={{ color: (isDark ? "#cbd5e1" : "#334155") }}>Cloud → Client</span>
-                            <span style={{ color: (isDark ? "#94a3b8" : (isDark ? "#475569" : "#94a3b8")), fontFamily: "monospace" }}>Socket.io (WebSocket)</span>
+                            <span style={{ color: (isDark ? "#94a3b8" : "#475569"), fontFamily: "monospace" }}>Socket.io (WebSocket)</span>
                         </div>
                     </div>
                 </div>
@@ -443,8 +443,8 @@ const getSlides = (isDark: boolean): Slide[] => [
                 {/* AI Logic */}
                 <div style={{ padding: 24, background: "rgba(168,85,247,0.05)", border: "1px solid rgba(168,85,247,0.15)", borderRadius: 14 }}>
                     <h3 style={{ color: "#a855f7", fontSize: 18, fontWeight: 700, marginBottom: 16 }}>2. AI Supervisory Logic</h3>
-                    <p style={{ color: (isDark ? "#94a3b8" : (isDark ? "#475569" : "#94a3b8")), fontSize: 14, marginBottom: 16 }}>The inference engine applies rule-based logic to detect anomalies.</p>
-                    <div style={{ background: "rgba(0,0,0,0.3)", padding: 12, borderRadius: 8 }}>
+                    <p style={{ color: (isDark ? "#94a3b8" : "#475569"), fontSize: 14, marginBottom: 16 }}>The inference engine applies rule-based logic to detect anomalies.</p>
+                    <div style={{ background: isDark ? "rgba(0,0,0,0.3)" : "rgba(0,0,0,0.05)", padding: 12, borderRadius: 8 }}>
                         <code style={{ fontSize: 13, color: (isDark ? "#e2e8f0" : "#1e293b"), fontFamily: "monospace" }}>
                             if (V_sensor == 0 && V_vcc == 5) &#123;<br />
                             &nbsp;&nbsp;return "Floating Pin Error";<br />
@@ -456,7 +456,7 @@ const getSlides = (isDark: boolean): Slide[] => [
                 {/* Fault Injection */}
                 <div style={{ gridColumn: "1 / -1", padding: 20, background: "rgba(245,158,11,0.05)", border: "1px solid rgba(245,158,11,0.15)", borderRadius: 14 }}>
                     <h3 style={{ color: "#f59e0b", fontSize: 16, fontWeight: 700, marginBottom: 8 }}>3. Learning by Failure: Fault Injection</h3>
-                    <p style={{ color: (isDark ? "#94a3b8" : (isDark ? "#475569" : "#94a3b8")), fontSize: 14 }}>
+                    <p style={{ color: (isDark ? "#94a3b8" : "#475569"), fontSize: 14 }}>
                         The system intentionally injects faults (Noise, Drift, Open Circuit) into Digital Twin data to train students on debugging without damaging real hardware.
                     </p>
                 </div>
@@ -512,7 +512,7 @@ const getSlides = (isDark: boolean): Slide[] => [
                         <Activity color="#4facfe" size={20} />
                         <h4 style={{ color: (isDark ? "#fff" : "#0f172a"), fontWeight: 700 }}>Real-Time Oscilloscope</h4>
                     </div>
-                    <p style={{ color: (isDark ? "#94a3b8" : (isDark ? "#475569" : "#94a3b8")), fontSize: 14 }}>
+                    <p style={{ color: (isDark ? "#94a3b8" : "#475569"), fontSize: 14 }}>
                         Live 5Hz charting of sensor data with sub-100ms latency. Supports Zoom, Pan, and Auto-Scaling for granular signal analysis.
                     </p>
                 </div>
@@ -523,7 +523,7 @@ const getSlides = (isDark: boolean): Slide[] => [
                         <Brain color="#a855f7" size={20} />
                         <h4 style={{ color: (isDark ? "#fff" : "#0f172a"), fontWeight: 700 }}>AI Diagnostics Panel</h4>
                     </div>
-                    <p style={{ color: (isDark ? "#94a3b8" : (isDark ? "#475569" : "#94a3b8")), fontSize: 14 }}>
+                    <p style={{ color: (isDark ? "#94a3b8" : "#475569"), fontSize: 14 }}>
                         Side-panel assistant that provides real-time feedback: "Sensor Drifting", "Noise Detected", or "Connection Stable".
                     </p>
                 </div>
@@ -534,7 +534,7 @@ const getSlides = (isDark: boolean): Slide[] => [
                         <Layout color="#10b981" size={20} />
                         <h4 style={{ color: (isDark ? "#fff" : "#0f172a"), fontWeight: 700 }}>Universal Dashboard</h4>
                     </div>
-                    <p style={{ color: (isDark ? "#94a3b8" : (isDark ? "#475569" : "#94a3b8")), fontSize: 14 }}>
+                    <p style={{ color: (isDark ? "#94a3b8" : "#475569"), fontSize: 14 }}>
                         A unified grid layout displaying 17+ sensors simultaneously with status indicators (Online/Offline) and easy navigation.
                     </p>
                 </div>
@@ -545,7 +545,7 @@ const getSlides = (isDark: boolean): Slide[] => [
                         <BookOpen color="#f59e0b" size={20} />
                         <h4 style={{ color: (isDark ? "#fff" : "#0f172a"), fontWeight: 700 }}>Educational Modules</h4>
                     </div>
-                    <p style={{ color: (isDark ? "#94a3b8" : (isDark ? "#475569" : "#94a3b8")), fontSize: 14 }}>
+                    <p style={{ color: (isDark ? "#94a3b8" : "#475569"), fontSize: 14 }}>
                         Integrated theory tabs, coding snippets (Arduino/Python), and "Common Mistakes" guides for each sensor.
                     </p>
                 </div>
@@ -580,7 +580,7 @@ const getSlides = (isDark: boolean): Slide[] => [
                         <div style={{ color: "#a855f7", flexShrink: 0, marginTop: 2 }}>{item.icon}</div>
                         <div>
                             <h4 style={{ color: (isDark ? "#fff" : "#0f172a"), fontSize: 16, fontWeight: 700, marginBottom: 6 }}>{item.title}</h4>
-                            <p style={{ color: (isDark ? "#94a3b8" : (isDark ? "#475569" : "#94a3b8")), fontSize: 14 }}>{item.desc}</p>
+                            <p style={{ color: (isDark ? "#94a3b8" : "#475569"), fontSize: 14 }}>{item.desc}</p>
                         </div>
                     </motion.div>
                 ))}
@@ -596,7 +596,7 @@ const getSlides = (isDark: boolean): Slide[] => [
         title: "Project Conclusion",
         content: (
             <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 32, textAlign: "center", paddingTop: 20 }}>
-                <p style={{ color: (isDark ? "#94a3b8" : (isDark ? "#475569" : "#94a3b8")), fontSize: 19, lineHeight: 1.8, maxWidth: 700 }}>
+                <p style={{ color: (isDark ? "#94a3b8" : "#475569"), fontSize: 19, lineHeight: 1.8, maxWidth: 700 }}>
                     The proposed system provides a <span style={{ color: "#10b981", fontWeight: 700 }}>scalable, intelligent, and safe virtual laboratory</span> that integrates:
                 </p>
                 <div style={{ display: "flex", gap: 20, flexWrap: "wrap", justifyContent: "center" }}>
@@ -622,19 +622,19 @@ const getSlides = (isDark: boolean): Slide[] => [
         id: "references",
         icon: <BookOpen size={28} />,
         badge: "REFERENCES",
-        badgeColor: (isDark ? "#94a3b8" : (isDark ? "#475569" : "#94a3b8")),
+        badgeColor: (isDark ? "#94a3b8" : "#475569"),
         title: "References",
         content: (
             <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
                 {[
-                    "Internet of Things Based Remote Laboratory for Engineering Education (Elsevier, 2024)",
-                    "Virtual IoT Sensor Networks through Hybrid Architectures (IEEE Access)",
-                    "Engineering End-to-End Remote Labs Using IoT-Based Retrofitting (Springer)",
-                    "ACM Transactions on Computing Education - Special Issue on Remote Labs",
-                    "Next.js Documentation - Server Side Rendering Patterns",
-                    "Arduino Mega 2560 Datasheet & ESP8266 AT Command Reference"
+                    "S. Falas et al., \"Internet of Things Based Remote Laboratory for Sensor Technology Education,\" IEEE Global Engineering Education Conference (EDUCON), 2022.",
+                    "R. V. Aroca et al., \"A Low-cost and Open Source IoT-based Remote Lab for Engineering Education,\" Internet of Things, Elsevier, 2023.",
+                    "M. Tawfik et al., \"Virtual Instrument Systems for Remote Experimentation: A Systematic Review,\" Computers & Education, Vol. 188, 2022.",
+                    "K. F. Weng et al., \"Digital Twin Based-Smart Sensor Monitoring Framework,\" IEEE Sensors Journal, Vol. 23, No. 4, 2023.",
+                    "DHT11 Datasheet, Aosong Electronics; BMP180 Datasheet, Bosch Sensortec; MQ-2 Gas Sensor Technical Data, Zhengzhou Winsen Electronics.",
+                    "Next.js App Router Documentation, Vercel Inc.; Socket.io v4 Protocol Specification; Arduino Mega 2560 Rev3 Datasheet, Microchip Technology."
                 ].map((ref, i) => (
-                    <div key={i} style={{ display: "flex", gap: 16, alignItems: "flex-start", padding: "12px 0", borderBottom: "1px solid rgba(255,255,255,0.05)" }}>
+                    <div key={i} style={{ display: "flex", gap: 16, alignItems: "flex-start", padding: "12px 0", borderBottom: isDark ? "1px solid rgba(255,255,255,0.05)" : "1px solid rgba(0,0,0,0.08)" }}>
                         <span style={{ color: (isDark ? "#64748b" : "#334155"), fontFamily: "monospace", fontSize: 13, marginTop: 4 }}>[{i + 1}]</span>
                         <p style={{ color: (isDark ? "#cbd5e1" : "#334155"), fontSize: 15, lineHeight: 1.5 }}>{ref}</p>
                     </div>
@@ -659,7 +659,7 @@ const getSlides = (isDark: boolean): Slide[] => [
                         display: "flex", alignItems: "center", justifyContent: "center", padding: 4, margin: "0 auto 30px"
                     }}>
                         <div style={{ width: "100%", height: "100%", borderRadius: "50%", background: (isDark ? "#030712" : "#f8fafc"), display: "flex", alignItems: "center", justifyContent: "center" }}>
-                            <ThumbsUp size={32} color={isDark ? (isDark ? "#fff" : "#0f172a") : "#0f172a"} />
+                            <ThumbsUp size={32} color={isDark ? "#fff" : "#0f172a" : "#0f172a"} />
                         </div>
                     </div>
                     <h1 style={{
@@ -670,7 +670,7 @@ const getSlides = (isDark: boolean): Slide[] => [
                     </h1>
                 </motion.div>
 
-                <p style={{ fontSize: 20, color: (isDark ? "#94a3b8" : (isDark ? "#475569" : "#94a3b8")), marginBottom: 60, maxWidth: 600 }}>
+                <p style={{ fontSize: 20, color: (isDark ? "#94a3b8" : "#475569"), marginBottom: 60, maxWidth: 600 }}>
                     Any Questions?
                 </p>
 
@@ -708,9 +708,9 @@ export default function PresentationPage() {
             {/* Top Bar */}
             <div style={{
                 display: "flex", alignItems: "center", justifyContent: "space-between",
-                padding: "16px 32px", borderBottom: "1px solid rgba(255,255,255,0.06)", flexShrink: 0
+                padding: "16px 32px", borderBottom: isDark ? "1px solid rgba(255,255,255,0.06)" : "1px solid rgba(0,0,0,0.08)", flexShrink: 0
             }}>
-                <Link href="/" style={{ display: "flex", alignItems: "center", gap: 10, textDecoration: "none", color: (isDark ? "#94a3b8" : (isDark ? "#475569" : "#94a3b8")), fontSize: 14 }}>
+                <Link href="/" style={{ display: "flex", alignItems: "center", gap: 10, textDecoration: "none", color: (isDark ? "#94a3b8" : "#475569"), fontSize: 14 }}>
                     <Home size={16} /> Back to Showcase
                 </Link>
                 <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
@@ -771,7 +771,7 @@ export default function PresentationPage() {
                                     {slide.title}
                                 </h1>
                                 {slide.subtitle && (
-                                    <p style={{ fontSize: 20, color: (isDark ? "#94a3b8" : (isDark ? "#475569" : "#94a3b8")), marginBottom: 40 }}>{slide.subtitle}</p>
+                                    <p style={{ fontSize: 20, color: (isDark ? "#94a3b8" : "#475569"), marginBottom: 40 }}>{slide.subtitle}</p>
                                 )}
                                 {!slide.subtitle && <div style={{ marginBottom: 40 }} />}
                             </>
@@ -786,7 +786,7 @@ export default function PresentationPage() {
             {/* Bottom Nav */}
             <div style={{
                 display: "flex", alignItems: "center", justifyContent: "space-between",
-                padding: "20px 40px", borderTop: "1px solid rgba(255,255,255,0.06)", flexShrink: 0
+                padding: "20px 40px", borderTop: isDark ? "1px solid rgba(255,255,255,0.06)" : "1px solid rgba(0,0,0,0.08)", flexShrink: 0
             }}>
                 {/* Slide dots */}
                 <div style={{ display: "flex", gap: 6 }}>
@@ -809,7 +809,7 @@ export default function PresentationPage() {
                         onClick={goPrev}
                         disabled={current === 0}
                         style={{
-                            width: 44, height: 44, borderRadius: 12, border: "1px solid rgba(255,255,255,0.08)",
+                            width: 44, height: 44, borderRadius: 12, border: isDark ? "1px solid rgba(255,255,255,0.08)" : "1px solid rgba(0,0,0,0.08)",
                             background: current === 0 ? "transparent" : (isDark ? "rgba(255,255,255,0.04)" : "rgba(0,0,0,0.04)"),
                             color: current === 0 ? (isDark ? "#333" : "#cbd5e1") : (isDark ? "#fff" : "#0f172a"), cursor: current === 0 ? "default" : "pointer",
                             display: "flex", alignItems: "center", justifyContent: "center", transition: "all 0.2s"

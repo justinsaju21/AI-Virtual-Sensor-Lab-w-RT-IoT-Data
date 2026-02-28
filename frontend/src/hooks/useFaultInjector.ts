@@ -1,5 +1,4 @@
-
-import { useState, useCallback } from 'react';
+import { useState, useEffect } from 'react';
 
 export type FaultType = 'none' | 'stuck-at-zero' | 'stuck-at-high' | 'open-circuit' | 'noise-burst' | 'drift' | 'offset';
 
@@ -18,38 +17,62 @@ interface FaultConfig {
  */
 export function useFaultInjector(realValue: number | number | null) {
     const [fault, setFault] = useState<FaultConfig>({ type: 'none' });
-    const [driftAccumulator, setDriftAccumulator] = useState(0);
+    const [injectedValue, setInjectedValue] = useState<number | null>(realValue);
 
-    const injectFault = useCallback((value: number | null): number | null => {
-        if (value === null) return null;
-
-        switch (fault.type) {
-            case 'stuck-at-zero':
-                return 0;
-            case 'stuck-at-high':
-                return 1023; // Max ADC value typically
-            case 'open-circuit':
-                return NaN; // Simulate disconnected wire
-            case 'noise-burst':
-                const noise = (Math.random() - 0.5) * (fault.params?.noiseAmplitude || 50);
-                return value + noise;
-            case 'drift':
-                // Simple linear drift
-                const rate = fault.params?.driftRate || 0.5;
-                // Ideally we'd use a ref or effect for time-based drift, 
-                // but simple accumulation on render is okay for this demo level
-                return value + (Date.now() % 10000) * 0.001 * rate;
-            case 'offset':
-            case 'offset':
-                return value + (fault.params?.offsetValue || 0);
-            case 'none':
-            default:
-                return value;
+    useEffect(() => {
+        if (realValue === null) {
+            setInjectedValue(null);
+            return;
         }
-    }, [fault]);
+
+        let intervalId: NodeJS.Timeout;
+
+        const updateFaultValue = () => {
+            switch (fault.type) {
+                case 'stuck-at-zero':
+                    setInjectedValue(0);
+                    break;
+                case 'stuck-at-high':
+                    setInjectedValue(1023); // Max ADC value typically
+                    break;
+                case 'open-circuit':
+                    setInjectedValue(NaN); // Simulate disconnected wire
+                    break;
+                case 'noise-burst':
+                    const noise = (Math.random() - 0.5) * (fault.params?.noiseAmplitude || 50);
+                    setInjectedValue(realValue + noise);
+                    break;
+                case 'drift':
+                    // Simple linear drift accumulating over time locally
+                    const rate = fault.params?.driftRate || 0.5;
+                    const driftAmount = (Date.now() % 10000) * 0.001 * rate;
+                    setInjectedValue(realValue + driftAmount);
+                    break;
+                case 'offset':
+                    setInjectedValue(realValue + (fault.params?.offsetValue || 0));
+                    break;
+                case 'none':
+                default:
+                    setInjectedValue(realValue);
+                    break;
+            }
+        };
+
+        // Run immediately when realValue or fault changes
+        updateFaultValue();
+
+        // If the fault is dynamic (changes continuously even if realValue is static), set an interval
+        if (fault.type === 'noise-burst' || fault.type === 'drift') {
+            intervalId = setInterval(updateFaultValue, 200); // 5Hz update rate
+        }
+
+        return () => {
+            if (intervalId) clearInterval(intervalId);
+        };
+    }, [realValue, fault]);
 
     return {
-        injectedValue: injectFault(realValue),
+        injectedValue,
         fault,
         setFault
     };

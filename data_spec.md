@@ -10,31 +10,24 @@ The hardware (Arduino Mega -> ESP8266 -> Backend) sends a JSON packet every `X` 
 
 ```json
 {
-  "device_id": "lab_unit_01",
-  "timestamp": "2023-10-27T10:00:00Z", // Optional, server can add this if no RTC
+  "device_id": "arduino_mega_01",
+  "timestamp": 1700000000000, 
   "sensors": {
-    "dht22": {
-      "temperature": 24.5,
-      "humidity": 60.2,
-      "status": "ok"
-    },
-    "mq2": {
-      "raw_value": 340,
-      "gas_percentage": 12.5,
-      "status": "ok"
-    },
-    "ldr": {
-      "light_level": 850,
-      "status": "ok"
-    },
-    "pir": {
-      "motion_detected": true,
-      "status": "ok"
-    },
-    "ultrasonic": {
-      "distance_cm": 150.0,
-      "status": "ok"
-    }
+    "ultrasonic": { "distance_cm": 45.2 },
+    "dht11": { "temp": 24.5, "humidity": 60.1 },
+    "mq3": { "value": 150 },
+    "mq2": { "value": 220 },
+    "hall": { "active": false },
+    "mic": { "level": 45 },
+    "ir": { "detected": false },
+    "flame": { "value": 1023 },
+    "proximity": { "active": false },
+    "bmp180": { "pressure": 101325, "altitude": 100, "temp": 24.5 },
+    "touch": { "active": false },
+    "ldr": { "value": 850 },
+    "tilt": { "active": false },
+    "heartbeat": { "value": 512 },
+    "joystick": { "x": 512, "y": 512, "btn": false }
   },
   "system": {
     "uptime_ms": 3600000,

@@ -9,57 +9,68 @@ const generateMockData = () => {
         timestamp: timestamp,
         sensors: {
             ultrasonic: {
-                distance_cm: parseFloat((50 + Math.sin(time) * 30).toFixed(1)),
+                // Add +/- 1cm of jitter
+                distance_cm: parseFloat((50 + Math.sin(time) * 30 + (Math.random() * 2 - 1)).toFixed(1)),
                 valid: true
             },
             dht11: {
-                temp: parseFloat((24 + Math.sin(time * 0.5) * 2).toFixed(1)),
-                humidity: parseFloat((60 + Math.sin(time * 0.3) * 10).toFixed(1))
+                // Temperature changes slowly, humidity has slight jitter
+                temp: parseFloat((24 + Math.sin(time * 0.1) * 2 + (Math.random() * 0.2)).toFixed(1)),
+                humidity: parseFloat((60 + Math.sin(time * 0.1) * 10 + (Math.random() * 1)).toFixed(1))
             },
             mq3: {
-                value: Math.floor(100 + Math.random() * 50)
+                // Alcohol sensor has natural baseline drift
+                value: Math.floor(150 + Math.sin(time * 0.05) * 20 + Math.random() * 10)
             },
             mq2: {
-                value: Math.floor(200 + Math.random() * 30),
-                raw_value: Math.floor(200 + Math.random() * 30) // Backward compat
+                // Gases have slight rapid noise
+                value: Math.floor(220 + Math.sin(time * 0.05) * 30 + Math.random() * 15),
+                raw_value: Math.floor(220 + Math.sin(time * 0.05) * 30 + Math.random() * 15)
             },
             hall: {
-                active: Math.sin(time * 2) > 0.8 // Occasional trigger
+                // Digital switch, occasional trigger, holding state briefly
+                active: Math.sin(time * 1.2) > 0.8
             },
             mic: {
-                level: Math.floor(50 + Math.random() * 200 + (Math.sin(time * 5) > 0.9 ? 500 : 0)) // Spikes
+                // Background noise level + random sharp acoustic spikes
+                level: Math.floor(40 + Math.random() * 30 + (Math.random() > 0.95 ? 400 + Math.random() * 300 : 0))
             },
             ir: {
-                detected: Math.sin(time * 0.2) > 0.5
+                detected: Math.sin(time * 0.5) > 0.7
             },
             flame: {
-                value: Math.floor(10 + Math.random() * 20) // Mostly low
+                // Very clean baseline unless there is a fire
+                value: Math.floor(5 + Math.random() * 5 + (Math.sin(time * 0.2) > 0.9 ? 800 : 0))
             },
             proximity: {
-                active: Math.sin(time * 0.4) > 0.6
+                active: Math.sin(time * 0.6) > 0.8
             },
             bmp180: {
-                pressure: parseFloat((1013 + Math.sin(time * 0.1) * 2).toFixed(1)),
-                altitude: parseFloat((100 + Math.sin(time * 0.1)).toFixed(1)),
-                temp: parseFloat((24.5 + Math.sin(time * 0.5)).toFixed(1))
+                // Highly stable, extremely tiny pressure drift
+                pressure: parseFloat((1013.25 + Math.sin(time * 0.01) * 2 + (Math.random() * 0.05 - 0.025)).toFixed(2)),
+                altitude: parseFloat((100 + Math.sin(time * 0.01) * 10).toFixed(1)),
+                temp: parseFloat((24.5 + Math.random() * 0.1).toFixed(1))
             },
             touch: {
-                active: Math.sin(time) > 0.9
+                active: Math.sin(time * 0.8) > 0.85
             },
             ldr: {
-                value: Math.floor(500 + Math.sin(time * 0.5) * 300),
-                light_level: Math.floor(500 + Math.sin(time * 0.5) * 300) // Backward compat
+                // Continuous light level with slight natural flicker
+                value: Math.floor(600 + Math.sin(time * 0.1) * 300 + (Math.random() * 20 - 10)),
+                light_level: Math.floor(600 + Math.sin(time * 0.1) * 300 + (Math.random() * 20 - 10))
             },
             tilt: {
-                active: Math.sin(time * 1.5) > 0.8
+                active: Math.sin(time * 0.3) > 0.6
             },
             heartbeat: {
-                value: Math.floor(500 + Math.sin(time * 10) * 100) // Pulse pattern
+                // Pulse oximeter PPG wave simulation
+                value: Math.floor(500 + Math.sin(time * Math.PI * 2 * 1.2) * 200 + Math.random() * 20)
             },
             joystick: {
-                x: Math.floor(512 + Math.sin(time) * 512),
-                y: Math.floor(512 + Math.cos(time) * 512),
-                btn: Math.random() > 0.95
+                // Potentiometer deadzone variance
+                x: Math.floor(512 + Math.sin(time * 0.4) * 500 + (Math.random() * 6 - 3)),
+                y: Math.floor(512 + Math.cos(time * 0.4) * 500 + (Math.random() * 6 - 3)),
+                btn: Math.random() > 0.98
             }
         }
     };
