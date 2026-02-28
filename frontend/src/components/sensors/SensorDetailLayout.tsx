@@ -4,6 +4,7 @@ import React, { useEffect, useState } from "react";
 import { useAI } from "@/contexts/AIContext";
 import { useStudentNotes } from "@/hooks/useStudentNotes";
 import { Activity, BookOpen, Code2, FlaskConical, AlertTriangle, FileText, Download, Check, Save, Settings } from "lucide-react";
+import ReactMarkdown from 'react-markdown';
 import { FaultType } from "@/hooks/useFaultInjector";
 import { FilterType } from "@/hooks/useSignalProcessing";
 
@@ -65,10 +66,59 @@ export const SensorDetailLayout: React.FC<SensorDetailLayoutProps> = ({
     const [activeTab, setActiveTab] = useState<TabType>("live");
     const [activeTheoryTab, setActiveTheoryTab] = useState<"physics" | "math" | "circuit" | "protocol">("physics");
     const { notes, setNotes, isSaved } = useStudentNotes(sensorId);
+    const [dynamicDocs, setDynamicDocs] = useState<any>(null);
 
     useEffect(() => {
         updateContext({ page: "sensor-detail", sensor: title, dataSnippet });
     }, [title, dataSnippet]);
+
+    useEffect(() => {
+        // Fetch dynamic Markdown documentation
+        const fetchDocs = async () => {
+            try {
+                const res = await fetch(`/api/docs/${sensorId}`);
+                if (res.ok) {
+                    const data = await res.json();
+                    if (data.success) {
+                        setDynamicDocs(data);
+                    }
+                }
+            } catch (err) {
+                console.error("Failed to load dynamic docs:", err);
+            }
+        };
+        fetchDocs();
+    }, [sensorId]);
+
+    const activeTheory = dynamicDocs ? dynamicDocs.theory : theory;
+    const activeCode = dynamicDocs ? dynamicDocs.arduinoCode : arduinoCode;
+
+    const renderMarkdown = (content: string) => (
+        <ReactMarkdown
+            components={{
+                h1: ({ node, ...props }) => <h1 className="text-2xl font-bold mt-6 mb-4 text-white" {...props} />,
+                h2: ({ node, ...props }) => <h2 className="text-xl font-bold mt-5 mb-3 text-cyan-400" {...props} />,
+                h3: ({ node, ...props }) => <h3 className="text-lg font-semibold mt-4 mb-2 text-indigo-300" {...props} />,
+                p: ({ node, ...props }) => <p className="text-slate-300 mb-4 leading-relaxed" {...props} />,
+                ul: ({ node, ...props }) => <ul className="list-disc pl-5 mb-4 space-y-2 text-slate-300" {...props} />,
+                ol: ({ node, ...props }) => <ol className="list-decimal pl-5 mb-4 space-y-2 text-slate-300" {...props} />,
+                li: ({ node, ...props }) => <li className="text-slate-300" {...props} />,
+                strong: ({ node, ...props }) => <strong className="font-bold text-white" {...props} />,
+                em: ({ node, ...props }) => <em className="italic text-slate-400" {...props} />,
+                code: ({ node, inline, ...props }: any) =>
+                    inline
+                        ? <code className="bg-slate-800 text-cyan-300 px-1 py-0.5 rounded text-sm font-mono" {...props} />
+                        : <pre className="bg-slate-900 p-4 rounded-xl border border-white/10 overflow-x-auto my-4 text-sm font-mono leading-relaxed"><code className="text-slate-300" {...props} /></pre>,
+                blockquote: ({ node, ...props }) => <blockquote className="border-l-4 border-cyan-500/50 pl-4 py-1 my-4 bg-cyan-500/5 rounded-r" {...props} />,
+                table: ({ node, ...props }) => <table className="w-full text-left border-collapse my-4 text-sm text-slate-300 border border-white/10 rounded-lg overflow-hidden" {...props} />,
+                thead: ({ node, ...props }) => <thead className="bg-white/5 border-b border-white/10 text-white font-medium" {...props} />,
+                th: ({ node, ...props }) => <th className="p-3 font-semibold" {...props} />,
+                td: ({ node, ...props }) => <td className="p-3 border-b border-white/5 last:border-0" {...props} />,
+            }}
+        >
+            {content}
+        </ReactMarkdown>
+    );
 
     const tabs = [
         { id: "live" as TabType, label: "Live Data", icon: <Activity size={16} /> },
@@ -79,17 +129,30 @@ export const SensorDetailLayout: React.FC<SensorDetailLayoutProps> = ({
     ];
 
     const theoryTabs = [
-        { id: "physics", label: "Physics", content: theory.physics },
-        { id: "math", label: "Math", content: theory.math },
-        { id: "circuit", label: "Circuit", content: theory.circuit },
-        { id: "protocol", label: "Protocol", content: theory.protocol },
+        { id: "physics", label: "Physics", content: activeTheory?.physics },
+        { id: "math", label: "Math", content: activeTheory?.math },
+        { id: "circuit", label: "Circuit", content: activeTheory?.circuit },
+        { id: "protocol", label: "Protocol", content: activeTheory?.protocol },
     ].filter(t => t.content);
 
+    const escapeHtml = (str: string): string => {
+        const div = document.createElement('div');
+        div.appendChild(document.createTextNode(str));
+        return div.innerHTML;
+    };
+
     const exportPDF = () => {
+        const safeTitle = escapeHtml(title);
+        const safeSensorId = escapeHtml(sensorId);
+        const safeDescription = escapeHtml(description);
+        const safePhysics = escapeHtml(theory.physics);
+        const safeNotes = escapeHtml(notes || "(No notes recorded)");
+        const safeData = escapeHtml(JSON.stringify(dataSnippet, null, 2));
+
         const printContent = `
             <html>
             <head>
-                <title>${title} - Lab Report</title>
+                <title>${safeTitle} - Lab Report</title>
                 <style>
                     body { font-family: Arial, sans-serif; padding: 40px; color: #333; }
                     h1 { border-bottom: 2px solid #0ea5e9; padding-bottom: 10px; }
@@ -100,18 +163,18 @@ export const SensorDetailLayout: React.FC<SensorDetailLayoutProps> = ({
                 </style>
             </head>
             <body>
-                <h1>${title}</h1>
-                <p class="meta">Sensor ID: ${sensorId} | Generated: ${new Date().toLocaleString()}</p>
-                <p>${description}</p>
+                <h1>${safeTitle}</h1>
+                <p class="meta">Sensor ID: ${safeSensorId} | Generated: ${new Date().toLocaleString()}</p>
+                <p>${safeDescription}</p>
                 
                 <h2>Theory: Physics</h2>
-                <div class="theory">${theory.physics}</div>
+                <div class="theory">${safePhysics}</div>
                 
                 <h2>My Observations</h2>
-                <div class="notes">${notes || "(No notes recorded)"}</div>
+                <div class="notes">${safeNotes}</div>
                 
                 <h2>Current Reading</h2>
-                <pre>${JSON.stringify(dataSnippet, null, 2)}</pre>
+                <pre>${safeData}</pre>
             </body>
             </html>
         `;
@@ -146,7 +209,7 @@ export const SensorDetailLayout: React.FC<SensorDetailLayoutProps> = ({
                         Export Report
                     </button>
                 </div>
-                <p className="text-slate-400 text-sm max-w-2xl">{description}</p>
+                <p className="text-slate-400 text-sm max-w-2xl">{dynamicDocs?.description || description}</p>
             </div>
 
             {/* Top-Level Tabs */}
@@ -156,8 +219,8 @@ export const SensorDetailLayout: React.FC<SensorDetailLayoutProps> = ({
                         key={tab.id}
                         onClick={() => setActiveTab(tab.id)}
                         className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all ${activeTab === tab.id
-                                ? "bg-gradient-to-r from-cyan-500/20 to-blue-500/20 text-white border border-cyan-500/30"
-                                : "text-slate-400 hover:text-white hover:bg-white/5"
+                            ? "bg-gradient-to-r from-cyan-500/20 to-blue-500/20 text-white border border-cyan-500/30"
+                            : "text-slate-400 hover:text-white hover:bg-white/5"
                             }`}
                     >
                         {tab.icon}
@@ -211,8 +274,8 @@ export const SensorDetailLayout: React.FC<SensorDetailLayoutProps> = ({
                                     key={tab.id}
                                     onClick={() => setActiveTheoryTab(tab.id as typeof activeTheoryTab)}
                                     className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-all ${activeTheoryTab === tab.id
-                                            ? "bg-cyan-500/20 text-cyan-400 border border-cyan-500/30"
-                                            : "bg-white/5 text-slate-400 border border-white/5 hover:bg-white/10"
+                                        ? "bg-cyan-500/20 text-cyan-400 border border-cyan-500/30"
+                                        : "bg-white/5 text-slate-400 border border-white/5 hover:bg-white/10"
                                         }`}
                                 >
                                     {tab.label}
@@ -220,9 +283,11 @@ export const SensorDetailLayout: React.FC<SensorDetailLayoutProps> = ({
                             ))}
                         </div>
                         <div className="p-6 rounded-2xl bg-white/5 border border-white/5">
-                            <pre className="text-sm text-slate-300 leading-relaxed whitespace-pre-wrap font-sans">
-                                {theoryTabs.find(t => t.id === activeTheoryTab)?.content}
-                            </pre>
+                            {dynamicDocs ? renderMarkdown(theoryTabs.find(t => t.id === activeTheoryTab)?.content || "") : (
+                                <pre className="text-sm text-slate-300 leading-relaxed whitespace-pre-wrap font-sans">
+                                    {theoryTabs.find(t => t.id === activeTheoryTab)?.content}
+                                </pre>
+                            )}
                         </div>
                     </div>
                 )}
@@ -239,8 +304,8 @@ export const SensorDetailLayout: React.FC<SensorDetailLayoutProps> = ({
                                 <span className="text-xs font-mono text-slate-400">{sensorId.toLowerCase().replace(/\s+/g, "_")}.ino</span>
                                 <Code2 size={14} className="text-slate-500" />
                             </div>
-                            <pre className="p-4 overflow-x-auto text-sm font-mono text-slate-300 leading-relaxed max-h-[400px] overflow-y-auto">
-                                <code>{arduinoCode || `// Code coming soon...`}</code>
+                            <pre className="p-4 overflow-x-auto text-sm font-mono text-slate-300 leading-relaxed max-h-[500px] overflow-y-auto">
+                                <code>{activeCode || `// Code coming soon...`}</code>
                             </pre>
                         </div>
                     </div>
@@ -253,7 +318,11 @@ export const SensorDetailLayout: React.FC<SensorDetailLayoutProps> = ({
                             <FlaskConical className="text-emerald-400" size={20} />
                             Guided Experiment
                         </h3>
-                        {experiments && experiments.length > 0 ? (
+                        {dynamicDocs?.experimentsRaw ? (
+                            <div className="p-6 rounded-xl bg-white/5 border border-white/5">
+                                {renderMarkdown(dynamicDocs.experimentsRaw)}
+                            </div>
+                        ) : experiments && experiments.length > 0 ? (
                             <div className="space-y-4">
                                 {experiments.map((step, i) => (
                                     <div key={i} className="p-4 rounded-xl bg-white/5 border border-white/5 space-y-3">
@@ -294,7 +363,11 @@ export const SensorDetailLayout: React.FC<SensorDetailLayoutProps> = ({
                             <AlertTriangle className="text-amber-400" size={20} />
                             Common Mistakes & Troubleshooting
                         </h3>
-                        {commonMistakes && commonMistakes.length > 0 ? (
+                        {dynamicDocs?.mistakesRaw ? (
+                            <div className="p-6 rounded-xl bg-amber-500/5 border border-amber-500/20">
+                                {renderMarkdown(dynamicDocs.mistakesRaw)}
+                            </div>
+                        ) : commonMistakes && commonMistakes.length > 0 ? (
                             <div className="space-y-4">
                                 {commonMistakes.map((mistake, i) => (
                                     <div key={i} className="p-4 rounded-xl bg-amber-500/5 border border-amber-500/20">
