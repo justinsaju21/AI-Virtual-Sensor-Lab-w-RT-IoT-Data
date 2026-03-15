@@ -19,58 +19,67 @@ const io = new Server(server, {
   }
 });
 
-// Store latest reading
-let latestReading = null;
-let useRealData = false; // Toggle between mock and real data
-let lastRealDataTime = 0;
-const REAL_DATA_TIMEOUT = 10000; // If no real data for 10s, use mock
+// ============ HYBRID MODE CONFIG ============
+// Specify which sensors should use real data when available.
+// All other sensors will use animated mock data.
+const REAL_SENSORS = [
+  "ultrasonic", // Distance
+  "dht11",      // Temp/Humidity
+  "mq2",        // Gas/Smoke
+  "ldr"         // Light
+];
 
-// ============ API ENDPOINTS ============
+const mergeHardwareWithMock = (mock, real) => {
+  if (!real) return mock;
+  const merged = JSON.parse(JSON.stringify(mock)); // Deep clone
+  
+  REAL_SENSORS.forEach(sensorKey => {
+    if (real[sensorKey]) {
+      merged.sensors[sensorKey] = { 
+        ...merged.sensors[sensorKey], 
+        ...real[sensorKey],
+        isReal: true // Flag to show it's hardware data
+      };
+    }
+  });
+  
+  return merged;
+};
+
+let lastHardwareSensors = null;
 
 // Health check
 app.get('/', (req, res) => {
   res.json({
     status: 'running',
-    mode: useRealData ? 'hardware' : 'mock',
+    mode: 'hybrid',
+    realSensors: REAL_SENSORS,
     lastUpdate: latestReading?.timestamp || null
   });
-});
-
-// Get current sensor data
-app.get('/api/data', (req, res) => {
-  if (latestReading) {
-    res.json(latestReading);
-  } else {
-    res.status(503).json({ error: 'No data available yet' });
-  }
 });
 
 // Receive sensor data from hardware (ESP8266)
 app.post('/api/sensor-data', (req, res) => {
   try {
     const data = req.body;
-
-    // Validate required fields
     if (!data.device_id || !data.sensors) {
       return res.status(400).json({ error: 'Invalid data format' });
     }
 
-    // Add server timestamp
-    data.timestamp = new Date().toISOString();
-
-    // Store and broadcast
-    latestReading = data;
+    lastHardwareSensors = data.sensors;
     useRealData = true;
     lastRealDataTime = Date.now();
 
+    // Create hybrid payload and emit immediately for responsiveness
+    const mock = generateMockData();
+    latestReading = mergeHardwareWithMock(mock, lastHardwareSensors);
+    latestReading.timestamp = new Date().toISOString();
+    latestReading.device_id = data.device_id;
+
     io.emit('data_stream', latestReading);
 
-    console.log(`[HARDWARE] Received from ${data.device_id}:`,
-      `Temp=${data.sensors.dht22?.temperature}°C`,
-      `Humidity=${data.sensors.dht22?.humidity}%`
-    );
-
-    res.json({ success: true, message: 'Data received' });
+    console.log(`[HYBRID] Real data received from ${data.device_id}. Merging with mocks.`);
+    res.json({ success: true, message: 'Data merged and emitted' });
   } catch (error) {
     console.error('Error processing sensor data:', error);
     res.status(500).json({ error: 'Server error' });
@@ -292,21 +301,31 @@ app.post("/api/ai-explain", (req, res) => {
 
 // ============ MOCK DATA LOOP ============
 
-// Generate mock data if no real hardware data
+// Generate mock data and merge with hardware readings
 setInterval(() => {
   const now = Date.now();
 
-  // If using real data but it's been too long, fall back to mock
+  // If using real data but it's been too long, clear the hardware cache
   if (useRealData && (now - lastRealDataTime > REAL_DATA_TIMEOUT)) {
-    console.log('[MOCK] No hardware data received, falling back to mock');
+    console.log('[HYBRID] Hardware data stale, reverting to pure mock');
     useRealData = false;
+    lastHardwareSensors = null;
   }
 
-  // Only emit mock data if not using real hardware
-  if (!useRealData) {
-    latestReading = generateMockData();
-    io.emit('data_stream', latestReading);
-    console.log('[MOCK] Emitted:', latestReading.timestamp);
+  // ALWAYS generate mock data to keep the 'other' sensors moving
+  const mock = generateMockData();
+  
+  // Merge in real data for the 4 specific sensors if available
+  latestReading = mergeHardwareWithMock(mock, lastHardwareSensors);
+  latestReading.timestamp = new Date().toISOString();
+  latestReading.is_hybrid = true;
+
+  io.emit('data_stream', latestReading);
+  
+  if (useRealData) {
+    console.log('[HYBRID] Emitted merged payload (Real + Mock)');
+  } else {
+    // console.log('[MOCK] Emitted pure mock data');
   }
 }, 2000);
 

@@ -54,7 +54,7 @@ Our gap analysis shows that no existing solution combines **Real-Time Hardware D
 ## Slide 7: System Architecture
 **Speaker:**
 "This block diagram represents our 'Edge-to-Cloud' architecture.
--   **Edge Layer**: We use an Arduino Mega 2560 connected to 17+ sensors (DHT11, MQ-2, Ultrasonic, etc.).
+-   **Edge Layer**: We use an Arduino Mega 2560 connected to 15 sensors (DHT11, MQ-2, Ultrasonic, etc.).
 -   **Gateway Layer**: An ESP8266 bridges the Arduino's Serial data to WiFi.
 -   **Cloud Layer**: A Node.js server receives this data and broadcasts it via WebSockets.
 -   **Client Layer**: The Next.js dashboard visualizes this stream.
@@ -86,7 +86,7 @@ Phase 6 will focus on large-scale deployment testing."
 "The final outcome is a comprehensive dashboard featuring:
 -   **Real-Time Oscilloscope**: 5Hz live charts with zoom/pan capabilities.
 -   **AI Diagnostics Panel**: A sidebar that gives live feedback on connection health.
--   **Universal Dashboard**: Grid view of all 17 sensors.
+-   **Hybrid Dashboard**: Grid view of all 15 sensors, seamlessly mixing LIVE hardware data with Mock simulation.
 -   **Educational Modules**: Integrated theory and code snippets right next to the data."
 
 ---

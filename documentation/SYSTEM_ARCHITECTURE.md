@@ -25,6 +25,7 @@ The system is built on the **Digital Twin** concept—a digital representation o
 - **Speed:** 115200 Baud
 - **Format:** JSON String
 - **Why?** Serial is the most robust way for a Mega to talk to an ESP8266. JSON allows us to add or remove sensors without changing the communication structure.
+- **Deep Dive:** See [FIRMWARE_CORE_LOGIC.md](file:///c:/Users/justi/Desktop/SEM6%20Project/iot-virtual-lab/documentation/FIRMWARE_CORE_LOGIC.md) for timing and serialization details.
 
 ### **Link B: Gateway to Cloud (REST API)**
 - **Protocol:** HTTP POST (via WiFi)

@@ -89,15 +89,14 @@ const getSlides = (isDark: boolean): Slide[] => [
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 20 }}>
                 {[
                     "Introduction",
-                    "Literature Review",
-                    "Problem Identification",
-                    "Objectives",
-                    "System Architecture",
-                    "Methodology",
-                    "Development Timeline",
-                    "Results & Interface",
-                    "Future Scope",
-                    "Conclusion",
+                    "Literature Review (Consolidated)",
+                    "Problem Identification & Research Gap",
+                    "Project Objectives",
+                    "System Architecture (4-Layer Modular Design)",
+                    "Hardware Implementation (17-Sensor Suite)",
+                    "Methodology: Digital Twin & AI",
+                    "Results & Interactive Dashboard",
+                    "Future Scope & Conclusion",
                     "References"
                 ].map((item, i) => (
                     <motion.div
@@ -152,37 +151,38 @@ const getSlides = (isDark: boolean): Slide[] => [
         icon: <Search size={28} />,
         badge: "LITERATURE REVIEW",
         badgeColor: "#f59e0b",
-        title: "Existing Research",
+        title: "Consolidated Comparative Analysis",
         content: (
-            <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-                {[
-                    {
-                        title: "Internet of Things Based Remote Laboratory for Engineering Education",
-                        insight: "Highlights the necessity of remote access but often lacks AI-driven feedback mechanisms."
-                    },
-                    {
-                        title: "Engineering End-to-End Remote Labs Using IoT-Based Retrofitting",
-                        insight: "Discusses retrofitting legacy equipment but faces scalability issues in multi-user environments."
-                    },
-                    {
-                        title: "Virtual IoT Sensor Networks through Hybrid Architectures",
-                        insight: "Proposes mixed-reality setups but often focuses on simulation over real-time hardware synchronization."
-                    }
-                ].map((paper, i) => (
-                    <motion.div
-                        key={i}
-                        initial={{ opacity: 0, y: 10 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: i * 0.1 }}
-                        style={{ padding: 20, background: "rgba(245,158,11,0.05)", border: "1px solid rgba(245,158,11,0.15)", borderRadius: 12 }}
-                    >
-                        <div style={{ display: "flex", gap: 12, marginBottom: 8 }}>
-                            <FileText size={18} color="#f59e0b" style={{ marginTop: 2, flexShrink: 0 }} />
-                            <h4 style={{ color: (isDark ? "#e2e8f0" : "#1e293b"), fontSize: 16, fontWeight: 600, fontStyle: "italic" }}>"{paper.title}"</h4>
-                        </div>
-                        <p style={{ color: (isDark ? "#94a3b8" : "#475569"), fontSize: 14, paddingLeft: 30 }}>Analysis: {paper.insight}</p>
-                    </motion.div>
-                ))}
+            <div style={{ display: "flex", flexDirection: "column", gap: 15 }}>
+                <div style={{ 
+                    display: "grid", 
+                    gridTemplateColumns: "1.5fr 1fr 1.5fr 1.5fr", 
+                    gap: "1px", 
+                    background: isDark ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.1)",
+                    border: isDark ? "1px solid rgba(255,255,255,0.1)" : "1px solid rgba(0,0,0,0.1)",
+                    borderRadius: 8,
+                    overflow: "hidden"
+                }}>
+                    {/* Header */}
+                    {["Paper Topic", "Methodology", "Key Contribution", "Limitation"].map(h => (
+                        <div key={h} style={{ background: isDark ? "#1e293b" : "#f1f5f9", padding: "10px", fontWeight: 700, fontSize: 13, color: "#f59e0b" }}>{h}</div>
+                    ))}
+                    {/* Rows */}
+                    {[
+                        ["Remote Labs", "Arduino + RPi", "Web Architecture", "No AI Diagnostics"],
+                        ["WS Monitoring", "ESP8266 + Node", "Real-time Signals", "No Education Context"],
+                        ["DT Security", "Shadow Models", "Anomaly Detection", "Security Only"],
+                        ["DT Smart Space", "4-Layer Stack", "IoT Framework", "Not Education Focus"],
+                        ["DT in STEM", "Conceptual Mod", "Remote Engineering", "No Physical Link"],
+                        ["AI Virtual Lab", "Simulation Hub", "Feedback Engine", "No Hardware Link"]
+                    ].flat().map((cell, i) => (
+                        <div key={i} style={{ background: isDark ? "rgba(15,23,42,0.8)" : "#fff", padding: "8px 10px", fontSize: 11, color: isDark ? "#cbd5e1" : "#334155", border: `0.5px solid ${isDark ? "rgba(255,255,255,0.05)" : "rgba(0,0,0,0.05)"}` }}>{cell}</div>
+                    ))}
+                </div>
+                <div style={{ padding: "12px 20px", background: "rgba(16,185,129,0.05)", borderLeft: "4px solid #10b981", borderRadius: 4 }}>
+                    <p style={{ fontSize: 13, color: "#10b981", fontWeight: 700, marginBottom: 5 }}>The Research Gap:</p>
+                    <p style={{ fontSize: 12, color: isDark ? "#94a3b8" : "#475569" }}>Existing systems lack the **Hardware-in-the-Loop** verification combined with **AI-driven mistake detection** and high-density sensor arrays (17 sensors).</p>
+                </div>
             </div>
         )
     },
@@ -190,15 +190,15 @@ const getSlides = (isDark: boolean): Slide[] => [
     {
         id: "problem",
         icon: <AlertTriangle size={28} />,
-        badge: "PROBLEM IDENTIFICATION",
+        badge: "PROBLEM & RESEARCH GAP",
         badgeColor: "#f87171",
-        title: "Identifying the Core Issues",
+        title: "The Critical Disconnect",
         content: (
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 24 }}>
                 <div style={{ padding: 24, background: "rgba(248,113,113,0.05)", border: "1px solid rgba(248,113,113,0.15)", borderRadius: 16 }}>
-                    <h3 style={{ color: "#f87171", fontSize: 18, fontWeight: 700, marginBottom: 20 }}>Legacy Limitations</h3>
+                    <h3 style={{ color: "#f87171", fontSize: 18, fontWeight: 700, marginBottom: 20 }}>Existing research lacks:</h3>
                     <ul style={{ listStyle: "none", padding: 0, margin: 0, display: "flex", flexDirection: "column", gap: 14 }}>
-                        {["Limited Hardware Availability", "High Risk of Component Damage", "Zero Real-Time Visibility", "No AI-Assisted Debugging"].map(item => (
+                        {["Real-Time Hardware Consistency", "Intelligent Mistake Detection", "High-Density Sensor Integration", "Safe Fault-Injection Pedagogy"].map(item => (
                             <li key={item} style={{ display: "flex", alignItems: "center", gap: 12 }}>
                                 <AlertTriangle size={14} color="#f87171" />
                                 <span style={{ color: (isDark ? "#cbd5e1" : "#334155"), fontSize: 15 }}>{item}</span>
@@ -206,12 +206,12 @@ const getSlides = (isDark: boolean): Slide[] => [
                         ))}
                     </ul>
                 </div>
-                <div style={{ padding: 24, background: (isDark ? "rgba(255,255,255,0.03)" : "rgba(0,0,0,0.03)"), border: isDark ? "1px solid rgba(255,255,255,0.08)" : "1px solid rgba(0,0,0,0.08)", borderRadius: 16 }}>
-                    <h3 style={{ color: (isDark ? "#fff" : "#0f172a"), fontSize: 18, fontWeight: 700, marginBottom: 20 }}>Simulation Drawbacks</h3>
+                <div style={{ padding: 24, background: "rgba(16,185,129,0.05)", border: "1px solid rgba(16,185,129,0.15)", borderRadius: 16 }}>
+                    <h3 style={{ color: "#10b981", fontSize: 18, fontWeight: 700, marginBottom: 20 }}>Our Value Proposition</h3>
                     <ul style={{ listStyle: "none", padding: 0, margin: 0, display: "flex", flexDirection: "column", gap: 14 }}>
-                        {["Idealized Physics (No Noise)", "Lack of Calibration Training", "Disconnected from Industry Standards", "Passive Learning Experience"].map(item => (
+                        {["Hybrid Real+Virtual Sensing", "AI-Driven Feedback Engine", "17+ Sensors Concurrent Data", "Low Latency (<100ms) Hub"].map(item => (
                             <li key={item} style={{ display: "flex", alignItems: "center", gap: 12 }}>
-                                <X size={14} color={isDark ? (isDark ? "#94a3b8" : "#475569") : (isDark ? "#475569" : "#94a3b8")} />
+                                <CheckCircle2 size={14} color="#10b981" />
                                 <span style={{ color: (isDark ? "#cbd5e1" : "#334155"), fontSize: 15 }}>{item}</span>
                             </li>
                         ))}
@@ -224,17 +224,17 @@ const getSlides = (isDark: boolean): Slide[] => [
     {
         id: "objectives",
         icon: <Target size={28} />,
-        badge: "OBJECTIVES",
+        badge: "PROJECT OBJECTIVES",
         badgeColor: "#4facfe",
-        title: "Project Objectives",
+        title: "Key Targets",
         content: (
             <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
                 {[
-                    "Develop a virtual laboratory for IoT sensors with sub-100ms latency",
-                    "Integrate real-time hardware data with Digital Twin simulation",
-                    "Provide AI-based assistance using Rule-Based Inference Engines",
-                    "Enable safe remote experimentation with Fault Injection capabilities",
-                    "Create a scalable learning platform supporting multiple users"
+                    "Implement a 17-sensor high-density hardware acquisition system",
+                    "Develop a sub-100ms real-time data bridge via ESP8266 + Node.js",
+                    "Build a Hybrid Digital Twin mode with physics-faithful mock data",
+                    "Design an AI Inference Engine for real-time diagnostic reporting",
+                    "Create a scalable STEM education dashboard with integrated manuals"
                 ].map((item, i) => (
                     <motion.div
                         key={item}
@@ -268,13 +268,13 @@ const getSlides = (isDark: boolean): Slide[] => [
                     {/* COL 1: HARDWARE */}
                     <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
                         <div style={{ padding: "10px 12px", border: "1px dashed rgba(245,158,11,0.4)", borderRadius: 10 }}>
-                            <h4 style={{ color: "#f59e0b", fontSize: 11, fontWeight: 800, letterSpacing: "1px", marginBottom: 8, textAlign: "center" }}>1. SENSOR LAYER</h4>
+                            <h4 style={{ color: "#f59e0b", fontSize: 11, fontWeight: 800, letterSpacing: "1px", marginBottom: 8, textAlign: "center" }}>1. SENSOR ARRAY (17 CHANNELS)</h4>
                             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 5 }}>
-                                {["DHT11", "LDR", "MQ-2", "HC-SR04", "PIR", "Pulse", "Flame", "Hall"].map(s => (
+                                {["DHT11", "LDR", "MQ-2", "MQ-3", "HC-SR04", "PIR", "Flame", "Thermistor"].map(s => (
                                     <div key={s} style={{ background: "rgba(245,158,11,0.08)", padding: "3px 6px", borderRadius: 5, fontSize: 9, color: "#fcd34d", textAlign: "center" }}>{s}</div>
                                 ))}
                             </div>
-                            <div style={{ textAlign: "center", color: "#92400e", fontSize: 8, marginTop: 5, fontWeight: 600 }}>+ Joystick, Touch, Tilt, IR, BMP180, Sound</div>
+                            <div style={{ textAlign: "center", color: "#92400e", fontSize: 8, marginTop: 5, fontWeight: 600 }}>+ MAX30102, BMP280, Joystick, Hall, Tilt, Touch, Sound, IR, Inductive</div>
                         </div>
 
                         <div style={{ padding: "10px 12px", background: "linear-gradient(135deg, rgba(59,130,246,0.1), rgba(59,130,246,0.03))", border: "1px solid rgba(59,130,246,0.25)", borderRadius: 10, flex: 1 }}>
@@ -288,8 +288,8 @@ const getSlides = (isDark: boolean): Slide[] => [
                         </div>
 
                         <div style={{ padding: "10px 12px", background: "rgba(16,185,129,0.08)", border: "1px solid rgba(16,185,129,0.25)", borderRadius: 10 }}>
-                            <h4 style={{ color: "#10b981", fontSize: 12, fontWeight: 800, marginBottom: 3 }}>3. ESP8266</h4>
-                            <div style={{ fontSize: 10, color: "#6ee7b7", lineHeight: 1.5 }}>WiFi Bridge (TCP/IP)<br />HTTP POST → Cloud API</div>
+                            <h4 style={{ color: "#10b981", fontSize: 12, fontWeight: 800, marginBottom: 3 }}>3. ESP8266 (WiFi Bridge)</h4>
+                            <div style={{ fontSize: 10, color: "#6ee7b7", lineHeight: 1.5 }}>Serial3 HW Link (Mega → ESP)<br />JSON Payload Dispatch → Cloud</div>
                         </div>
                     </div>
 

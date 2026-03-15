@@ -68,7 +68,7 @@ The "AI" doesn't just chat; it watches the live data stream for engineering mist
 To make the Arduino talk to the Cloud, we use a structured JSON format. This ensures the frontend always knows which value belongs to which sensor.
 ```json
 {
-  "deviceId": "MEGA_01",
+  "device_id": "arduino_mega_01",
   "sensors": {
     "temp": 24.5,
     "mq2": 150,

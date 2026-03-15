@@ -190,9 +190,10 @@ export const Dashboard = () => {
                         unit="cm"
                         icon={<Radar className="h-5 w-5" />}
                         iconColor="text-purple-400"
-                        status="ok"
-                        subtitle="HC-SR04"
+                        status={s.ultrasonic.isReal ? "success" : "ok"}
+                        subtitle={s.ultrasonic.isReal ? "REAL HARDWARE" : "HC-SR04 (Mock)"}
                     />
+                    
                     {/* 2. DHT11 Temp */}
                     <MetricCard
                         title="Temperature"
@@ -200,142 +201,156 @@ export const Dashboard = () => {
                         unit="°C"
                         icon={<Thermometer className="h-5 w-5" />}
                         iconColor="text-orange-400"
-                        status="ok"
-                        subtitle="DHT11 Sensor"
+                        status={s.dht11?.isReal ? "success" : "ok"}
+                        subtitle={s.dht11?.isReal ? "REAL HARDWARE" : "DHT11 (Mock)"}
                     />
-                    {/* 2. DHT11 Humidity */}
+                    
+                    {/* 3. DHT11 Humidity */}
                     <MetricCard
                         title="Humidity"
                         value={s.dht11?.humidity ?? s.dht22?.humidity ?? 0}
                         unit="%"
                         icon={<Droplets className="h-5 w-5" />}
                         iconColor="text-blue-400"
-                        status="ok"
-                        subtitle="DHT11 Sensor"
+                        status={s.dht11?.isReal ? "success" : "ok"}
+                        subtitle={s.dht11?.isReal ? "REAL HARDWARE" : "DHT11 (Mock)"}
                     />
-                    {/* 3. MQ-3 Alcohol */}
+                    
+                    {/* 4. MQ-3 Alcohol */}
                     <MetricCard
                         title="Alcohol Level"
                         value={s.mq3?.value ?? 0}
                         unit="raw"
                         icon={<Activity className="h-5 w-5" />}
                         iconColor="text-emerald-400"
-                        status={(s.mq3?.value ?? 0) > 400 ? "warning" : "ok"}
-                        subtitle="MQ-3 Alcohol"
+                        status={s.mq3?.isReal ? "success" : (s.mq3?.value ?? 0) > 400 ? "warning" : "ok"}
+                        subtitle={s.mq3?.isReal ? "REAL HARDWARE" : "MQ3 (Mock)"}
                     />
-                    {/* 4. MQ-2 Gas */}
+                    
+                    {/* 5. MQ-2 Gas */}
                     <MetricCard
                         title="Gas/Smoke"
                         value={s.mq2?.value ?? 0}
                         unit="ppm"
                         icon={<Flame className="h-5 w-5" />}
                         iconColor="text-red-400"
-                        status={(s.mq2?.value ?? 0) > 300 ? "warning" : "ok"}
-                        subtitle="MQ-2 Sensor"
+                        status={s.mq2?.isReal ? "success" : (s.mq2?.value ?? 0) > 300 ? "warning" : "ok"}
+                        subtitle={s.mq2?.isReal ? "REAL HARDWARE" : "MQ2 (Mock)"}
                     />
-                    {/* 5. Hall Effect */}
+                    
+                    {/* 6. Hall Effect */}
                     <MetricCard
                         title="Magnetic Field"
                         value={s.hall?.active ? "DETECTED" : "Clear"}
                         icon={<Magnet className="h-5 w-5" />}
                         iconColor="text-indigo-400"
-                        status={s.hall?.active ? "warning" : "ok"}
-                        subtitle="Hall Sensor"
+                        status={s.hall?.isReal ? "success" : s.hall?.active ? "warning" : "ok"}
+                        subtitle={s.hall?.isReal ? "REAL HARDWARE" : "Hall (Mock)"}
                     />
-                    {/* 6. Mic/Sound */}
+                    
+                    {/* 7. Mic/Sound */}
                     <MetricCard
                         title="Sound Level"
                         value={s.mic?.level ?? 0}
                         unit="dB"
                         icon={<Mic className="h-5 w-5" />}
                         iconColor="text-pink-400"
-                        status="ok"
-                        subtitle="Microphone"
+                        status={s.mic?.isReal ? "success" : "ok"}
+                        subtitle={s.mic?.isReal ? "REAL HARDWARE" : "Mic (Mock)"}
                     />
-                    {/* 7. IR Object */}
+                    
+                    {/* 8. IR Object */}
                     <MetricCard
                         title="IR Obstacle"
                         value={s.ir?.detected ? "DETECTED" : "Clear"}
                         icon={<Eye className="h-5 w-5" />}
                         iconColor="text-cyan-400"
-                        status={s.ir?.detected ? "warning" : "ok"}
-                        subtitle="IR Sensor"
+                        status={s.ir?.isReal ? "success" : s.ir?.detected ? "warning" : "ok"}
+                        subtitle={s.ir?.isReal ? "REAL HARDWARE" : "IR (Mock)"}
                     />
-                    {/* 8. Flame */}
+                    
+                    {/* 9. Flame */}
                     <MetricCard
                         title="Flame Detect"
                         value={s.flame?.value ?? 0}
                         unit="val"
                         icon={<Flame className="h-5 w-5" />}
                         iconColor="text-orange-500"
-                        status={(s.flame?.value ?? 1023) < 500 ? "error" : "ok"} // Usually Low = Flame
-                        subtitle="Flame Sensor"
+                        status={s.flame?.isReal ? "success" : (s.flame?.value ?? 1023) < 500 ? "error" : "ok"}
+                        subtitle={s.flame?.isReal ? "REAL HARDWARE" : "Flame (Mock)"}
                     />
-                    {/* 9. Proximity */}
+                    
+                    {/* 10. Proximity */}
                     <MetricCard
                         title="Proximity"
                         value={s.proximity?.active ? "NEAR" : "Far"}
                         icon={<Radar className="h-5 w-5" />}
                         iconColor="text-teal-400"
-                        status={s.proximity?.active ? "warning" : "ok"}
-                        subtitle="IR Proximity"
+                        status={s.proximity?.isReal ? "success" : s.proximity?.active ? "warning" : "ok"}
+                        subtitle={s.proximity?.isReal ? "REAL HARDWARE" : "Proximity (Mock)"}
                     />
-                    {/* 10. Pressure */}
+                    
+                    {/* 11. Pressure */}
                     <MetricCard
                         title="Pressure"
                         value={Math.round(s.bmp180?.pressure ?? 0)}
                         unit="Pa"
                         icon={<Gauge className="h-5 w-5" />}
                         iconColor="text-sky-400"
-                        status="ok"
-                        subtitle="BMP180 Baro"
+                        status={s.bmp180?.isReal ? "success" : "ok"}
+                        subtitle={s.bmp180?.isReal ? "REAL HARDWARE" : "BMP180 (Mock)"}
                     />
-                    {/* 11. Touch */}
+                    
+                    {/* 12. Touch */}
                     <MetricCard
                         title="Touch Input"
                         value={s.touch?.active ? "TOUCHED" : "Released"}
                         icon={<Hand className="h-5 w-5" />}
                         iconColor="text-violet-400"
-                        status={s.touch?.active ? "info" : "ok"}
-                        subtitle="Capacitive"
+                        status={s.touch?.isReal ? "success" : s.touch?.active ? "info" : "ok"}
+                        subtitle={s.touch?.isReal ? "REAL HARDWARE" : "Touch (Mock)"}
                     />
-                    {/* 12. LDR */}
+                    
+                    {/* 13. LDR */}
                     <MetricCard
                         title="Light Level"
                         value={s.ldr?.value ?? 0}
                         unit="lux"
                         icon={<Sun className="h-5 w-5" />}
                         iconColor="text-yellow-400"
-                        status="ok"
-                        subtitle="LDR Module"
+                        status={s.ldr?.isReal ? "success" : "ok"}
+                        subtitle={s.ldr?.isReal ? "REAL HARDWARE" : "LDR (Mock)"}
                     />
-                    {/* 13. Tilt */}
+                    
+                    {/* 14. Tilt */}
                     <MetricCard
                         title="Tilt Status"
                         value={s.tilt?.active ? "TILTED" : "Level"}
                         icon={<Move className="h-5 w-5" />}
                         iconColor="text-rose-400"
-                        status={s.tilt?.active ? "warning" : "ok"}
-                        subtitle="Tilt Switch"
+                        status={s.tilt?.isReal ? "success" : s.tilt?.active ? "warning" : "ok"}
+                        subtitle={s.tilt?.isReal ? "REAL HARDWARE" : "Tilt (Mock)"}
                     />
-                    {/* 14. Heartbeat */}
+                    
+                    {/* 15. Heartbeat */}
                     <MetricCard
                         title="Pulse/Heart"
                         value={s.heartbeat?.value ?? 0}
                         unit="bpm"
                         icon={<Heart className="h-5 w-5" />}
                         iconColor="text-red-500"
-                        status="ok"
-                        subtitle="Heartbeat"
+                        status={s.heartbeat?.isReal ? "success" : "ok"}
+                        subtitle={s.heartbeat?.isReal ? "REAL HARDWARE" : "MAX30102 (Mock)"}
                     />
-                    {/* 15. Joystick */}
+                    
+                    {/* 16. Joystick */}
                     <MetricCard
                         title="Joystick"
                         value={`X:${s.joystick?.x} Y:${s.joystick?.y}`}
                         icon={<Gamepad2 className="h-5 w-5" />}
                         iconColor="text-green-400"
-                        status={s.joystick?.btn ? "info" : "ok"}
-                        subtitle={s.joystick?.btn ? "Button Pressed" : "Idle"}
+                        status={s.joystick?.isReal ? "success" : s.joystick?.btn ? "info" : "ok"}
+                        subtitle={s.joystick?.isReal ? "REAL HARDWARE" : "Joystick (Mock)"}
                     />
                 </div>
             </div>

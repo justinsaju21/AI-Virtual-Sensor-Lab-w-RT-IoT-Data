@@ -32,7 +32,7 @@
 #define PIN_LDR      A4
 #define PIN_FLAME_A  A5
 #define PIN_SOUND_A  A6
-#define PIN_LM35     A7
+#define PIN_THERMISTOR A7
 
 // Digital Pins
 #define PIN_DHT      2
@@ -98,7 +98,7 @@ struct SensorData {
   int joy_y;
   bool joy_sw;
   // Medical
-  float lm35_temp;
+  float therm_temp;
   long max_ir;
   float bpm;
 } sysData;
@@ -200,9 +200,15 @@ void loop() {
     sysData.ir_active = digitalRead(PIN_IR) == LOW; // Low = Obstacle
     sysData.prox_active = digitalRead(PIN_PROX) == LOW; // Low = Metal
     
-    // LM35 calculation (10mV per C)
-    int rawLM35 = analogRead(PIN_LM35);
-    sysData.lm35_temp = (rawLM35 / 1024.0) * 5000.0 / 10.0;
+    // Thermistor calculation (Steinhart-Hart / B-parameter)
+    int rawTherm = analogRead(PIN_THERMISTOR);
+    // Assuming 10k NTC thermistor with a 10k series resistor
+    float Vout = (rawTherm * 5.0) / 1023.0;
+    float R_therm = (10000.0 * Vout) / (5.0 - Vout); 
+    float logR = log(R_therm);
+    // Steinhart-Hart approximation
+    float tempK = 1.0 / (0.001129148 + (0.000234125 * logR) + (0.0000000876741 * logR * logR * logR));
+    sysData.therm_temp = tempK - 273.15; // Convert Kelvin to Celsius
   }
 
   // ---------------------------------------------------------
@@ -258,36 +264,43 @@ void transmitData() {
   
   JsonObject s = doc.createNestedObject("sensors");
   
+  // TIP: You can comment out lines below if a sensor is not connected
+  
+  // 1. DHT11
   s["dht11"]["temp"] = sysData.ext_temp;
   s["dht11"]["humidity"] = sysData.ext_hum;
   
+  // 2. BMP280
   s["bmp280"]["temp"] = sysData.bmp_temp;
   s["bmp280"]["pressure"] = sysData.bmp_press;
   
+  // 3. Gases
   s["mq2"]["raw"] = sysData.mq2_raw;
   s["mq3"]["raw"] = sysData.mq3_raw;
   
+  // 4. Fire/Light/Sound
   s["ldr"]["raw"] = sysData.ldr_val;
   s["flame"]["analog"] = sysData.flame_a;
   s["flame"]["digital"] = sysData.flame_d;
-  
   s["sound"]["analog"] = sysData.sound_a;
   s["sound"]["digital"] = sysData.sound_d;
   
+  // 5. Motion/Object
   s["ultrasonic"]["distance_cm"] = sysData.sonic_dist;
   s["pir"]["active"] = sysData.pir_active;
   s["ir"]["active"] = sysData.ir_active;
   s["proximity"]["active"] = sysData.prox_active;
   
+  // 6. Mechanical
   s["touch"]["active"] = sysData.touch_active;
   s["tilt"]["active"] = sysData.tilt_active;
   s["hall"]["active"] = sysData.hall_active;
-  
   s["joystick"]["x"] = sysData.joy_x;
   s["joystick"]["y"] = sysData.joy_y;
-  s["joystick"]["button_pressed"] = !sysData.joy_sw; // Invert so true = pressed
+  s["joystick"]["button_pressed"] = !sysData.joy_sw;
   
-  s["lm35"]["temp"] = sysData.lm35_temp;
+  // 7. Medical
+  s["thermistor"]["temp"] = sysData.therm_temp;
   s["max30102"]["ir"] = sysData.max_ir;
   s["max30102"]["bpm"] = sysData.bpm;
 

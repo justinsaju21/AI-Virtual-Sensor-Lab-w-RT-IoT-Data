@@ -19,7 +19,7 @@ Use this diagram to show the data movement:
 ```mermaid
 flowchart LR
     subgraph Hardware ["1. EDGE LAYER (Hardware)"]
-        Sensors["17 Sensors\n(MQ2, DHT, etc)"] -->|"Analog/Digital"| Mega["Arduino Mega 2560"]
+        Sensors["15 Sensors\n(MQ2, DHT, etc)"] -->|"Analog/Digital"| Mega["Arduino Mega 2560"]
     end
 
     subgraph Gateway ["2. GATEWAY LAYER"]
@@ -63,7 +63,7 @@ graph TD
 ```
 
 **Speaker Notes:**
-> "We chose the Arduino Mega 2560 over the Uno because it allows us to interface 17 sensors concurrently without complex multiplexing. It handles the high-density Data Acquisition (DAQ) while the ESP8266 handles the network stack independently to prevent logic blocking."
+> "We chose the Arduino Mega 2560 over the Uno because it allows us to interface 15 sensors concurrently without complex multiplexing. It handles the high-density Data Acquisition (DAQ) while the ESP8266 handles the network stack independently to prevent logic blocking."
 
 ---
 
@@ -114,14 +114,14 @@ Use this to highlight the "Hybrid" aspect:
 ```mermaid
 graph LR
     subgraph Virtual ["VIRTUAL MODE (Digital Twin)"]
-        Math[Math Models] --> Logic[Node.js Engine]
+        Math[Math Models] --> Logic[Node.js Engine (Mock Data)]
     end
     
     subgraph Physical ["PHYSICAL MODE (Real World)"]
-        Real[Arduino Mega] --> Bridge[ESP8266 Gateway]
+        Real[Arduino Mega] --> Bridge[ESP8266 Gateway (Live Data)]
     end
     
-    Logic --> Unified[UNIFIED DASHBOARD]
+    Logic --> Unified[UNIFIED HYBRID DASHBOARD]
     Bridge --> Unified
     
     Unified --> AI[AI Analysis]
@@ -131,6 +131,9 @@ graph LR
     style Virtual fill:#e8eaf6
     style Physical fill:#fff3e0
 ```
+
+**Speaker Notes:**
+> "Our unique Hybrid Mode merges the physical and virtual worlds. If we only have 4 hardware sensors plugged in, the backend seamlessly generates high-fidelity mock data for the remaining 11 sensors. The unified dashboard displays all 15, clearly Badging the 'REAL HARDWARE' metrics versus the simulated ones. This ensures a complete, immersive lab experience at all times."
 
 ---
 

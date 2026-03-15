@@ -10,7 +10,7 @@ interface MetricCardProps {
     unit?: string;
     icon: React.ReactNode;
     iconColor?: string;
-    status?: "ok" | "warning" | "error" | "info";
+    status?: "ok" | "warning" | "error" | "info" | "success";
     subtitle?: string;
     className?: string;
 }
