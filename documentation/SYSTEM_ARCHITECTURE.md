@@ -53,13 +53,18 @@ The system is built on the **Digital Twin** concept—a digital representation o
 
 ---
 
-## 🧠 4. AI Diagnostics & Mistake Detection
-The "AI" in this project is a **Rule-Based Inference Engine**.
+## 🧠 4. Gemini AI & Mistake Detection
+The system uses a two-tier AI architecture:
+
+### **Static: Rule-Based Inference**
 - It looks for **Correlative Anomaly**: "If Sensor A says X, but Sensor B says Y, then Z is a mistake."
-- **Example:**
-  - `Hall Effect Sensor = ACTIVE` (Magnetic field detected)
-  - `Joystick X/Y = 512` (Not moving)
-  - **AI Inference:** The system warns the user if they are holding a magnet near the board while trying to calibrate the joystick.
+- **Example:** High sound levels detected while the student's heartbeat (MAX30102) is stagnant indicates a potential environment noise issue rather than a genuine experiment state.
+
+### **Generative: Gemini 1.5 Flash Integration**
+The lab is integrated with Google's **Gemini AI** to provide human-like assistance:
+- **Tutor Chat:** Context-aware assistant that receives the active sensor name and live data to help with debugging.
+- **Automated Quizzes:** Generates engineering assessment questions dynamically based on the current sensor module.
+- **Data Interpretation:** Analyzes recorded graph points to explain physical phenomena (e.g., "The spike at 2s indicates a rapid heat increase").
 
 ---
 

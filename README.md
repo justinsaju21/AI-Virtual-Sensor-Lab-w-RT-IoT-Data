@@ -18,8 +18,9 @@ We have simplified the project documentation into several modules for ease of re
 5.  **[Algorithms & Logic](documentation/ALGORITHMS_AND_LOGIC.md):** Fault Injection, DSP Filters, and AI Mistake Detector math.
 
 ## ✨ Key Features
-- **15 Integrated Sensors:** Real-time acquisition from Analog and Digital sources.
+- **17 Integrated Sensors:** Real-time acquisition from 16 physical + 1 virtual source.
 - **Hybrid Digital Twin:** High-fidelity simulation when hardware is offline.
+- **Gemini AI Integration:** Live tutoring, automated quiz generation, and data interpreted by Google's Gemini 1.5 Flash.
 - **AI-Driven Diagnostics:** Interactive mistake detection and engineering assistance.
 - **Dual-Theme Showcase:** Professional presentation deck with Light/Dark mode transitions.
 - **Illustration Generator:** Dedicated UI for generating project illustrations.
