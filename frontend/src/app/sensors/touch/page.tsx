@@ -5,7 +5,7 @@ import { useSocket } from "@/hooks/useSocket";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
 import { SensorDetailLayout } from "@/components/sensors/SensorDetailLayout";
-import { Cpu, Info, Hand, Sparkles, Brain } from "lucide-react";
+import { Cpu, Info, Hand, Brain } from "lucide-react";
 import { useMistakeDetector, MistakeAlert } from "@/components/ai/MistakeDetector";
 import { AIQuizModal } from "@/components/ai/AIQuizModal";
 import { useFaultInjector } from "@/hooks/useFaultInjector";
@@ -23,7 +23,7 @@ Works through plastic, glass, and thin wood!`,
 };
 
 const ARDUINO_CODE = `// Touch Sensor - TTP223
-#define TOUCH_PIN 6
+#define TOUCH_PIN 5
 
 void setup() {
   Serial.begin(115200);
@@ -77,7 +77,7 @@ export default function TouchPage() {
                 title="Touch Sensor"
                 description="Capacitive touch detection via electric field change."
                 sensorId="TTP223"
-                dataSnippet={{ value: isTouched, pin: "D6" }}
+                dataSnippet={{ value: isTouched, pin: "D5" }}
                 theory={THEORY}
                 arduinoCode={ARDUINO_CODE}
                 experiments={EXPERIMENTS}
@@ -104,7 +104,7 @@ export default function TouchPage() {
                 </div>
                 <div className="grid gap-6 md:grid-cols-2">
                     <Card variant="default"><CardHeader><CardTitle className="flex items-center gap-2"><Cpu className="h-4 w-4 text-cyan-400" />Specs</CardTitle></CardHeader><CardContent className="space-y-2 text-sm"><SpecRow label="Type" value="Capacitive" /><SpecRow label="Response" value="~60ms" /></CardContent></Card>
-                    <Card variant="default"><CardHeader><CardTitle className="flex items-center gap-2"><Info className="h-4 w-4 text-blue-400" />Wiring</CardTitle></CardHeader><CardContent><table className="w-full text-sm"><tbody className="divide-y divide-white/5"><tr><td className="py-1.5 font-mono text-white">I/O</td><td className="py-1.5 font-mono text-teal-400">D6</td></tr></tbody></table></CardContent></Card>
+                    <Card variant="default"><CardHeader><CardTitle className="flex items-center gap-2"><Info className="h-4 w-4 text-blue-400" />Wiring</CardTitle></CardHeader><CardContent><table className="w-full text-sm"><tbody className="divide-y divide-white/5"><tr><td className="py-1.5 font-mono text-white">I/O</td><td className="py-1.5 font-mono text-teal-400">D5</td></tr></tbody></table></CardContent></Card>
                 </div>
             </SensorDetailLayout>
             {showQuiz && <AIQuizModal sensorName="Touch Sensor" sensorId="TTP223" onClose={() => setShowQuiz(false)} />}

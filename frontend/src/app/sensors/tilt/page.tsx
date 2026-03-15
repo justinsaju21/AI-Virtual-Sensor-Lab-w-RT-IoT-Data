@@ -5,7 +5,7 @@ import { useSocket } from "@/hooks/useSocket";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
 import { SensorDetailLayout } from "@/components/sensors/SensorDetailLayout";
-import { Cpu, Info, RotateCw, Sparkles, Brain } from "lucide-react";
+import { Cpu, Info, RotateCw, Brain } from "lucide-react";
 import { useMistakeDetector, MistakeAlert } from "@/components/ai/MistakeDetector";
 import { AIQuizModal } from "@/components/ai/AIQuizModal";
 import { useFaultInjector } from "@/hooks/useFaultInjector";
@@ -23,7 +23,7 @@ Gravity does all the work!`,
 };
 
 const ARDUINO_CODE = `// Tilt Sensor
-#define TILT_PIN 8
+#define TILT_PIN 12
 
 void setup() {
   Serial.begin(115200);
@@ -76,7 +76,7 @@ export default function TiltPage() {
                 title="Tilt Sensor"
                 description="Ball switch detects orientation changes via gravity."
                 sensorId="SW-520D"
-                dataSnippet={{ value: isTilted, pin: "D8" }}
+                dataSnippet={{ value: isTilted, pin: "D12" }}
                 theory={THEORY}
                 arduinoCode={ARDUINO_CODE}
                 experiments={EXPERIMENTS}
@@ -107,7 +107,7 @@ export default function TiltPage() {
                 </div>
                 <div className="grid gap-6 md:grid-cols-2">
                     <Card variant="default"><CardHeader><CardTitle className="flex items-center gap-2"><Cpu className="h-4 w-4 text-cyan-400" />Specs</CardTitle></CardHeader><CardContent className="space-y-2 text-sm"><SpecRow label="Type" value="Ball Switch" /><SpecRow label="Angle" value="15-45°" /></CardContent></Card>
-                    <Card variant="default"><CardHeader><CardTitle className="flex items-center gap-2"><Info className="h-4 w-4 text-blue-400" />Wiring</CardTitle></CardHeader><CardContent><table className="w-full text-sm"><tbody className="divide-y divide-white/5"><tr><td className="py-1.5 font-mono text-white">Signal</td><td className="py-1.5 font-mono text-amber-400">D8 (pull-up)</td></tr></tbody></table></CardContent></Card>
+                    <Card variant="default"><CardHeader><CardTitle className="flex items-center gap-2"><Info className="h-4 w-4 text-blue-400" />Wiring</CardTitle></CardHeader><CardContent><table className="w-full text-sm"><tbody className="divide-y divide-white/5"><tr><td className="py-1.5 font-mono text-white">Signal</td><td className="py-1.5 font-mono text-amber-400">D12 (pull-up)</td></tr></tbody></table></CardContent></Card>
                 </div>
             </SensorDetailLayout>
             {showQuiz && <AIQuizModal sensorName="Tilt Sensor" sensorId="SW-520D" onClose={() => setShowQuiz(false)} />}

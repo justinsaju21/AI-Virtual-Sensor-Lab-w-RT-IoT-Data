@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 
 export type FaultType = 'none' | 'stuck-at-zero' | 'stuck-at-high' | 'open-circuit' | 'noise-burst' | 'drift' | 'offset';
 
@@ -15,9 +15,10 @@ interface FaultConfig {
  * Hook to inject simulated faults into sensor data for testing/testing purposes.
  * @param realValue The actual sensor value stream
  */
-export function useFaultInjector(realValue: number | number | null) {
+export function useFaultInjector(realValue: number | null) {
     const [fault, setFault] = useState<FaultConfig>({ type: 'none' });
     const [injectedValue, setInjectedValue] = useState<number | null>(realValue);
+    const driftStartRef = useRef<number>(Date.now());
 
     useEffect(() => {
         if (realValue === null) {
@@ -38,19 +39,23 @@ export function useFaultInjector(realValue: number | number | null) {
                 case 'open-circuit':
                     setInjectedValue(NaN); // Simulate disconnected wire
                     break;
-                case 'noise-burst':
+                case 'noise-burst': {
                     const noise = (Math.random() - 0.5) * (fault.params?.noiseAmplitude || 50);
                     setInjectedValue(realValue + noise);
                     break;
-                case 'drift':
+                }
+                case 'drift': {
                     // Simple linear drift accumulating over time locally
                     const rate = fault.params?.driftRate || 0.5;
-                    const driftAmount = (Date.now() % 10000) * 0.001 * rate;
+                    const elapsed = (Date.now() - driftStartRef.current) * 0.001;
+                    const driftAmount = elapsed * rate;
                     setInjectedValue(realValue + driftAmount);
                     break;
-                case 'offset':
+                }
+                case 'offset': {
                     setInjectedValue(realValue + (fault.params?.offsetValue || 0));
                     break;
+                }
                 case 'none':
                 default:
                     setInjectedValue(realValue);

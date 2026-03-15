@@ -5,7 +5,7 @@ import { useSocket } from "@/hooks/useSocket";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
 import { SensorDetailLayout } from "@/components/sensors/SensorDetailLayout";
-import { Cpu, Info, Flame, Sparkles, Brain } from "lucide-react";
+import { Cpu, Info, Flame, Brain } from "lucide-react";
 import { useMistakeDetector, MistakeAlert } from "@/components/ai/MistakeDetector";
 import { AIQuizModal } from "@/components/ai/AIQuizModal";
 import { useFaultInjector } from "@/hooks/useFaultInjector";
@@ -24,8 +24,8 @@ const THEORY = {
 };
 
 const ARDUINO_CODE = `// Flame Sensor - KY-026
-#define FLAME_PIN A4
-#define DO_PIN 7
+#define FLAME_PIN A5
+#define DO_PIN 8
 
 void setup() {
   Serial.begin(115200);
@@ -81,7 +81,7 @@ export default function FlamePage() {
                 title="Flame Sensor"
                 description="Detects fire via IR radiation from flames."
                 sensorId="KY-026"
-                dataSnippet={{ value: injectedValue, pin: "A4" }}
+                dataSnippet={{ value: injectedValue, pin: "A5" }}
                 theory={THEORY}
                 arduinoCode={ARDUINO_CODE}
                 experiments={EXPERIMENTS}
@@ -113,7 +113,7 @@ export default function FlamePage() {
                 </div>
                 <div className="grid gap-6 md:grid-cols-2">
                     <Card variant="default"><CardHeader><CardTitle className="flex items-center gap-2"><Cpu className="h-4 w-4 text-cyan-400" />Specs</CardTitle></CardHeader><CardContent className="space-y-2 text-sm"><SpecRow label="Range" value="~100cm" /><SpecRow label="Wavelength" value="760-1100nm" /><SpecRow label="Angle" value="~60°" /></CardContent></Card>
-                    <Card variant="default"><CardHeader><CardTitle className="flex items-center gap-2"><Info className="h-4 w-4 text-blue-400" />Wiring</CardTitle></CardHeader><CardContent><table className="w-full text-sm"><tbody className="divide-y divide-white/5"><tr><td className="py-1.5 font-mono text-white">AO</td><td className="py-1.5 font-mono text-orange-400">A4</td></tr><tr><td className="py-1.5 font-mono text-white">DO</td><td className="py-1.5 font-mono text-orange-400">D7</td></tr></tbody></table></CardContent></Card>
+                    <Card variant="default"><CardHeader><CardTitle className="flex items-center gap-2"><Info className="h-4 w-4 text-blue-400" />Wiring</CardTitle></CardHeader><CardContent><table className="w-full text-sm"><tbody className="divide-y divide-white/5"><tr><td className="py-1.5 font-mono text-white">AO</td><td className="py-1.5 font-mono text-orange-400">A5</td></tr><tr><td className="py-1.5 font-mono text-white">DO</td><td className="py-1.5 font-mono text-orange-400">D8</td></tr></tbody></table></CardContent></Card>
                 </div>
             </SensorDetailLayout>
             {showQuiz && <AIQuizModal sensorName="Flame Sensor" sensorId="KY-026" onClose={() => setShowQuiz(false)} />}

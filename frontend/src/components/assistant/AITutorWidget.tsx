@@ -46,7 +46,7 @@ export const AITutorWidget = () => {
 
         try {
             // Send to backend with context
-            const response = await fetch("http://localhost:5000/api/ai-chat", {
+            const response = await fetch(`${process.env.NEXT_PUBLIC_SOCKET_URL || "http://localhost:5000"}/api/ai-chat`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
@@ -54,6 +54,8 @@ export const AITutorWidget = () => {
                     context: currentContext,
                 }),
             });
+
+            if (!response.ok) throw new Error("Server error");
 
             const data = await response.json();
 

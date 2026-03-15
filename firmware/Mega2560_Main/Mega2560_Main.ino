@@ -2,9 +2,9 @@
  * IoT Virtual Lab - Mega 2560 Super-Node Firmware
  * 
  * Description: 
- * This monolithic firmware reads 17 individual sensors concurrently using 
- * non-blocking millis() timers. It packs the raw data into a serialized JSON 
- * payload and transmits it over Serial3 to the ESP8266 Wi-Fi Gateway.
+ * This monolithic firmware reads 17 individual sensors concurrently using
+ * non-blocking millis() timers. It packs the raw data into a serialized JSON
+ * payload and transmits it over Serial (pins 0/1) to the ESP8266 Wi-Fi Gateway.
  * 
  * Required Libraries:
  * - ArduinoJson (v6 or v7)
@@ -200,13 +200,18 @@ void loop() {
     
     // Thermistor calculation (Steinhart-Hart / B-parameter)
     int rawTherm = analogRead(PIN_THERMISTOR);
-    // Assuming 10k NTC thermistor with a 10k series resistor
-    float Vout = (rawTherm * 5.0) / 1023.0;
-    float R_therm = (10000.0 * Vout) / (5.0 - Vout); 
-    float logR = log(R_therm);
-    // Steinhart-Hart approximation
-    float tempK = 1.0 / (0.001129148 + (0.000234125 * logR) + (0.0000000876741 * logR * logR * logR));
-    sysData.therm_temp = tempK - 273.15; // Convert Kelvin to Celsius
+    // Guard against ADC boundary values that cause division by zero
+    if (rawTherm <= 0 || rawTherm >= 1023) {
+      sysData.therm_temp = -999.0; // Sentinel value for invalid reading
+    } else {
+      // Assuming 10k NTC thermistor with a 10k series resistor
+      float Vout = (rawTherm * 5.0) / 1023.0;
+      float R_therm = (10000.0 * Vout) / (5.0 - Vout);
+      float logR = log(R_therm);
+      // Steinhart-Hart approximation
+      float tempK = 1.0 / (0.001129148 + (0.000234125 * logR) + (0.0000000876741 * logR * logR * logR));
+      sysData.therm_temp = tempK - 273.15; // Convert Kelvin to Celsius
+    }
   }
 
   // ---------------------------------------------------------
@@ -255,7 +260,7 @@ void loop() {
 // JSON SERIALIZATION
 // ==========================================
 void transmitData() {
-  StaticJsonDocument<1024> doc; // Adjust size if using JsonDocument (v7)
+  StaticJsonDocument<2048> doc;
 
   // Construct structured payload
   doc["device_id"] = "mega_node_01";

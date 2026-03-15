@@ -353,8 +353,8 @@ export const Dashboard = () => {
                         status={s.thermistor?.isReal ? "success" : "ok"}
                         subtitle={s.thermistor?.isReal ? "NTC Probe" : "NTC (Mock)"}
                     />
-                    
-                    {/* 16. Joystick */}
+
+                    {/* 17. Joystick */}
                     <MetricCard
                         title="Joystick"
                         value={`X:${s.joystick?.x} Y:${s.joystick?.y}`}
@@ -362,6 +362,16 @@ export const Dashboard = () => {
                         iconColor="text-green-400"
                         status={s.joystick?.isReal ? "success" : (s.joystick?.button_pressed || s.joystick?.btn) ? "info" : "ok"}
                         subtitle={s.joystick?.isReal ? "REAL HARDWARE" : "Joystick (Mock)"}
+                    />
+
+                    {/* 18. PIR Motion */}
+                    <MetricCard
+                        title="Motion (PIR)"
+                        value={s.pir?.active ? "DETECTED" : "Clear"}
+                        icon={<Move className="h-5 w-5" />}
+                        iconColor="text-lime-400"
+                        status={s.pir?.isReal ? "success" : s.pir?.active ? "warning" : "ok"}
+                        subtitle={s.pir?.isReal ? "REAL HARDWARE" : "PIR (Mock)"}
                     />
                 </div>
             </div>

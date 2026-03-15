@@ -83,7 +83,7 @@ export default function PressurePage() {
     const [dismissedAnomalies, setDismissedAnomalies] = useState<number[]>([]);
     const [calibrationOffset, setCalibrationOffset] = useState(0);
 
-    const rawPressure = data?.sensors.bmp180?.pressure ? data.sensors.bmp180.pressure / 100 : 0;
+    const rawPressure = data?.sensors.bmp280?.pressure ?? (data?.sensors.bmp180?.pressure ? data.sensors.bmp180.pressure / 100 : 0);
     const rawAltitude = data?.sensors.bmp180?.altitude ?? 0;
 
     const { injectedValue, fault, setFault } = useFaultInjector(rawPressure);

@@ -25,8 +25,8 @@ export const MetricCard: React.FC<MetricCardProps> = ({
     subtitle,
     className = "",
 }) => {
-    const statusVariant = status === "ok" ? "success" : status === "warning" ? "warning" : status === "info" ? "info" : "error";
-    const statusText = status === "ok" ? "Online" : status === "warning" ? "Warning" : status === "info" ? "Active" : "Error";
+    const statusVariant = status === "ok" ? "success" : status === "warning" ? "warning" : status === "info" ? "info" : status === "success" ? "success" : "error";
+    const statusText = status === "ok" ? "Online" : status === "warning" ? "Warning" : status === "info" ? "Active" : status === "success" ? "Hardware" : "Error";
 
     return (
         <Card variant="gradient" className={`group ${className}`}>

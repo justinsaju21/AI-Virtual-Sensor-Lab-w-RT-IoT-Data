@@ -5,8 +5,6 @@ import { useAI } from "@/contexts/AIContext";
 import { useStudentNotes } from "@/hooks/useStudentNotes";
 import { Activity, BookOpen, Code2, FlaskConical, AlertTriangle, FileText, Download, Check, Save, Settings } from "lucide-react";
 import ReactMarkdown from 'react-markdown';
-import { FaultType } from "@/hooks/useFaultInjector";
-import { FilterType } from "@/hooks/useSignalProcessing";
 
 interface TheoryContent {
     physics: string;

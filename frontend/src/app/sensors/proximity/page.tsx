@@ -5,7 +5,7 @@ import { useSocket } from "@/hooks/useSocket";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
 import { SensorDetailLayout } from "@/components/sensors/SensorDetailLayout";
-import { Cpu, Info, Radar, Sparkles, Brain } from "lucide-react";
+import { Cpu, Info, Radar, Brain } from "lucide-react";
 import { useMistakeDetector, MistakeAlert } from "@/components/ai/MistakeDetector";
 import { AIQuizModal } from "@/components/ai/AIQuizModal";
 import { useFaultInjector } from "@/hooks/useFaultInjector";
@@ -24,7 +24,7 @@ Most hobby sensors use IR reflection.`,
 };
 
 const ARDUINO_CODE = `// Proximity Sensor
-#define PROX_PIN 5
+#define PROX_PIN 11
 
 void setup() {
   Serial.begin(115200);
@@ -77,7 +77,7 @@ export default function ProximityPage() {
                 title="Proximity Sensor"
                 description="Non-contact object detection via IR reflection or capacitance."
                 sensorId="E18-D80NK"
-                dataSnippet={{ value: isDetected, pin: "D5" }}
+                dataSnippet={{ value: isDetected, pin: "D11" }}
                 theory={THEORY}
                 arduinoCode={ARDUINO_CODE}
                 experiments={EXPERIMENTS}
@@ -104,7 +104,7 @@ export default function ProximityPage() {
                 </div>
                 <div className="grid gap-6 md:grid-cols-2">
                     <Card variant="default"><CardHeader><CardTitle className="flex items-center gap-2"><Cpu className="h-4 w-4 text-cyan-400" />Specs</CardTitle></CardHeader><CardContent className="space-y-2 text-sm"><SpecRow label="Types" value="IR / Capacitive" /><SpecRow label="Range" value="2-80cm" /></CardContent></Card>
-                    <Card variant="default"><CardHeader><CardTitle className="flex items-center gap-2"><Info className="h-4 w-4 text-blue-400" />Wiring</CardTitle></CardHeader><CardContent><table className="w-full text-sm"><tbody className="divide-y divide-white/5"><tr><td className="py-1.5 font-mono text-white">OUT</td><td className="py-1.5 font-mono text-lime-400">D5</td></tr></tbody></table></CardContent></Card>
+                    <Card variant="default"><CardHeader><CardTitle className="flex items-center gap-2"><Info className="h-4 w-4 text-blue-400" />Wiring</CardTitle></CardHeader><CardContent><table className="w-full text-sm"><tbody className="divide-y divide-white/5"><tr><td className="py-1.5 font-mono text-white">OUT</td><td className="py-1.5 font-mono text-lime-400">D11</td></tr></tbody></table></CardContent></Card>
                 </div>
             </SensorDetailLayout>
             {showQuiz && <AIQuizModal sensorName="Proximity Sensor" sensorId="E18-D80NK" onClose={() => setShowQuiz(false)} />}

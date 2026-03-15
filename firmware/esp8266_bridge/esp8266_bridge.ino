@@ -6,8 +6,8 @@
  * injects WiFi stats, and forwards it to the backend.
  * 
  * Hardware Connections:
- * - ESP8266 RX -> Arduino Mega TX1 (Pin 18)
- * - ESP8266 TX -> Arduino Mega RX1 (Pin 19)
+ * - ESP8266 RX -> Arduino Mega TX0 (Pin 1)
+ * - ESP8266 TX -> Arduino Mega RX0 (Pin 0)
  * - GND -> GND
  * - VCC -> 3.3V
  */
@@ -18,8 +18,10 @@
 #include <ArduinoJson.h>
 
 // ============ CONFIGURATION ============
-const char* WIFI_SSID = "THE MAN";
-const char* WIFI_PASSWORD = "Justin3443";
+// NOTE: Update WIFI_SSID and WIFI_PASSWORD for your network.
+// Do NOT commit real credentials to version control.
+const char* WIFI_SSID = "YOUR_SSID";
+const char* WIFI_PASSWORD = "YOUR_PASSWORD";
 const char* SERVER_URL = "https://ai-virtual-sensor-lab-w-rt-iot-data.onrender.com/api/sensor-data";
 const char* DEVICE_ID = "virtual_lab_01";
 // ========================================
@@ -117,7 +119,9 @@ void loop() {
         inputBuffer = "";
       }
     } else if (c != '\r') {
-      inputBuffer += c;
+      if (inputBuffer.length() < 4096) {
+        inputBuffer += c;
+      }
     }
   }
 }

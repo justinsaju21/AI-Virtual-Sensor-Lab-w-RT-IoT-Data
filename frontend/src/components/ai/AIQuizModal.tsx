@@ -1,7 +1,6 @@
 "use client";
 
 import React, { useState } from "react";
-import { useAI } from "@/contexts/AIContext";
 import { Sparkles, X, CheckCircle, XCircle, Loader2 } from "lucide-react";
 
 interface Question {
@@ -34,7 +33,7 @@ export const AIQuizModal: React.FC<AIQuizModalProps> = ({ sensorName, sensorId, 
     const generateQuiz = async () => {
         try {
             setLoading(true);
-            const response = await fetch("http://localhost:5000/api/ai-quiz", {
+            const response = await fetch(`${process.env.NEXT_PUBLIC_SOCKET_URL || "http://localhost:5000"}/api/ai-quiz`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ sensorName, sensorId }),
@@ -43,6 +42,7 @@ export const AIQuizModal: React.FC<AIQuizModalProps> = ({ sensorName, sensorId, 
             if (!response.ok) throw new Error("Failed to generate quiz");
 
             const data = await response.json();
+            if (!data.questions || data.questions.length === 0) throw new Error("No questions");
             setQuestions(data.questions);
             setLoading(false);
         } catch (err) {
@@ -76,7 +76,7 @@ export const AIQuizModal: React.FC<AIQuizModalProps> = ({ sensorName, sensorId, 
         if (selectedAnswer !== null) return;
         setSelectedAnswer(index);
         if (index === questions[currentQ].correctIndex) {
-            setScore(score + 1);
+            setScore(prev => prev + 1);
         }
     };
 

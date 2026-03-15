@@ -78,7 +78,7 @@ export default function JoystickPage() {
 
     const rawX = data?.sensors.joystick?.x ?? 512;
     const rawY = data?.sensors.joystick?.y ?? 512;
-    const button = data?.sensors.joystick?.btn ?? false;
+    const button = data?.sensors.joystick?.button_pressed ?? data?.sensors.joystick?.btn ?? false;
 
     // Inject fault into X-Axis only for demonstration
     const { injectedValue, fault, setFault } = useFaultInjector(rawX);

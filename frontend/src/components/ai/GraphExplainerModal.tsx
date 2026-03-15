@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { Sparkles, X, Loader2, TrendingUp, TrendingDown, Minus, AlertTriangle } from "lucide-react";
+import { Sparkles, X, Loader2, TrendingUp, TrendingDown, Minus } from "lucide-react";
 
 interface GraphExplainerModalProps {
     sensorName: string;
@@ -20,7 +20,7 @@ export const GraphExplainerModal: React.FC<GraphExplainerModalProps> = ({ sensor
     const explainGraph = async () => {
         try {
             setLoading(true);
-            const response = await fetch("http://localhost:5000/api/ai-explain", {
+            const response = await fetch(`${process.env.NEXT_PUBLIC_SOCKET_URL || "http://localhost:5000"}/api/ai-explain`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ sensorName, data: data.slice(-20) }),

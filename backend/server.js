@@ -14,7 +14,7 @@ app.use(express.json());
 const server = http.createServer(app);
 const io = new Server(server, {
   cors: {
-    origin: "*",
+    origin: process.env.CORS_ORIGIN || "*",
     methods: ["GET", "POST"]
   }
 });
@@ -369,9 +369,10 @@ server.listen(PORT, () => {
   console.log('');
   console.log('Endpoints:');
   console.log(`  GET  /              - Health check`);
-  console.log(`  GET  /api/data      - Get current sensor data`);
   console.log(`  POST /api/sensor-data - Receive hardware data`);
   console.log(`  POST /api/mode      - Switch mock/hardware mode`);
   console.log(`  POST /api/ai-chat   - AI Assistant chat`);
+  console.log(`  POST /api/ai-quiz   - AI Quiz generation`);
+  console.log(`  POST /api/ai-explain - AI Graph explanation`);
   console.log('');
 });

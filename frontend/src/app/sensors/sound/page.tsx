@@ -37,8 +37,8 @@ Mic → Amplifier → Comparator → Digital Out
 };
 
 const ARDUINO_CODE = `// Sound Sensor - KY-038
-#define MIC_PIN A3
-#define DO_PIN 5
+#define MIC_PIN A6
+#define DO_PIN 9
 
 void setup() {
   Serial.begin(115200);
@@ -77,7 +77,7 @@ export default function SoundPage() {
     const [dismissedAnomalies, setDismissedAnomalies] = useState<number[]>([]);
     const [calibrationOffset, setCalibrationOffset] = useState(0);
 
-    const rawVal = data?.sensors.mic?.level ?? 0;
+    const rawVal = data?.sensors.sound?.analog ?? 0;
     const { injectedValue, fault, setFault } = useFaultInjector(rawVal);
     const calibratedValue = (typeof injectedValue === 'number') ? injectedValue + calibrationOffset : injectedValue;
     const { filter, setFilter, processedData } = useSignalProcessing(history.map(d => d.value));
@@ -106,7 +106,7 @@ export default function SoundPage() {
                 title="Sound Sensor"
                 description="Electret microphone with LM393 comparator for sound detection."
                 sensorId="KY-038"
-                dataSnippet={{ value: displayValue, pin: "A3" }}
+                dataSnippet={{ value: displayValue, pin: "A6" }}
                 theory={THEORY}
                 arduinoCode={ARDUINO_CODE}
                 experiments={EXPERIMENTS}
@@ -143,7 +143,7 @@ export default function SoundPage() {
                 </div>
                 <div className="grid gap-6 md:grid-cols-2">
                     <Card variant="default"><CardHeader><CardTitle className="flex items-center gap-2"><Cpu className="h-4 w-4 text-cyan-400" />Specs</CardTitle></CardHeader><CardContent className="space-y-2 text-sm"><SpecRow label="Mic Type" value="Electret" /><SpecRow label="Comparator" value="LM393" /><SpecRow label="Outputs" value="Analog + Digital" /></CardContent></Card>
-                    <Card variant="default"><CardHeader><CardTitle className="flex items-center gap-2"><Info className="h-4 w-4 text-blue-400" />Wiring</CardTitle></CardHeader><CardContent><table className="w-full text-sm"><tbody className="divide-y divide-white/5"><tr><td className="py-1.5 font-mono text-white">AO</td><td className="py-1.5 font-mono text-pink-400">A3</td></tr><tr><td className="py-1.5 font-mono text-white">DO</td><td className="py-1.5 font-mono text-pink-400">D5</td></tr></tbody></table></CardContent></Card>
+                    <Card variant="default"><CardHeader><CardTitle className="flex items-center gap-2"><Info className="h-4 w-4 text-blue-400" />Wiring</CardTitle></CardHeader><CardContent><table className="w-full text-sm"><tbody className="divide-y divide-white/5"><tr><td className="py-1.5 font-mono text-white">AO</td><td className="py-1.5 font-mono text-pink-400">A6</td></tr><tr><td className="py-1.5 font-mono text-white">DO</td><td className="py-1.5 font-mono text-pink-400">D9</td></tr></tbody></table></CardContent></Card>
                 </div>
             </SensorDetailLayout>
             {showQuiz && <AIQuizModal sensorName="Sound Sensor" sensorId="KY-038" onClose={() => setShowQuiz(false)} />}

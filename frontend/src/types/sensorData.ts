@@ -3,6 +3,8 @@ export interface SystemInfo {
     version: string;
     wifi_rssi?: number;
     free_heap?: number;
+    heap?: number;
+    ip?: string;
 }
 
 export interface SensorData {
@@ -11,7 +13,7 @@ export interface SensorData {
     sensors: {
         ultrasonic: {
             distance_cm: number;
-            valid: boolean;
+            valid?: boolean;
             isReal?: boolean;
         };
         dht22?: {
@@ -25,13 +27,13 @@ export interface SensorData {
             isReal?: boolean;
         };
         mq3: {
-            value: number;
-            raw?: number;
+            raw: number;
+            value?: number;
             isReal?: boolean;
         };
         mq2: {
-            value: number;
-            raw?: number;
+            raw: number;
+            value?: number;
             raw_value?: number;
             isReal?: boolean;
         };
@@ -54,12 +56,16 @@ export interface SensorData {
             isReal?: boolean;
         };
         flame: {
-            value: number;
-            analog?: number;
+            analog: number;
             digital?: boolean;
+            value?: number;
             isReal?: boolean;
         };
         proximity: {
+            active: boolean;
+            isReal?: boolean;
+        };
+        pir: {
             active: boolean;
             isReal?: boolean;
         };
@@ -79,8 +85,8 @@ export interface SensorData {
             isReal?: boolean;
         };
         ldr: {
-            value: number;
-            raw?: number;
+            raw: number;
+            value?: number;
             light_level?: number;
             isReal?: boolean;
         };

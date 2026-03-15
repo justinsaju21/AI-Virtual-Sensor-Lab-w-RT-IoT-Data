@@ -5,7 +5,7 @@ import { useSocket } from "@/hooks/useSocket";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
 import { SensorDetailLayout } from "@/components/sensors/SensorDetailLayout";
-import { Cpu, Info, Magnet, Sparkles, Brain } from "lucide-react";
+import { Cpu, Info, Magnet, Brain } from "lucide-react";
 import { useMistakeDetector, MistakeAlert } from "@/components/ai/MistakeDetector";
 import { AIQuizModal } from "@/components/ai/AIQuizModal";
 import { useFaultInjector } from "@/hooks/useFaultInjector";
@@ -30,7 +30,7 @@ Where:
 };
 
 const ARDUINO_CODE = `// Hall Effect Sensor
-#define HALL_PIN 3
+#define HALL_PIN 6
 
 void setup() {
   Serial.begin(115200);
@@ -83,7 +83,7 @@ export default function HallPage() {
                 title="Hall Effect Sensor"
                 description="Detects magnetic fields via Lorentz force on charge carriers."
                 sensorId="A3144 / KY-003"
-                dataSnippet={{ value: isDetected, pin: "D3" }}
+                dataSnippet={{ value: isDetected, pin: "D6" }}
                 theory={THEORY}
                 arduinoCode={ARDUINO_CODE}
                 experiments={EXPERIMENTS}
@@ -110,7 +110,7 @@ export default function HallPage() {
                 </div>
                 <div className="grid gap-6 md:grid-cols-2">
                     <Card variant="default"><CardHeader><CardTitle className="flex items-center gap-2"><Cpu className="h-4 w-4 text-cyan-400" />Specs</CardTitle></CardHeader><CardContent className="space-y-2 text-sm"><SpecRow label="Type" value="Latching / Non-Latching" /><SpecRow label="Trigger" value="South pole" /><SpecRow label="Output" value="Open Collector" /></CardContent></Card>
-                    <Card variant="default"><CardHeader><CardTitle className="flex items-center gap-2"><Info className="h-4 w-4 text-blue-400" />Wiring</CardTitle></CardHeader><CardContent><table className="w-full text-sm"><tbody className="divide-y divide-white/5"><tr><td className="py-1.5 font-mono text-white">VCC</td><td className="py-1.5 font-mono text-indigo-400">5V</td></tr><tr><td className="py-1.5 font-mono text-white">OUT</td><td className="py-1.5 font-mono text-indigo-400">D3</td></tr><tr><td className="py-1.5 font-mono text-white">GND</td><td className="py-1.5 font-mono text-indigo-400">GND</td></tr></tbody></table></CardContent></Card>
+                    <Card variant="default"><CardHeader><CardTitle className="flex items-center gap-2"><Info className="h-4 w-4 text-blue-400" />Wiring</CardTitle></CardHeader><CardContent><table className="w-full text-sm"><tbody className="divide-y divide-white/5"><tr><td className="py-1.5 font-mono text-white">VCC</td><td className="py-1.5 font-mono text-indigo-400">5V</td></tr><tr><td className="py-1.5 font-mono text-white">OUT</td><td className="py-1.5 font-mono text-indigo-400">D6</td></tr><tr><td className="py-1.5 font-mono text-white">GND</td><td className="py-1.5 font-mono text-indigo-400">GND</td></tr></tbody></table></CardContent></Card>
                 </div>
             </SensorDetailLayout>
             {showQuiz && <AIQuizModal sensorName="Hall Sensor" sensorId="A3144" onClose={() => setShowQuiz(false)} />}

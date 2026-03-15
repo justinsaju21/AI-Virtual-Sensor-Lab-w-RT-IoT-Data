@@ -5,7 +5,7 @@ import { useSocket } from "@/hooks/useSocket";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
 import { SensorDetailLayout } from "@/components/sensors/SensorDetailLayout";
-import { Cpu, Info, Move, Sparkles, Brain } from "lucide-react";
+import { Cpu, Info, Move, Brain } from "lucide-react";
 import { useMistakeDetector, MistakeAlert } from "@/components/ai/MistakeDetector";
 import { AIQuizModal } from "@/components/ai/AIQuizModal";
 import { useFaultInjector } from "@/hooks/useFaultInjector";
@@ -32,7 +32,7 @@ const THEORY = {
 };
 
 const ARDUINO_CODE = `// Motion Sensor - PIR HC-SR501
-#define PIR_PIN 7
+#define PIR_PIN 10
 
 void setup() {
   Serial.begin(115200);
@@ -65,7 +65,7 @@ export default function MotionPage() {
     const [dismissedAnomalies, setDismissedAnomalies] = useState<number[]>([]);
 
     // Convert boolean to number for fault injection (0 or 1)
-    const rawVal = data?.sensors.ir?.detected ? 1 : 0;
+    const rawVal = data?.sensors.pir?.active ? 1 : 0;
     const { injectedValue, fault, setFault } = useFaultInjector(rawVal);
 
     // Convert back to boolean
@@ -89,7 +89,7 @@ export default function MotionPage() {
                 title="Motion Sensor (PIR)"
                 description="Detects motion via pyroelectric infrared sensing."
                 sensorId="HC-SR501"
-                dataSnippet={{ value: rawVal, pin: "D3" }}
+                dataSnippet={{ value: rawVal, pin: "D10" }}
                 theory={THEORY}
                 arduinoCode={ARDUINO_CODE}
                 experiments={EXPERIMENTS}
@@ -127,7 +127,7 @@ export default function MotionPage() {
                 </div>
                 <div className="grid gap-6 md:grid-cols-2">
                     <Card variant="default"><CardHeader><CardTitle className="flex items-center gap-2"><Cpu className="h-4 w-4 text-cyan-400" />Specs</CardTitle></CardHeader><CardContent className="space-y-2 text-sm"><SpecRow label="Range" value="~7 meters" /><SpecRow label="FOV" value="~120°" /><SpecRow label="Delay" value="1-300s adjustable" /></CardContent></Card>
-                    <Card variant="default"><CardHeader><CardTitle className="flex items-center gap-2"><Info className="h-4 w-4 text-blue-400" />Wiring</CardTitle></CardHeader><CardContent><table className="w-full text-sm"><tbody className="divide-y divide-white/5"><tr><td className="py-1.5 font-mono text-white">VCC</td><td className="py-1.5 font-mono text-green-400">5V</td></tr><tr><td className="py-1.5 font-mono text-white">OUT</td><td className="py-1.5 font-mono text-green-400">D3</td></tr><tr><td className="py-1.5 font-mono text-white">GND</td><td className="py-1.5 font-mono text-green-400">GND</td></tr></tbody></table></CardContent></Card>
+                    <Card variant="default"><CardHeader><CardTitle className="flex items-center gap-2"><Info className="h-4 w-4 text-blue-400" />Wiring</CardTitle></CardHeader><CardContent><table className="w-full text-sm"><tbody className="divide-y divide-white/5"><tr><td className="py-1.5 font-mono text-white">VCC</td><td className="py-1.5 font-mono text-green-400">5V</td></tr><tr><td className="py-1.5 font-mono text-white">OUT</td><td className="py-1.5 font-mono text-green-400">D10</td></tr><tr><td className="py-1.5 font-mono text-white">GND</td><td className="py-1.5 font-mono text-green-400">GND</td></tr></tbody></table></CardContent></Card>
                 </div>
             </SensorDetailLayout>
             {showQuiz && <AIQuizModal sensorName="Motion Sensor" sensorId="PIR" onClose={() => setShowQuiz(false)} />}

@@ -18,7 +18,7 @@ interface MistakeDetectorProps {
     expectedRange?: { min: number; max: number };
 }
 
-export function useMistakeDetector({ sensorName, data, expectedRange }: MistakeDetectorProps): Anomaly[] {
+export function useMistakeDetector({ data, expectedRange }: MistakeDetectorProps): Anomaly[] {
     if (data.length < 5) return [];
 
     const values = data.map(d => d.value);

@@ -5,7 +5,7 @@ import { useSocket } from "@/hooks/useSocket";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
 import { SensorDetailLayout } from "@/components/sensors/SensorDetailLayout";
-import { Cpu, Info, Eye, Sparkles, Brain } from "lucide-react";
+import { Cpu, Info, Eye, Brain } from "lucide-react";
 import { useMistakeDetector, MistakeAlert } from "@/components/ai/MistakeDetector";
 import { AIQuizModal } from "@/components/ai/AIQuizModal";
 import { useFaultInjector } from "@/hooks/useFaultInjector";
@@ -24,7 +24,7 @@ const THEORY = {
 };
 
 const ARDUINO_CODE = `// IR Obstacle Sensor
-#define IR_PIN 4
+#define IR_PIN 13
 
 void setup() {
   Serial.begin(115200);
@@ -56,9 +56,8 @@ export default function IRPage() {
     const [dismissedAnomalies, setDismissedAnomalies] = useState<number[]>([]);
 
     // Logic: Active LOW (0 = Object)
-    const rawVal = data?.sensors.ir?.detected ? 0 : 1;
     // Invert for display: 1 = Object, 0 = Clear (easier for fault injection logic)
-    const normalizedVal = data?.sensors.ir?.detected ? 1 : 0;
+    const normalizedVal = data?.sensors.ir?.active ? 1 : 0;
 
     const { injectedValue, fault, setFault } = useFaultInjector(normalizedVal);
     const isDetected = injectedValue !== null && injectedValue > 0.5;
@@ -80,7 +79,7 @@ export default function IRPage() {
                 title="IR Obstacle Sensor"
                 description="Detects objects via IR light reflection."
                 sensorId="TCRT5000 / KY-032"
-                dataSnippet={{ value: isDetected, pin: "D4" }}
+                dataSnippet={{ value: isDetected, pin: "D13" }}
                 theory={THEORY}
                 arduinoCode={ARDUINO_CODE}
                 experiments={EXPERIMENTS}
@@ -107,7 +106,7 @@ export default function IRPage() {
                 </div>
                 <div className="grid gap-6 md:grid-cols-2">
                     <Card variant="default"><CardHeader><CardTitle className="flex items-center gap-2"><Cpu className="h-4 w-4 text-cyan-400" />Specs</CardTitle></CardHeader><CardContent className="space-y-2 text-sm"><SpecRow label="Range" value="2-30cm" /><SpecRow label="Wavelength" value="~940nm" /></CardContent></Card>
-                    <Card variant="default"><CardHeader><CardTitle className="flex items-center gap-2"><Info className="h-4 w-4 text-blue-400" />Wiring</CardTitle></CardHeader><CardContent><table className="w-full text-sm"><tbody className="divide-y divide-white/5"><tr><td className="py-1.5 font-mono text-white">OUT</td><td className="py-1.5 font-mono text-red-400">D4</td></tr></tbody></table></CardContent></Card>
+                    <Card variant="default"><CardHeader><CardTitle className="flex items-center gap-2"><Info className="h-4 w-4 text-blue-400" />Wiring</CardTitle></CardHeader><CardContent><table className="w-full text-sm"><tbody className="divide-y divide-white/5"><tr><td className="py-1.5 font-mono text-white">OUT</td><td className="py-1.5 font-mono text-red-400">D13</td></tr></tbody></table></CardContent></Card>
                 </div>
             </SensorDetailLayout>
             {showQuiz && <AIQuizModal sensorName="IR Sensor" sensorId="TCRT5000" onClose={() => setShowQuiz(false)} />}

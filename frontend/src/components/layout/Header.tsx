@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { Wifi, WifiOff, Clock, Cpu, Signal, Activity } from "lucide-react";
+import { WifiOff, Clock, Cpu, Signal, Activity } from "lucide-react";
 import { Badge } from "../ui/Badge";
 import { SystemInfo } from "@/types/sensorData";
 
@@ -40,7 +40,7 @@ export const Header: React.FC<HeaderProps> = ({ systemInfo, isConnected, deviceI
                             <div className="flex items-center gap-2">
                                 <Signal className="h-4 w-4 text-blue-400" />
                                 <span className="text-xs text-slate-400">Signal</span>
-                                <span className="text-xs font-mono font-medium text-white">{systemInfo.wifi_rssi}dBm</span>
+                                <span className="text-xs font-mono font-medium text-white">{systemInfo.wifi_rssi ?? "N/A"}dBm</span>
                             </div>
                             <div className="flex items-center gap-2">
                                 <Clock className="h-4 w-4 text-purple-400" />
