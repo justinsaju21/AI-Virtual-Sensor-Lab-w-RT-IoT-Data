@@ -23,9 +23,9 @@ const io = new Server(server, {
 // Specify which sensors should use real data when available.
 // All other sensors will use animated mock data.
 const REAL_SENSORS = [
-  "ultrasonic", "dht11", "mq2", "mq3", "ldr", 
+  "dht11", "mq2", "mq3", "ldr", 
   "bmp280", "flame", "sound", "pir", "ir", 
-  "proximity", "touch", "tilt", "hall", 
+  "touch", "tilt", "hall", 
   "joystick", "thermistor", "max30102"
 ];
 

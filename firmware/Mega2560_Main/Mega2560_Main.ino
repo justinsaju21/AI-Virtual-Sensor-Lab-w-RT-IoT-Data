@@ -36,15 +36,15 @@
 
 // Digital Pins
 #define PIN_DHT      2
-#define PIN_TRIG     3
-#define PIN_ECHO     4
+#define PIN_TRIG     -1 // DISABLED
+#define PIN_ECHO     -1 // DISABLED
 #define PIN_TOUCH    5
 #define PIN_HALL     6
 #define PIN_JOY_SW   7
 #define PIN_FLAME_D  8
 #define PIN_SOUND_D  9
 #define PIN_PIR      10
-#define PIN_PROX     11
+#define PIN_PROX     -1 // DISABLED
 #define PIN_TILT     12
 #define PIN_IR       13
 
@@ -68,7 +68,7 @@ const unsigned long INTERVAL_SLOW = 2000;  // DHT11, Serial TX
 unsigned long lastFastUpdate = 0;
 unsigned long lastMedUpdate  = 0;
 unsigned long lastSlowUpdate = 0;
-unsigned long lastSonicUpdate = 0;
+// unsigned long lastSonicUpdate = 0; // DISABLED
 
 // Data structure holding all current readings
 struct SensorData {
@@ -89,7 +89,7 @@ struct SensorData {
   float sonic_dist;
   bool pir_active;
   bool ir_active;
-  bool prox_active;
+  // bool prox_active; // DISABLED
   // Mechanical/Touch
   bool touch_active;
   bool tilt_active;
@@ -116,13 +116,14 @@ void setup() {
   pinMode(PIN_FLAME_D, INPUT);
   pinMode(PIN_SOUND_D, INPUT);
   pinMode(PIN_PIR, INPUT);
-  pinMode(PIN_PROX, INPUT_PULLUP); // Assuming NPN
+  // pinMode(PIN_PROX, INPUT_PULLUP); // DISABLED
   pinMode(PIN_TILT, INPUT_PULLUP);
   pinMode(PIN_IR, INPUT);
   
-  // HC-SR04
+  /* HC-SR04 DISABLED
   pinMode(PIN_TRIG, OUTPUT);
   pinMode(PIN_ECHO, INPUT);
+  */
 
   // Init I2C & Smart Sensors
   Wire.begin();
@@ -196,7 +197,7 @@ void loop() {
     
     sysData.pir_active = digitalRead(PIN_PIR) == HIGH;
     sysData.ir_active = digitalRead(PIN_IR) == LOW; // Low = Obstacle
-    sysData.prox_active = digitalRead(PIN_PROX) == LOW; // Low = Metal
+    // sysData.prox_active = digitalRead(PIN_PROX) == LOW; // DISABLED
     
     // Thermistor calculation (Steinhart-Hart / B-parameter)
     int rawTherm = analogRead(PIN_THERMISTOR);
@@ -214,23 +215,11 @@ void loop() {
     }
   }
 
-  // ---------------------------------------------------------
-  // ULTRASONIC POLLING (60ms)
-  // Must be separate because pulseIn() blocks for up to 25ms!
-  // ---------------------------------------------------------
+  /* ULTRASONIC POLLING DISABLED
   if (currentMillis - lastSonicUpdate >= 60) {
-    lastSonicUpdate = currentMillis;
-    
-    digitalWrite(PIN_TRIG, LOW);
-    delayMicroseconds(2);
-    digitalWrite(PIN_TRIG, HIGH);
-    delayMicroseconds(10);
-    digitalWrite(PIN_TRIG, LOW);
-    
-    // Timeout set to 23200us (~4 meters). Anything longer returns 0.
-    long duration = pulseIn(PIN_ECHO, HIGH, 23200);
-    sysData.sonic_dist = (duration * 0.0343) / 2.0; 
+    ...
   }
+  */
 
   // ---------------------------------------------------------
   // SLOW POLLING LOOP (2000ms ~ 0.5Hz)
@@ -289,10 +278,10 @@ void transmitData() {
   s["sound"]["digital"] = sysData.sound_d;
   
   // 5. Motion/Object
-  s["ultrasonic"]["distance_cm"] = sysData.sonic_dist;
+  // s["ultrasonic"]["distance_cm"] = sysData.sonic_dist; // DISABLED
   s["pir"]["active"] = sysData.pir_active;
   s["ir"]["active"] = sysData.ir_active;
-  s["proximity"]["active"] = sysData.prox_active;
+  // s["proximity"]["active"] = sysData.prox_active; // DISABLED
   
   // 6. Mechanical
   s["touch"]["active"] = sysData.touch_active;

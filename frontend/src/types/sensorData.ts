@@ -11,7 +11,7 @@ export interface SensorData {
     device_id: string;
     timestamp: string;
     sensors: {
-        ultrasonic: {
+        ultrasonic?: {
             distance_cm: number;
             valid?: boolean;
             isReal?: boolean;
@@ -61,7 +61,7 @@ export interface SensorData {
             value?: number;
             isReal?: boolean;
         };
-        proximity: {
+        proximity?: {
             active: boolean;
             isReal?: boolean;
         };

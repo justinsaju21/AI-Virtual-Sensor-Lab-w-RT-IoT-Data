@@ -147,7 +147,7 @@ export const Dashboard = () => {
                             </div>
                             <div>
                                 <p className="text-[10px] font-medium text-slate-500 uppercase tracking-wider">Sensors</p>
-                                <p className="text-sm font-semibold text-white">18 Active</p>
+                                <p className="text-sm font-semibold text-white">16 Active</p>
                             </div>
                         </div>
 
@@ -171,18 +171,7 @@ export const Dashboard = () => {
                     Live Readings
                 </h2>
                 <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-                    {/* 1. Ultraviolet/Distance */}
-                    <MetricCard
-                        title="Distance"
-                        value={s.ultrasonic?.distance_cm ?? 0}
-                        unit="cm"
-                        icon={<Radar className="h-5 w-5" />}
-                        iconColor="text-purple-400"
-                        status={s.ultrasonic?.isReal ? "success" : "ok"}
-                        subtitle={s.ultrasonic?.isReal ? "REAL HARDWARE" : "HC-SR04 (Mock)"}
-                    />
-                    
-                    {/* 2. DHT11 Temp */}
+                    {/* 1. DHT11 Temp */}
                     <MetricCard
                         title="Temperature"
                         value={s.dht11?.temp ?? s.dht22?.temperature ?? 0}
@@ -268,17 +257,7 @@ export const Dashboard = () => {
                         subtitle={s.flame?.isReal ? "REAL HARDWARE" : "Flame (Mock)"}
                     />
                     
-                    {/* 10. Proximity */}
-                    <MetricCard
-                        title="Proximity"
-                        value={s.proximity?.active ? "NEAR" : "Far"}
-                        icon={<Radar className="h-5 w-5" />}
-                        iconColor="text-teal-400"
-                        status={s.proximity?.isReal ? "success" : s.proximity?.active ? "warning" : "ok"}
-                        subtitle={s.proximity?.isReal ? "REAL HARDWARE" : "Proximity (Mock)"}
-                    />
-                    
-                    {/* 11. Pressure */}
+                    {/* 10. Pressure */}
                     <MetricCard
                         title="Pressure"
                         value={Math.round(s.bmp280?.pressure ?? s.bmp180?.pressure ?? 0)}
