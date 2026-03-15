@@ -23,10 +23,10 @@ const io = new Server(server, {
 // Specify which sensors should use real data when available.
 // All other sensors will use animated mock data.
 const REAL_SENSORS = [
-  "ultrasonic", // Distance
-  "dht11",      // Temp/Humidity
-  "mq2",        // Gas/Smoke
-  "ldr"         // Light
+  "ultrasonic", "dht11", "mq2", "mq3", "ldr", 
+  "bmp280", "flame", "sound", "pir", "ir", 
+  "proximity", "touch", "tilt", "hall", 
+  "joystick", "thermistor", "max30102"
 ];
 
 const mergeHardwareWithMock = (mock, real) => {
