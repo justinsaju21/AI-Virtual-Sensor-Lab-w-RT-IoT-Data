@@ -1,9 +1,9 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { Card, CardContent } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
-import { Bot, Send, Sparkles, Lightbulb } from "lucide-react";
+import { Bot, Send, Sparkles, Lightbulb, Loader2 } from "lucide-react";
 import { useSocket } from "@/hooks/useSocket";
 
 const suggestionPrompts = [
@@ -22,19 +22,59 @@ export default function AssistantPage() {
         },
     ]);
     const [input, setInput] = useState("");
+    const [isLoading, setIsLoading] = useState(false);
+    const scrollRef = useRef<HTMLDivElement>(null);
 
-    const handleSend = () => {
-        if (!input.trim()) return;
+    useEffect(() => {
+        if (scrollRef.current) {
+            scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
+        }
+    }, [messages]);
 
-        setMessages((prev) => [
-            ...prev,
-            { role: "user", content: input },
-            {
-                role: "assistant",
-                content: "This is a demo response. In the full version, I would analyze the current sensor data and provide contextual explanations. For example, I can see that the current temperature is " + (data?.sensors.dht11?.temp ?? "--") + "°C."
-            },
-        ]);
-        setInput("");
+    const handleSend = async (textOverride?: string) => {
+        const text = textOverride || input;
+        if (!text.trim() || isLoading) return;
+
+        const userMsg = { role: "user" as const, content: text };
+        setMessages((prev) => [...prev, userMsg]);
+        if (!textOverride) setInput("");
+        setIsLoading(true);
+
+        try {
+            // Map messages to Gemini history format: [{ role: "user" | "model", parts: [{ text: "..." }] }]
+            const history = messages.map(msg => ({
+                role: msg.role === "assistant" ? "model" : "user",
+                parts: [{ text: msg.content }]
+            }));
+
+            const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/api/ai-chat`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    message: text,
+                    context: {
+                        sensor: "Dashboard (Overview)",
+                        dataSnippet: data?.sensors || {}
+                    },
+                    history: history
+                })
+            });
+
+            const result = await response.json();
+            
+            setMessages((prev) => [
+                ...prev,
+                { role: "assistant", content: result.reply || "I'm sorry, I couldn't process that response." }
+            ]);
+        } catch (error) {
+            console.error("AI Assistant Error:", error);
+            setMessages((prev) => [
+                ...prev,
+                { role: "assistant", content: "I'm having trouble connecting right now. Please try again later." }
+            ]);
+        } finally {
+            setIsLoading(false);
+        }
     };
 
     return (
@@ -54,7 +94,10 @@ export default function AssistantPage() {
             {/* Chat Area */}
             <Card variant="default" className="flex-1 flex flex-col overflow-hidden">
                 {/* Messages */}
-                <div className="flex-1 overflow-y-auto p-4 space-y-4">
+                <div 
+                    ref={scrollRef}
+                    className="flex-1 overflow-y-auto p-4 space-y-4 scroll-smooth"
+                >
                     {messages.map((msg, idx) => (
                         <div
                             key={idx}
@@ -72,10 +115,17 @@ export default function AssistantPage() {
                                         <span className="text-xs font-medium text-purple-400">AI Assistant</span>
                                     </div>
                                 )}
-                                <p className="text-sm leading-relaxed">{msg.content}</p>
+                                <p className="text-sm leading-relaxed whitespace-pre-wrap">{msg.content}</p>
                             </div>
                         </div>
                     ))}
+                    {isLoading && (
+                        <div className="flex justify-start">
+                            <div className="bg-slate-800 text-slate-300 rounded-2xl px-4 py-3">
+                                <Loader2 className="h-4 w-4 animate-spin text-purple-400" />
+                            </div>
+                        </div>
+                    )}
                 </div>
 
                 {/* Suggestions */}
@@ -88,8 +138,9 @@ export default function AssistantPage() {
                         {suggestionPrompts.map((prompt, idx) => (
                             <button
                                 key={idx}
-                                onClick={() => setInput(prompt)}
-                                className="text-xs px-3 py-1.5 rounded-full bg-white/5 text-slate-400 hover:bg-white/10 hover:text-white transition-colors"
+                                onClick={() => handleSend(prompt)}
+                                disabled={isLoading}
+                                className="text-xs px-3 py-1.5 rounded-full bg-white/5 text-slate-400 hover:bg-white/10 hover:text-white transition-colors disabled:opacity-50"
                             >
                                 {prompt}
                             </button>
@@ -105,14 +156,16 @@ export default function AssistantPage() {
                             value={input}
                             onChange={(e) => setInput(e.target.value)}
                             onKeyDown={(e) => e.key === "Enter" && handleSend()}
+                            disabled={isLoading}
                             placeholder="Ask about sensors, data, or experiments..."
-                            className="flex-1 bg-slate-800/50 border border-white/10 rounded-xl px-4 py-3 text-sm text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-cyan-500/50"
+                            className="flex-1 bg-slate-800/50 border border-white/10 rounded-xl px-4 py-3 text-sm text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-cyan-500/50 disabled:opacity-50"
                         />
                         <button
-                            onClick={handleSend}
-                            className="px-4 py-3 bg-gradient-to-r from-cyan-500 to-blue-500 rounded-xl text-white font-medium hover:opacity-90 transition-opacity"
+                            onClick={() => handleSend()}
+                            disabled={isLoading || !input.trim()}
+                            className="px-4 py-3 bg-gradient-to-r from-cyan-500 to-blue-500 rounded-xl text-white font-medium hover:opacity-90 transition-opacity disabled:opacity-50"
                         >
-                            <Send className="h-4 w-4" />
+                            {isLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
                         </button>
                     </div>
                 </div>
@@ -120,3 +173,4 @@ export default function AssistantPage() {
         </div>
     );
 }
+

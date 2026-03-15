@@ -121,7 +121,7 @@ app.post('/api/mode', (req, res) => {
 // AI Chat Endpoint (Live Gemini Integration)
 app.post("/api/ai-chat", async (req, res) => {
   try {
-    const { message, context } = req.body || {};
+    const { message, context, history } = req.body || {};
     console.log("Gemini AI Query:", message, "with context:", context?.sensor);
 
     if (!model) {
@@ -132,11 +132,11 @@ app.post("/api/ai-chat", async (req, res) => {
     The student is currently viewing: ${context?.sensor || "the dashboard"}.
     Live Data Snippet: ${JSON.stringify(context?.dataSnippet || {})}.
     
-    Answer the student's question accurately. Focus on the physics, electronics, and coding aspects of the sensor. Be concise but educational. Use Markdown for formatting.`;
+    Answer the student's question accurately. Focus on the physics, electronics, and coding aspects of the sensor. Be concise but educational. Keep your answer to under 150 words. Use Markdown for formatting.`;
 
     const chat = model.startChat({
-        history: [],
-        generationConfig: { maxOutputTokens: 500 }
+        history: history || [],
+        generationConfig: { maxOutputTokens: 1000 }
     });
 
     const result = await chat.sendMessage(`${systemPrompt}\n\nStudent: ${message}`);
