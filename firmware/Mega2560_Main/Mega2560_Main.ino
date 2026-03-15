@@ -107,7 +107,7 @@ void setup() {
   // Bridge Serial (Internal connection to ESP8266 or via USB for debugging)
   Serial.begin(115200);
 
-  Serial.println("Initialzing IoT Virtual Lab Mega Node...");
+  // Serial.println("Initialzing IoT Virtual Lab Mega Node...");
 
   // Setup Digital Inputs
   pinMode(PIN_TOUCH, INPUT);
@@ -130,7 +130,7 @@ void setup() {
   dht.begin();
   
   if (!bmp.begin(0x76)) {
-    Serial.println("Warning: BMP280 not found! Check wiring!");
+    // Serial.println("Warning: BMP280 not found! Check wiring!");
   } else {
     // Default setup for BMP280
     bmp.setSampling(Adafruit_BMP280::MODE_NORMAL, 
@@ -141,7 +141,7 @@ void setup() {
   }
 
   if (!particleSensor.begin(Wire, I2C_SPEED_FAST)) {
-    Serial.println("Warning: MAX30102 not found! Check wiring!");
+    // Serial.println("Warning: MAX30102 not found! Check wiring!");
   } else {
     particleSensor.setup(); // Default settings
     particleSensor.setPulseAmplitudeRed(0x0A);

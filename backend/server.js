@@ -66,7 +66,10 @@ app.get('/', (req, res) => {
 app.post('/api/sensor-data', (req, res) => {
   try {
     const data = req.body;
+    console.log(`[DEBUG] Incoming POST /api/sensor-data. Keys: ${Object.keys(data).join(', ')}`);
+    
     if (!data.device_id || !data.sensors) {
+      console.warn(`[DEBUG] Validation failed! device_id present: ${!!data.device_id}, sensors present: ${!!data.sensors}`);
       return res.status(400).json({ error: 'Invalid data format' });
     }
 
