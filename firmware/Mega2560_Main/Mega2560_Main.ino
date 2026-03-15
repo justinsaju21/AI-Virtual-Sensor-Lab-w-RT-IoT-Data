@@ -104,10 +104,8 @@ struct SensorData {
 } sysData;
 
 void setup() {
-  // Debug Serial (PC)
+  // Bridge Serial (Internal connection to ESP8266 or via USB for debugging)
   Serial.begin(115200);
-  // ESP8266 Serial Link (TX3/RX3)
-  Serial3.begin(115200);
 
   Serial.println("Initialzing IoT Virtual Lab Mega Node...");
 
@@ -304,11 +302,7 @@ void transmitData() {
   s["max30102"]["ir"] = sysData.max_ir;
   s["max30102"]["bpm"] = sysData.bpm;
 
-  // Serialize to JSON and send to ESP8266
-  serializeJson(doc, Serial3);
-  Serial3.println(); // Terminate with newline
-
-  // Print to PC for debugging
-  // serializeJsonPretty(doc, Serial);
-  // Serial.println();
+  // Serialize to JSON and send to the bridge (Serial)
+  serializeJson(doc, Serial);
+  Serial.println(); // Terminate with newline
 }

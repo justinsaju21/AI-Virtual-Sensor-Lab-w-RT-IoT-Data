@@ -53,7 +53,7 @@ This is the code that actually lives inside the chips on your board.
 - **`Mega2560_Main/Mega2560_Main.ino`**:
   - The "Data Harvester" (Super-Node firmware). 
   - Uses non-blocking timers to loop through 15 physical sensors (Analog & Digital).
-  - Serializes a JSON payload and sends it over Serial3 to the ESP8266.
+  - Serializes a JSON payload and sends it over **Serial (UART0)** to the ESP8266.
 - **`esp8266_bridge/esp8266_bridge.ino`**:
   - The "WiFi Gateway." 
   - Wraps the serial JSON in an **HTTP POST** request and fires it at the Node.js backend URL.

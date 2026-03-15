@@ -32,7 +32,7 @@ sequenceDiagram
     participant F as React Frontend
 
     S->>M: Physical Signals (V)
-    M->>E: Serial JSON String
+    M->>E: Serial JSON String (Internal UART0)
     E-->>B: WiFi (HTTP POST)
     Note over B: server.js Logic
     B-->>F: Live Socket Stream

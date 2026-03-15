@@ -40,11 +40,10 @@ The ESP8266 constantly monitors its WiFi connection. If it detects a disconnect,
 ## ⛓️ 3. The Hardware Serial Link
 The communication between the two chips happens over **UART (Serial)**.
 
-*   **Arduino Mega:** Transmits data on **Serial3 (Pins 14/15)**.
+*   **Arduino Mega:** Transmits data on **Serial (UART0)**.
 *   **ESP8266:** Receives data on its hardware **RX/TX** pins.
 
-> [!WARNING]
-> **Voltage Difference:** The Mega operates at 5V, but the ESP8266 is a 3.3V device. The signal from Mega TX to ESP8266 RX must pass through a **Voltage Divider** (1kΩ and 2kΩ resistors) to prevent damaging the ESP chip.
+> **Integrated Board Note:** On the **Mega + WiFi R3**, the connection is handled internally when DIP Switches 1 & 2 are ON. No external voltage divider is needed for the internal link.
 
 ---
 
