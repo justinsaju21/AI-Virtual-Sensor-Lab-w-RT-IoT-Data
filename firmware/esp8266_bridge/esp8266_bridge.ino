@@ -18,9 +18,9 @@
 #include <ArduinoJson.h>
 
 // ============ CONFIGURATION ============
-const char* WIFI_SSID = "YOUR_WIFI_SSID";
-const char* WIFI_PASSWORD = "YOUR_WIFI_PASSWORD";
-const char* SERVER_URL = "http://192.168.1.100:5000/api/sensor-data";
+const char* WIFI_SSID = "THE MAN";
+const char* WIFI_PASSWORD = "Justin3443";
+const char* SERVER_URL = "https://ai-virtual-sensor-lab-w-rt-iot-data.onrender.com/api/sensor-data";
 const char* DEVICE_ID = "virtual_lab_01";
 // ========================================
 

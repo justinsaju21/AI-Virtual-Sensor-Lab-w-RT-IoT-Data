@@ -90,7 +90,7 @@ Here is the complete technical breakdown of the 15 sensors supported by the labo
 ## 🚀 4. End-to-End Setup Guide
 
 ### Step 1: WiFi Credentials
-Open `firmware/esp8266_bridge/esp8266_bridge.ino` and enter your SSID, Password, and your Computer's local IP address.
+Open `firmware/esp8266_bridge/esp8266_bridge.ino` and enter your SSID, Password, and your **Render App URL** (`https://ai-virtual-sensor-lab-w-rt-iot-data.onrender.com/api/sensor-data`).
 
 ### Step 2: Flashing
 1.  **Flash Mega:** Switches 3/4 ON -> Upload `Mega2560_Main.ino`.
