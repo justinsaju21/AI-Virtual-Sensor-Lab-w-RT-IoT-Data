@@ -13,6 +13,7 @@ import { GraphExplainerModal } from "@/components/ai/GraphExplainerModal";
 import { useFaultInjector } from "@/hooks/useFaultInjector";
 import { useSignalProcessing } from "@/hooks/useSignalProcessing";
 import { TestingControlPanel } from "@/components/testing/TestingControlPanel";
+import { SENSOR_QUIZZES } from "@/config/quizzes";
 
 interface DataPoint { time: string; value: number; processingValue?: number; }
 const MAX_DATA_POINTS = 50;
@@ -64,10 +65,7 @@ void loop() {
   delay(1000);
 }`;
 
-const EXPERIMENTS = [
-    { title: "Baseline", instruction: "Note the reading in clean air after warm-up.", observation: "What's the baseline?", expected: "100-300 in clean air." },
-    { title: "Hand Sanitizer", instruction: "Apply hand sanitizer 30cm away and note the spike.", observation: "How sensitive is it?", expected: "Alcohol vapor should spike the reading significantly." }
-];
+
 
 
 

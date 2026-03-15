@@ -13,6 +13,7 @@ import { useFaultInjector } from "@/hooks/useFaultInjector";
 import { useSignalProcessing } from "@/hooks/useSignalProcessing";
 import { TestingControlPanel } from "@/components/testing/TestingControlPanel";
 import { Activity, Cpu, Info, Thermometer, Download, Sparkles, Brain } from "lucide-react";
+import { SENSOR_QUIZZES } from "@/config/quizzes";
 
 interface DataPoint { time: string; value: number; processingValue?: number; }
 const MAX_DATA_POINTS = 50;
@@ -92,11 +93,7 @@ void loop() {
   Serial.println(" °C");
 }`;
 
-const EXPERIMENTS = [
-    { title: "Observe Baseline Temperature", instruction: "Let the sensor stabilize for 2 minutes at room temperature. Note the reading displayed on the Live Data tab.", observation: "What is the ambient room temperature? Is it stable or fluctuating?", expected: "You should see a stable reading between 20-28°C depending on your environment. Minor fluctuations of ±0.5°C are normal." },
-    { title: "Body Heat Detection", instruction: "Place your finger close to (but not touching) the sensor for 30 seconds. Observe the temperature change.", observation: "How much did the temperature rise? How quickly did it respond?", expected: "Temperature should rise 2-5°C due to body heat radiation. The DHT22 has a ~2 second response time, so changes aren't instant." },
-    { title: "Cooling Effect", instruction: "Gently blow on the sensor from a distance of ~10cm for a few seconds.", observation: "Did the temperature decrease? By how much?", expected: "Evaporative cooling from your breath should cause a slight temperature drop of 1-3°C, followed by a gradual return to baseline." },
-];
+
 
 
 

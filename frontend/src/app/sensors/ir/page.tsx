@@ -10,6 +10,7 @@ import { useMistakeDetector, MistakeAlert } from "@/components/ai/MistakeDetecto
 import { AIQuizModal } from "@/components/ai/AIQuizModal";
 import { useFaultInjector } from "@/hooks/useFaultInjector";
 import { TestingControlPanel } from "@/components/testing/TestingControlPanel";
+import { SENSOR_QUIZZES } from "@/config/quizzes";
 
 const THEORY = {
     "physics": "The E18-D80NK is an active photoelectric proximity sensor based on modulated infrared light reflection. It houses both an IR emitter and an IR receiver. The emitter continuously pulses IR light at a specific high frequency (typically 38kHz). Modulating the light prevents interference from continuous ambient light sources (like sunlight or indoor bulbs). When an object enters the sensor's range, the modulated IR light bounces off the object and scatters back into the receiver. The internal circuitry filters out non-38kHz light and measures the returned signal intensity.",
@@ -58,9 +59,7 @@ void loop() {
   delay(200);
 }`;
 
-const EXPERIMENTS = [
-    { title: "Color Test", instruction: "Compare detection of white paper vs black cloth.", observation: "Which is detected more reliably?", expected: "White/light objects reflect more IR and are detected more easily." }
-];
+
 
 
 

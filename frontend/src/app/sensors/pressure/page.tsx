@@ -13,6 +13,7 @@ import { GraphExplainerModal } from "@/components/ai/GraphExplainerModal";
 import { useFaultInjector } from "@/hooks/useFaultInjector";
 import { useSignalProcessing } from "@/hooks/useSignalProcessing";
 import { TestingControlPanel } from "@/components/testing/TestingControlPanel";
+import { SENSOR_QUIZZES } from "@/config/quizzes";
 
 interface DataPoint { time: string; value: number; processingValue?: number; }
 const MAX_DATA_POINTS = 50;
@@ -84,9 +85,7 @@ void loop() {
   delay(1000);
 }`;
 
-const EXPERIMENTS = [
-    { title: "Altitude Experiment", instruction: "Note the reading, then move up/down one floor of a building.", observation: "How much does altitude change?", expected: "Each floor (~3m) should show ~30-40 Pa change." }
-];
+
 
 
 

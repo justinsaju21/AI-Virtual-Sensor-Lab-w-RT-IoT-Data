@@ -13,6 +13,7 @@ import { GraphExplainerModal } from "@/components/ai/GraphExplainerModal";
 import { useFaultInjector } from "@/hooks/useFaultInjector";
 import { useSignalProcessing } from "@/hooks/useSignalProcessing";
 import { TestingControlPanel } from "@/components/testing/TestingControlPanel";
+import { SENSOR_QUIZZES } from "@/config/quizzes";
 
 interface DataPoint { time: string; value: number; processingValue?: number; }
 const MAX_DATA_POINTS = 50;
@@ -81,11 +82,7 @@ void loop() {
   delay(500);
 }`;
 
-const EXPERIMENTS = [
-    { title: "Measure Fixed Object", instruction: "Place object at 20cm. Compare reading.", observation: "How accurate is it?", expected: "Within ±3mm. Some jitter normal." },
-    { title: "Minimum Range", instruction: "Move closer until failure.", observation: "At what distance does it fail?", expected: "< 2cm, echoes return too fast." },
-    { title: "Soft Surface", instruction: "Target a pillow or fabric.", observation: "Is reading stable?", expected: "Fabric absorbs sound, causing unstable or lost readings." }
-];
+
 
 
 

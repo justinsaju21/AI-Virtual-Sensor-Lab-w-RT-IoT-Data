@@ -13,6 +13,7 @@ import { GraphExplainerModal } from "@/components/ai/GraphExplainerModal";
 import { useFaultInjector } from "@/hooks/useFaultInjector";
 import { useSignalProcessing } from "@/hooks/useSignalProcessing";
 import { TestingControlPanel } from "@/components/testing/TestingControlPanel";
+import { SENSOR_QUIZZES } from "@/config/quizzes";
 
 interface DataPoint { time: string; value: number; processingValue?: number; }
 const MAX_DATA_POINTS = 100;
@@ -81,9 +82,7 @@ void loop() {
   delay(20); // Fast sampling for waveform
 }`;
 
-const EXPERIMENTS = [
-    { title: "Resting Heart Rate", instruction: "Place finger on sensor, wait 30s until stable.", observation: "What's your resting BPM?", expected: "Normal: 60-100 BPM at rest." }
-];
+
 
 
 

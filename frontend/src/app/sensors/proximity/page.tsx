@@ -10,6 +10,7 @@ import { useMistakeDetector, MistakeAlert } from "@/components/ai/MistakeDetecto
 import { AIQuizModal } from "@/components/ai/AIQuizModal";
 import { useFaultInjector } from "@/hooks/useFaultInjector";
 import { TestingControlPanel } from "@/components/testing/TestingControlPanel";
+import { SENSOR_QUIZZES } from "@/config/quizzes";
 
 const THEORY = {
     "physics": "Inductive proximity sensors operate purely on electromagnetism and Faraday's Law of Induction. The sensor head contains an oscillator circuit that drives an alternating current through an internal copper coil, generating a high-frequency alternating magnetic field out the front face. When a conductive metal object (like steel, aluminum, or copper) enters this field, the changing magnetic flux induces 'Eddy Currents' within the surface of the metal target. These eddy currents generate their own opposing magnetic field, which absorbs energy from the sensor's oscillator, causing the oscillation amplitude to collapse.",
@@ -60,9 +61,7 @@ void loop() {
   delay(200);
 }`;
 
-const EXPERIMENTS = [
-    { title: "Range Test", instruction: "Move your hand toward the sensor slowly.", observation: "At what distance does it detect?", expected: "Typical range 2-30cm for IR types." }
-];
+
 
 
 

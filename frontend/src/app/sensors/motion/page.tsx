@@ -10,6 +10,7 @@ import { useMistakeDetector, MistakeAlert } from "@/components/ai/MistakeDetecto
 import { AIQuizModal } from "@/components/ai/AIQuizModal";
 import { useFaultInjector } from "@/hooks/useFaultInjector";
 import { TestingControlPanel } from "@/components/testing/TestingControlPanel";
+import { SENSOR_QUIZZES } from "@/config/quizzes";
 
 const THEORY = {
     "physics": "The HC-SR501 Passive Infrared (PIR) sensor detects motion by mapping changes in the infrared radiation emitted by warm bodies (humans/animals). It features a specialized pyroelectric sensor split into two identical, electrically opposed halves. In a static environment, both halves receive the same ambient IR levels, canceling each other out to produce zero voltage. When a warm body walks past, it crosses the field of view of the first half, causing a positive voltage spike, and then crosses the second half, causing an equal negative spike. This differential AC waveform is what triggers the 'Motion Detected' logic.",
@@ -64,10 +65,7 @@ void loop() {
   delay(500);
 }`;
 
-const EXPERIMENTS = [
-    { title: "Detection Range Test", instruction: "Walk toward the sensor from 5 meters away.", observation: "At what distance did it trigger?", expected: "Typical range is 5-7 meters." },
-    { title: "Pet vs Human", instruction: "Have a pet walk by if available.", observation: "Does it detect smaller heat sources?", expected: "PIR detects change in IR pattern - smaller sources may not trigger." }
-];
+
 
 
 

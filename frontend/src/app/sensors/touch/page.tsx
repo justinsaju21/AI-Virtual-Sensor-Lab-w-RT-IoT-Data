@@ -10,6 +10,7 @@ import { useMistakeDetector, MistakeAlert } from "@/components/ai/MistakeDetecto
 import { AIQuizModal } from "@/components/ai/AIQuizModal";
 import { useFaultInjector } from "@/hooks/useFaultInjector";
 import { TestingControlPanel } from "@/components/testing/TestingControlPanel";
+import { SENSOR_QUIZZES } from "@/config/quizzes";
 
 const THEORY = {
     "physics": "The TTP223 is a dedicated capacitive touch sensor controller. Unlike resistive touchscreens that require physical pressure, capacitive touch senses the electrical properties of the human body. The sensor pad acts as one plate of a virtual capacitor, and the surrounding ground plane acts as the other. A constant high-frequency electrical charge is applied to the pad, establishing a baseline capacitance. The human body is mostly saltwater and acts as a massive conductive dielectric. When a finger approaches (even through 2-3mm of plastic or glass), it bleeds off a tiny amount of the electric field to human-ground, increasing the total capacitance of the node.",
@@ -58,9 +59,7 @@ void loop() {
   delay(100);
 }`;
 
-const EXPERIMENTS = [
-    { title: "Through Material", instruction: "Place thin paper over the sensor and try to touch.", observation: "Does it still detect?", expected: "Capacitive sensors work through non-conductive materials." }
-];
+
 
 
 

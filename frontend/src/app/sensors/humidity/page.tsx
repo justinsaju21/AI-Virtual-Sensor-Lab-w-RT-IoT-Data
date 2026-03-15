@@ -13,6 +13,7 @@ import { GraphExplainerModal } from "@/components/ai/GraphExplainerModal";
 import { useFaultInjector } from "@/hooks/useFaultInjector";
 import { useSignalProcessing } from "@/hooks/useSignalProcessing";
 import { TestingControlPanel } from "@/components/testing/TestingControlPanel";
+import { SENSOR_QUIZZES } from "@/config/quizzes";
 
 interface DataPoint { time: string; value: number; processingValue?: number; }
 const MAX_DATA_POINTS = 50;
@@ -105,26 +106,7 @@ void loop() {
   Serial.println(" %");
 }`;
 
-const EXPERIMENTS = [
-    {
-        title: "Baseline Humidity",
-        instruction: "Observe the humidity reading for 2 minutes without any interference.",
-        observation: "What is the ambient humidity? Is it stable?",
-        expected: "Indoor humidity typically ranges from 30-60% RH. Minor fluctuations are normal."
-    },
-    {
-        title: "Breath Test",
-        instruction: "Breathe gently on the sensor from 5cm away for 3-5 seconds.",
-        observation: "How much did humidity increase? How long until it returns to baseline?",
-        expected: "Humidity may spike to 70-90% briefly. Recovery takes 30-60 seconds due to sensor lag."
-    },
-    {
-        title: "Dry Environment",
-        instruction: "If available, place the sensor near an air conditioner vent (not directly in airflow).",
-        observation: "Is the humidity lower near the AC?",
-        expected: "AC tends to reduce humidity. You may see values drop to 25-40% RH."
-    }
-];
+
 
 
 

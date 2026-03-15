@@ -13,6 +13,7 @@ import { GraphExplainerModal } from "@/components/ai/GraphExplainerModal";
 import { useFaultInjector } from "@/hooks/useFaultInjector";
 import { useSignalProcessing } from "@/hooks/useSignalProcessing";
 import { TestingControlPanel } from "@/components/testing/TestingControlPanel";
+import { SENSOR_QUIZZES } from "@/config/quizzes";
 
 interface DataPoint { time: string; value: number; processingValue?: number; }
 const MAX_DATA_POINTS = 50;
@@ -69,11 +70,7 @@ void loop() {
   delay(500);
 }`;
 
-const EXPERIMENTS = [
-    { title: "Room Light Baseline", instruction: "Observe the reading under normal room lighting conditions.", observation: "What ADC value do you see?", expected: "Under normal indoor light, expect values around 300-700." },
-    { title: "Flashlight Test", instruction: "Shine a phone flashlight directly at the LDR from 5cm away.", observation: "How high does the value go?", expected: "Values should approach 900-1023 with direct bright light." },
-    { title: "Cover the Sensor", instruction: "Cover the LDR completely with your hand or a dark cloth.", observation: "What's the minimum reading?", expected: "Values should drop to 10-100 range." }
-];
+
 
 
 

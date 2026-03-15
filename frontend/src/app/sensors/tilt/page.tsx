@@ -10,6 +10,7 @@ import { useMistakeDetector, MistakeAlert } from "@/components/ai/MistakeDetecto
 import { AIQuizModal } from "@/components/ai/AIQuizModal";
 import { useFaultInjector } from "@/hooks/useFaultInjector";
 import { TestingControlPanel } from "@/components/testing/TestingControlPanel";
+import { SENSOR_QUIZZES } from "@/config/quizzes";
 
 const THEORY = {
     "physics": "The SW-520D Tilt Sensor (or ball switch) is a purely mechanical digital sensor based on gravity and contact mechanics. Inside its small, sealed gold-plated or black cylindrical housing sits two stationary conductive pins and one or two free-rolling gold-plated metal balls. When the sensor is held upright, gravity forces the balls to the bottom of the cylinder, where they physically bridge the gap between the two conductive pins, completing the electrical circuit. If the sensor is tilted past a certain angle (typically >15 degrees), gravity pulls the balls away from the pins, abruptly breaking the circuit.",
@@ -58,9 +59,7 @@ void loop() {
   delay(200);
 }`;
 
-const EXPERIMENTS = [
-    { title: "Trigger Angle", instruction: "Slowly tilt the sensor until it triggers.", observation: "At what angle does it change state?", expected: "Typically triggers at 15-45° depending on sensor." }
-];
+
 
 
 

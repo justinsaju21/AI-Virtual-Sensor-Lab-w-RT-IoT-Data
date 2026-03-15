@@ -13,6 +13,7 @@ import { GraphExplainerModal } from "@/components/ai/GraphExplainerModal";
 import { useFaultInjector } from "@/hooks/useFaultInjector";
 import { useSignalProcessing } from "@/hooks/useSignalProcessing";
 import { TestingControlPanel } from "@/components/testing/TestingControlPanel";
+import { SENSOR_QUIZZES } from "@/config/quizzes";
 
 interface DataPoint { time: string; value: number; processingValue?: number; }
 interface JoystickPoint { time: string; x: number; y: number; }
@@ -70,9 +71,7 @@ void loop() {
   delay(100);
 }`;
 
-const EXPERIMENTS = [
-    { title: "Center Calibration", instruction: "Note the X/Y values with joystick at rest.", observation: "Are they exactly 512?", expected: "Usually slightly off. Real applications use a deadzone." }
-];
+
 
 
 

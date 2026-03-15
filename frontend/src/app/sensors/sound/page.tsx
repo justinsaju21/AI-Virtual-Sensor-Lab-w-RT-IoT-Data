@@ -13,6 +13,7 @@ import { GraphExplainerModal } from "@/components/ai/GraphExplainerModal";
 import { useFaultInjector } from "@/hooks/useFaultInjector";
 import { useSignalProcessing } from "@/hooks/useSignalProcessing";
 import { TestingControlPanel } from "@/components/testing/TestingControlPanel";
+import { SENSOR_QUIZZES } from "@/config/quizzes";
 
 interface DataPoint { time: string; value: number; processingValue?: number; }
 const MAX_DATA_POINTS = 50;
@@ -67,10 +68,7 @@ void loop() {
   delay(100);
 }`;
 
-const EXPERIMENTS = [
-    { title: "Baseline Noise", instruction: "Observe the reading in a quiet room.", observation: "What's the baseline level?", expected: "Quiet room: 300-500 range." },
-    { title: "Clap Test", instruction: "Clap your hands near the sensor.", observation: "How high does the spike go?", expected: "Loud sounds should spike to 900+ briefly." }
-];
+
 
 
 

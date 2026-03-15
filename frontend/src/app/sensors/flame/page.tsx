@@ -10,6 +10,7 @@ import { useMistakeDetector, MistakeAlert } from "@/components/ai/MistakeDetecto
 import { AIQuizModal } from "@/components/ai/AIQuizModal";
 import { useFaultInjector } from "@/hooks/useFaultInjector";
 import { TestingControlPanel } from "@/components/testing/TestingControlPanel";
+import { SENSOR_QUIZZES } from "@/config/quizzes";
 
 const THEORY = {
     "physics": "The flame sensor leverages an infrared (IR) photodiode specifically tuned to detect light wavelengths in the 760nm - 1100nm range. This spectrum corresponds directly to the thermal radiation emitted by hydrocarbon flames. When IR photons strike the photodiode's semiconductor junction, they excite electrons, creating electron-hole pairs. This generates a small photocurrent proportional to the intensity of the incident IR radiation. The sensor is highly directional, typically featuring a 60-degree detection angle, making it highly sensitive to active fires while somewhat rejecting ambient light.",
@@ -67,9 +68,7 @@ void loop() {
   delay(500);
 }`;
 
-const EXPERIMENTS = [
-    { title: "Lighter Test (Caution!)", instruction: "Hold an unlit lighter 30cm away, then briefly ignite.", observation: "How quickly does it detect the flame?", expected: "Detection should be nearly instant within range." }
-];
+
 
 
 

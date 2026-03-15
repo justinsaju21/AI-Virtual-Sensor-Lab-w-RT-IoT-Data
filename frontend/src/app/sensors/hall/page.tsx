@@ -10,6 +10,7 @@ import { useMistakeDetector, MistakeAlert } from "@/components/ai/MistakeDetecto
 import { AIQuizModal } from "@/components/ai/AIQuizModal";
 import { useFaultInjector } from "@/hooks/useFaultInjector";
 import { TestingControlPanel } from "@/components/testing/TestingControlPanel";
+import { SENSOR_QUIZZES } from "@/config/quizzes";
 
 const THEORY = {
     "physics": "The A3144 Hall Effect sensor detects the presence of magnetic fields based on the Hall Effect principle—discovered by Edwin Hall in 1879. When a current-carrying semiconductor is placed in a perpendicular magnetic field, the Lorentz force deflects the charge carriers (electrons or holes) to one side of the material. This separation of charge creates a measurable transverse voltage (the Hall Voltage) across the semiconductor. The A3144 is a *Unipolar Switch*, meaning it specifically activates when a south magnetic pole of sufficient strength acts upon its face.",
@@ -70,9 +71,7 @@ void loop() {
   delay(200);
 }`;
 
-const EXPERIMENTS = [
-    { title: "Magnet Polarity", instruction: "Try both poles of a magnet near the sensor.", observation: "Does it detect both poles equally?", expected: "Most Hall sensors trigger on South pole. Flip the magnet to test." }
-];
+
 
 
 

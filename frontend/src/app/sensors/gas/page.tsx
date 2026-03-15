@@ -13,6 +13,7 @@ import { GraphExplainerModal } from "@/components/ai/GraphExplainerModal";
 import { useFaultInjector } from "@/hooks/useFaultInjector";
 import { useSignalProcessing } from "@/hooks/useSignalProcessing";
 import { TestingControlPanel } from "@/components/testing/TestingControlPanel";
+import { SENSOR_QUIZZES } from "@/config/quizzes";
 
 interface DataPoint { time: string; value: number; processingValue?: number; }
 const MAX_DATA_POINTS = 50;
@@ -75,20 +76,7 @@ void loop() {
   delay(1000);
 }`;
 
-const EXPERIMENTS = [
-    {
-        title: "Preheat and Baseline",
-        instruction: "Wait 2-3 minutes for the sensor to warm up. Note the baseline reading in clean air.",
-        observation: "What's the stable baseline value?",
-        expected: "Baseline typically 100-300 in clean air. Sensor needs heating to operate correctly."
-    },
-    {
-        title: "Lighter Gas Test (Caution!)",
-        instruction: "Briefly release gas from a lighter (unlit!) near the sensor from 10cm away.",
-        observation: "How quickly does the value rise? How high?",
-        expected: "LPG should cause a rapid spike to 600-900+. Value should return to baseline after 30-60s."
-    }
-];
+
 
 
 
