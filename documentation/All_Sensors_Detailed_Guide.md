@@ -12,20 +12,18 @@
 | **GY-BMP280-3.3** | Pressure & Altimeter | I²C | § 1 |
 | **DHT11** | Temperature & Humidity | Single-Wire (1-Wire) | § 2 |
 | **Flame Detector** | Fire / IR Radiation | Analog + Digital | § 3 |
-| **HC-SR04 Ultrasonic** | Distance (Time-of-Flight) | Pulse Width GPIO | § 4 |
-| **IR Obstacle** | Proximity (Active IR) | Digital GPIO | § 5 |
-| **Joystick Module** | Dual-Axis Position | Analog + Digital | § 6 |
-| **LDR Module** | Ambient Light | Analog + Digital | § 7 |
-| **MAX30102** | Pulse Oximeter / Heart Rate | I²C | § 8 |
-| **MQ-2 Gas Sensor** | Combustible Gas & Smoke | Analog + Digital | § 9 |
-| **MQ-3 Alcohol Sensor** | Ethanol Vapor (Breathalyzer) | Analog + Digital | § 10 |
-| **PIR HC-SR501** | Motion (Body Heat) | Digital GPIO | § 11 |
-| **Proximity (Inductive)** | Metal Detection | Digital GPIO (NPN/PNP) | § 12 |
-| **Sound Module (Mic)** | Acoustic / Noise Level | Analog + Digital | § 13 |
-| **SW-520D Tilt Sensor** | Orientation & Vibration | Digital GPIO | § 14 |
-| **TTP223 Touch Sensor** | Capacitive Touch | Digital GPIO | § 15 |
-| **Hall Effect (4-Pin)** | Magnetic Field & Polarity | Digital + Analog | § 16 |
-| **NTC Thermistor Module**| Temperature (Fast Analog) | Analog + Digital | § 17 |
+| **IR Obstacle** | Proximity (Active IR) | Digital GPIO | § 4 |
+| **Joystick Module** | Dual-Axis Position | Analog + Digital | § 5 |
+| **LDR Module** | Ambient Light | Analog + Digital | § 6 |
+| **MAX30102** | Pulse Oximeter / Heart Rate | I²C | § 7 |
+| **MQ-2 Gas Sensor** | Combustible Gas & Smoke | Analog + Digital | § 8 |
+| **MQ-3 Alcohol Sensor** | Ethanol Vapor (Breathalyzer) | Analog + Digital | § 9 |
+| **PIR HC-SR501** | Motion (Body Heat) | Digital GPIO | § 10 |
+| **Sound Module (Mic)** | Acoustic / Noise Level | Analog + Digital | § 11 |
+| **SW-520D Tilt Sensor** | Orientation & Vibration | Digital GPIO | § 12 |
+| **TTP223 Touch Sensor** | Capacitive Touch | Digital GPIO | § 13 |
+| **Hall Effect (4-Pin)** | Magnetic Field & Polarity | Digital + Analog | § 14 |
+| **NTC Thermistor Module**| Temperature (Fast Analog) | Analog + Digital | § 15 |
 
 **Mentor:** Dr. Elamaran E  |  **SEM6 Project** — Dept of ECE  |  March 2026
 
@@ -59,15 +57,12 @@ This map ensures zero conflicts when building the final prototype.
 | Sensor | Description | Pin Type | Assigned Pin |
 | :--- | :--- | :--- | :--- |
 | **DHT11** | Humidity & Temp Data | Digital In | **Pin 2** |
-| **HC-SR04 (TRIG)** | Ultrasonic Trigger | Digital Out | **Pin 3** |
-| **HC-SR04 (ECHO)** | Ultrasonic Echo | Digital In | **Pin 4** |
 | **Touch** | Capacitive Sensor | Digital Input | **Pin 5** |
 | **Hall Effect (DO)** | Magnetic Switch | Digital Input | **Pin 6** |
 | **Joystick (SW)** | Joystick Button | Digital Input | **Pin 7** |
 | **Flame (DO)** | Fire Alarm | Digital Input | **Pin 8** |
 | **Sound (DO)** | Noise Threshold | Digital Input | **Pin 9** |
 | **PIR** | Motion Detector | Digital Input | **Pin 10** |
-| **Proximity** | Metal Detector | Digital Input | **Pin 11** |
 | **Tilt** | Vibration Switch | Digital Input | **Pin 12** |
 | **IR Obstacle** | Reflective Proximity | Digital Input | **Pin 13** |
 
@@ -179,29 +174,9 @@ Uses an IR Photodiode with a black epoxy lens (Daylight Blocking Filter). The fi
 
 ---
 
-## 4. HC-SR04
-### Ultrasonic Distance Sensor (Time-of-Flight)
-
-| Interface | Arduino Pin(s) | Output Type | Library Required |
-| :--- | :--- | :--- | :--- |
-| Pulse Width | D3 (TRIG), D4 (ECHO) | Digital Pulse | None |
-
-### 1. Description
-Uses ultrasonic sound waves to measure distance from 2cm to 400cm. Functions like bat echolocation.
-
-### 2. Theory & Physics
-**Distance Formula:**
-`Distance (cm) = (Echo_Pulse_Duration_µs × 0.034) / 2`
-
-### 4. Hardware Wiring (Arduino Mega)
-| HC-SR04 Pin | Arduino Mega Pin | Notes |
-| :--- | :--- | :--- |
-| **TRIG** | D3 | Trigger pulse |
-| **ECHO** | D4 | Echo return pulse |
-
 ---
 
-## 5. IR Obstacle Avoidance Sensor
+## 4. IR Obstacle Avoidance Sensor
 ### Active Infrared Proximity & Reflectivity Detector
 
 | Interface | Arduino Pin(s) | Output Type | Library Required |
@@ -213,7 +188,7 @@ Active proximity sensor that emits its own IR light (940nm) and measures the ref
 
 ---
 
-## 6. Joystick Module
+## 5. Joystick Module
 ### Dual-Axis Analog Input with Push-Button
 
 | Interface | Arduino Pin(s) | Output Type | Library Required |
@@ -229,7 +204,7 @@ Active proximity sensor that emits its own IR light (940nm) and measures the ref
 
 ---
 
-## 7. LDR (Light Dependent Resistor)
+## 6. LDR (Light Dependent Resistor)
 ### 3-Pin Photoresistor Module
 
 | Interface | Arduino Pin(s) | Output Type | Library Required |
@@ -241,7 +216,7 @@ Cadmium Sulfide (CdS) photoresistor whose resistance decreases as light intensit
 
 ---
 
-## 8. MAX30102
+## 7. MAX30102
 ### Pulse Oximeter & Heart-Rate Sensor
 
 | Interface | Arduino Pin(s) | Output Type | Library Required |
@@ -253,7 +228,7 @@ Integrated pulse oximeter that uses Red (660nm) and IR (880nm) LEDs to measure h
 
 ---
 
-## 9. MQ-2 Gas & Smoke Sensor
+## 8. MQ-2 Gas & Smoke Sensor
 
 | Interface | Arduino Pin(s) | Output Type | Library Required |
 | :--- | :--- | :--- | :--- |
@@ -264,7 +239,7 @@ Chemiresistive sensor for LPG, Smoke, and Combustible gases. Requires an interna
 
 ---
 
-## 10. MQ-3 Alcohol Vapor Sensor
+## 9. MQ-3 Alcohol Vapor Sensor
 
 | Interface | Arduino Pin(s) | Output Type | Library Required |
 | :--- | :--- | :--- | :--- |
@@ -272,7 +247,7 @@ Chemiresistive sensor for LPG, Smoke, and Combustible gases. Requires an interna
 
 ---
 
-## 11. PIR Motion Sensor (HC-SR501)
+## 10. PIR Motion Sensor (HC-SR501)
 ### Passive Infrared Human Body Detection
 
 | Interface | Arduino Pin(s) | Output Type | Library Required |
@@ -281,16 +256,9 @@ Chemiresistive sensor for LPG, Smoke, and Combustible gases. Requires an interna
 
 ---
 
-## 12. Proximity Sensor (Inductive / Optical)
-### Industrial Non-Contact Object & Metal Detection
-
-| Interface | Arduino Pin(s) | Output Type | Library Required |
-| :--- | :--- | :--- | :--- |
-| Digital GPIO | D11 (OUT) | Digital (LOW = Detected) | None |
-
 ---
 
-## 13. Sound Sensor Module (Microphone)
+## 11. Sound Sensor Module (Microphone)
 
 | Interface | Arduino Pin(s) | Output Type | Library Required |
 | :--- | :--- | :--- | :--- |
@@ -298,7 +266,7 @@ Chemiresistive sensor for LPG, Smoke, and Combustible gases. Requires an interna
 
 ---
 
-## 14. SW-520D Tilt Sensor
+## 12. SW-520D Tilt Sensor
 
 | Interface | Arduino Pin(s) | Output Type | Library Required |
 | :--- | :--- | :--- | :--- |
@@ -306,7 +274,7 @@ Chemiresistive sensor for LPG, Smoke, and Combustible gases. Requires an interna
 
 ---
 
-## 15. Capacitive Touch Sensor (TTP223)
+## 13. Capacitive Touch Sensor (TTP223)
 
 | Interface | Arduino Pin(s) | Output Type | Library Required |
 | :--- | :--- | :--- | :--- |
@@ -314,7 +282,7 @@ Chemiresistive sensor for LPG, Smoke, and Combustible gases. Requires an interna
 
 ---
 
-## 16. Hall Effect Magnetic Sensor (4-Pin)
+## 14. Hall Effect Magnetic Sensor (4-Pin)
 ### Lorentz Force-Based Magnetic Field Detection
 
 | Interface | Arduino Pin(s) | Output Type | Library Required |
@@ -329,7 +297,7 @@ Chemiresistive sensor for LPG, Smoke, and Combustible gases. Requires an interna
 
 ---
 
-## 17. NTC Thermistor Temperature Sensor
+## 15. NTC Thermistor Temperature Sensor
 ### Continuous Analog Thermal Measurement
 
 | Interface | Arduino Pin(s) | Output Type | Library Required |
