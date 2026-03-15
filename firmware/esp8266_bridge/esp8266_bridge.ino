@@ -14,7 +14,7 @@
 
 #include <ESP8266WiFi.h>
 #include <ESP8266HTTPClient.h>
-#include <WiFiClient.h>
+#include <WiFiClientSecure.h>
 #include <ArduinoJson.h>
 
 // ============ CONFIGURATION ============
@@ -24,7 +24,7 @@ const char* SERVER_URL = "https://ai-virtual-sensor-lab-w-rt-iot-data.onrender.c
 const char* DEVICE_ID = "virtual_lab_01";
 // ========================================
 
-WiFiClient wifiClient;
+WiFiClientSecure wifiClient;
 HTTPClient http;
 String inputBuffer = "";
 unsigned long lastWifiCheck = 0;
@@ -32,7 +32,11 @@ unsigned long lastWifiCheck = 0;
 void setup() {
   Serial.begin(115200);
   delay(100);
-  Serial.println("\nIoT Virtual Lab - Generic Bridge");
+  Serial.println("\n--- IoT Virtual Lab: Cloud Bridge ---");
+  
+  // Allow HTTPS without certificate validation
+  wifiClient.setInsecure();
+  
   connectWiFi();
 }
 
