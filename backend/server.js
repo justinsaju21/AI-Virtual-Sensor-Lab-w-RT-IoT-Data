@@ -6,6 +6,12 @@ const cors = require('cors');
 const fs = require('fs');
 const path = require('path');
 const { generateMockData } = require('./mockDataGenerator');
+const { GoogleGenerativeAI } = require('@google/generative-ai');
+
+// Initialize Gemini
+const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+
 
 const app = express();
 app.use(cors());
@@ -107,30 +113,34 @@ app.post('/api/mode', (req, res) => {
   }
 });
 
-// AI Chat Endpoint (Mock for Gemini)
-app.post("/api/ai-chat", (req, res) => {
+// AI Chat Endpoint (Live Gemini Integration)
+app.post("/api/ai-chat", async (req, res) => {
   try {
     const { message, context } = req.body || {};
-    console.log("AI Query:", message, "Context:", context);
+    console.log("Gemini AI Query:", message, "with context:", context?.sensor);
 
-    let reply = "I'm still learning, but here's what I know about sensors!";
+    const systemPrompt = `You are an expert IoT Virtual Lab Assistant. 
+    The student is currently viewing: ${context?.sensor || "the dashboard"}.
+    Live Data Snippet: ${JSON.stringify(context?.dataSnippet || {})}.
+    
+    Answer the student's question accurately. Focus on the physics, electronics, and coding aspects of the sensor. Be concise but educational. Use Markdown for formatting.`;
 
-    if (context && context.sensor) {
-      reply = `I see you're looking at the **${context.sensor}**. \n\nBased on your current data, everything looks normal. Would you like to know how the ${context.sensor} physically measures data?`;
-    } else if (message && message.toLowerCase().includes("sensor")) {
-      reply = "Sensors are devices that detect events or changes in the environment and send the information to other electronics, frequently a computer processor.";
-    } else {
-      reply = "I'm your AI Assistant. I can explain code, sensor physics, or help debug your experiments!";
-    }
+    const chat = model.startChat({
+        history: [],
+        generationConfig: { maxOutputTokens: 500 }
+    });
 
-    setTimeout(() => {
-      if (!res.headersSent) res.json({ reply });
-    }, 1000);
+    const result = await chat.sendMessage(`${systemPrompt}\n\nStudent: ${message}`);
+    const response = await result.response;
+    const reply = response.text();
+
+    res.json({ reply });
   } catch (error) {
-    console.error('Error in /api/ai-chat:', error);
-    res.status(500).json({ error: 'Server error' });
+    console.error('Gemini Chat Error:', error);
+    res.json({ reply: "I'm having trouble connecting to my Gemini brain. Check if the API key is valid!" });
   }
 });
+
 
 // Helper to parse markdown files for quiz questions
 function parseQuizFromMarkdown(filePath) {
@@ -208,116 +218,73 @@ const sensorFileMap = {
   "Pulse Oximeter": "MAX30102.md"
 };
 
-// AI Quiz Generation Endpoint
-app.post("/api/ai-quiz", (req, res) => {
+// AI Quiz Generation Endpoint (Live Gemini Integration)
+app.post("/api/ai-quiz", async (req, res) => {
   try {
     const { sensorName, sensorId } = req.body || {};
-    console.log("Generating quiz for:", sensorName, "ID:", sensorId);
+    console.log("Gemini generating quiz for:", sensorName);
 
-  let questions = null;
-  const docsDir = path.join(__dirname, '..', 'documentation', 'sensors');
-
-  // Try to find a matching file
-  let mappedFilename = sensorFileMap[sensorName];
-
-  // Try to match by sensorId
-  if (!mappedFilename && sensorId) {
-    if (sensorId.includes('DHT')) mappedFilename = 'DHT11.md';
-    else if (sensorId.includes('HC-SR04')) mappedFilename = 'HC-SR04.md';
-    else if (sensorId.includes('HC-SR501')) mappedFilename = 'PIR.md';
-    else if (sensorId.includes('BMP')) mappedFilename = 'BMP280.md';
-    else if (sensorId.includes('MQ2') || sensorId.includes('MQ-2')) mappedFilename = 'MQ2.md';
-    else if (sensorId.includes('MQ3') || sensorId.includes('MQ-3')) mappedFilename = 'MQ3.md';
-    else if (sensorId.includes('TTP223')) mappedFilename = 'Touch.md';
-    else if (sensorId.includes('SW-520D')) mappedFilename = 'Tilt.md';
-    else if (sensorId.includes('KEYES') || sensorId.includes('KY-038')) mappedFilename = 'Sound.md';
-    else if (sensorId.includes('E18-D80NK')) mappedFilename = 'IR.md';
-    // generic fallback logic
-    else {
-      const files = fs.readdirSync(docsDir);
-      for (const file of files) {
-        if (file.toLowerCase().includes(sensorId.toLowerCase()) ||
-          sensorName.toLowerCase().includes(file.replace('.md', '').toLowerCase())) {
-          mappedFilename = file;
-          break;
+    const prompt = `Generate a 3-question multiple choice quiz for an engineering student about the ${sensorName} (ID: ${sensorId}).
+    Return the response ONLY as a JSON object in this exact format:
+    {
+      "questions": [
+        {
+          "question": "text",
+          "options": ["opt1", "opt2", "opt3", "opt4"],
+          "correctIndex": 0,
+          "explanation": "why it's correct"
         }
-      }
-    }
-  }
+      ]
+    }`;
 
-  if (mappedFilename) {
-    const filePath = path.join(docsDir, mappedFilename);
-    const parsed = parseQuizFromMarkdown(filePath);
-    if (parsed) questions = parsed;
-  }
+    const result = await model.generateContent(prompt);
+    const response = await result.response;
+    const text = response.text();
+    
+    // Clean potential markdown code blocks from response
+    const jsonStr = text.replace(/```json|```/g, "").trim();
+    const questions = JSON.parse(jsonStr).questions;
 
-  // Fallback if none found
-  if (!questions) {
-    console.log("No specific quiz found, using default fallback.");
-    questions = [
-      { question: "What is the primary function of this sensor?", options: ["To heat up", "To detect environmental changes", "To store data", "To emit light"], correctIndex: 1, explanation: "Sensors detect changes and output signals." },
-      { question: "Why is calibration important?", options: ["Makes them faster", "Corrects manufacturing variations", "Reduces power consumption", "Changes the sensing range"], correctIndex: 1, explanation: "Calibration offsets errors." },
-      { question: "What causes electrical noise in readings?", options: ["Too much light", "Electromagnetic interference", "High temperature", "Low humidity"], correctIndex: 1, explanation: "EMI from nearby electronics causes noise." }
-    ];
-  }
-
-  setTimeout(() => {
-    if (!res.headersSent) res.json({ questions });
-  }, 500);
+    res.json({ questions });
   } catch (error) {
-    console.error('Error in /api/ai-quiz:', error);
-    res.status(500).json({ error: 'Server error' });
+    console.error('Gemini Quiz Error:', error);
+    // Fallback if AI fails
+    res.json({ 
+        questions: [
+            { question: "What is the primary function of this sensor?", options: ["To heat up", "To detect environmental changes", "To store data", "To emit light"], correctIndex: 1, explanation: "Sensors detect changes and output signals." }
+        ] 
+    });
   }
 });
 
-// AI Graph Explanation Endpoint
-app.post("/api/ai-explain", (req, res) => {
+
+// AI Graph Explanation Endpoint (Live Gemini Integration)
+app.post("/api/ai-explain", async (req, res) => {
   try {
     const { sensorName, data } = req.body || {};
-    console.log("Explaining graph for:", sensorName, "with", data?.length, "points");
+    console.log("Gemini explaining graph for:", sensorName);
 
     if (!data || !Array.isArray(data) || data.length < 3) {
-      return res.json({ explanation: "Not enough data points to analyze. Collect more readings." });
+      return res.json({ explanation: "Not enough data points for Gemini to analyze." });
     }
 
-    const values = data.map(d => d.value);
-    const avg = values.reduce((a, b) => a + b, 0) / values.length;
-    const min = values.reduce((a, b) => a < b ? a : b, values[0]);
-    const max = values.reduce((a, b) => a > b ? a : b, values[0]);
-  const range = max - min;
-  const trend = values[values.length - 1] - values[0];
+    const dataSummary = data.map(d => `${d.time}: ${d.value}`).join(", ");
+    const prompt = `Analyze this sensor data for a ${sensorName} graph: ${dataSummary}.
+    Explain what's happening physically. Is it stable? Are there any significant spikes or drops?
+    What might cause these changes in a real lab setting? 
+    Use Markdown and bullet points. Be technical but clear.`;
 
-  let explanation = `## ${sensorName} Analysis\n\n`;
-  explanation += `**Statistics:**\n`;
-  explanation += `- Average: ${avg.toFixed(2)}\n`;
-  explanation += `- Min: ${min.toFixed(2)} | Max: ${max.toFixed(2)}\n`;
-  explanation += `- Range: ${range.toFixed(2)}\n`;
-  explanation += `- Trend: ${trend > 2 ? "📈 Rising" : trend < -2 ? "📉 Falling" : "➡️ Stable"}\n\n`;
+    const result = await model.generateContent(prompt);
+    const response = await result.response;
+    const explanation = response.text();
 
-  if (range > avg * 0.3) {
-    explanation += `**⚠️ High Variability Detected**\n`;
-    explanation += `The readings show significant fluctuation. Possible causes:\n`;
-    explanation += `- Environmental changes (doors, AC, people)\n`;
-    explanation += `- Sensor noise or loose connections\n`;
-    explanation += `- Power supply instability\n`;
-  } else if (range < avg * 0.05) {
-    explanation += `**✅ Very Stable Readings**\n`;
-    explanation += `The sensor is producing consistent values, indicating:\n`;
-    explanation += `- Stable environmental conditions\n`;
-    explanation += `- Good sensor connection and calibration\n`;
-  } else {
-    explanation += `**ℹ️ Normal Variation**\n`;
-    explanation += `The readings show expected minor fluctuations typical of real-world sensors.\n`;
-  }
-
-  setTimeout(() => {
-    if (!res.headersSent) res.json({ explanation });
-  }, 800);
+    res.json({ explanation });
   } catch (error) {
-    console.error('Error in /api/ai-explain:', error);
-    res.status(500).json({ error: 'Server error' });
+    console.error('Gemini Explain Error:', error);
+    res.json({ explanation: "AI analysis failed. Please check the raw data below." });
   }
 });
+
 
 // ============ MOCK DATA LOOP ============
 
