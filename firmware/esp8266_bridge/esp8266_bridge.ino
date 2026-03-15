@@ -64,8 +64,8 @@ void connectWiFi() {
 void sendToServer(String jsonData) {
   if (WiFi.status() != WL_CONNECTED) return;
 
-  // Dynamic JSON Buffer - size raised to handle 15 sensors
-  DynamicJsonDocument doc(2048); 
+  // Dynamic JSON Buffer - size raised for high-density 17-sensor payload
+  DynamicJsonDocument doc(4096); 
   DeserializationError error = deserializeJson(doc, jsonData);
   
   if (error) {
