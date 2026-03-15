@@ -22,6 +22,42 @@ const THEORY = {
     "math": "**SpO2 & Heart Rate Calculation:**\nHeart Rate is determined by measuring the time interval between consecutive peaks of the AC pulsatile waveform.\n\n$ BPM = \\frac{60}{Time\\:Between\\:Peaks\\:(seconds)} $\n\nBlood Oxygen (SpO2%) is calculated using the Ratio of Ratios (R) between the Red and IR AC/DC components:\n\n$ R = \\frac{AC_{Red} / DC_{Red}}{AC_{IR} / DC_{IR}} $\n$ SpO_2 = 104 - 17 \\times R $",
     "circuit": "**Hardware Architecture:**\n- **MAX30102 Silicon:** An integrated pulse oximetry and heart-rate monitor biosensor module. It includes internal LEDs, photodetectors, optical elements, and low-noise electronics with ambient light rejection.\n- **Interface:** Communicates via the I2C protocol at up to 400kHz.\n- **Voltage:** The core operates at 1.8V, driven by an onboard 1.8V LDO voltage regulator, while the I2C lines are logic-level shifted to safely interface with 5V Arduino boards."
 };
+const EXPERIMENTS = [
+    {
+        "title": "Breathing Rhythm Test (RSA)",
+        "instruction": "Sit still and breathe normally for 60 seconds. Record average BPM. Then hold your breath for 20 seconds, followed by rapid deep breathing.",
+        "observation": "Heart rate naturally fluctuates with the breathing cycle. Rapid breathing briefly increases BPM.",
+        "expected": "Demonstrates Respiratory Sinus Arrhythmia (RSA) — the normal physiological coupling between breathing and heart rate."
+    },
+    {
+        "title": "Ambient Light Saturation Test",
+        "instruction": "Take a stable reading in a dim room. Then shine a bright smartphone flashlight directly at the sensor and fingertip.",
+        "observation": "The raw IR waveform distorts or becomes flat. BPM detection becomes impossible.",
+        "expected": "Intense external light floods the photodetector (optical saturation), drowning out the tiny LED reflections."
+    }
+];
+
+const COMMON_MISTAKES = [
+    {
+        "title": "Wandering Baseline / Erratic BPM",
+        "symptom": "Heartbeat graph shoots up and down randomly. BPM oscillates wildly.",
+        "cause": "Pressing too hard on the sensor squeezes blood out of capillaries. Any finger movement changes optical distance.",
+        "fix": "Rest the finger gently but consistently on the glass. Do not press, squeeze, or move."
+    },
+    {
+        "title": "No BPM Calculated",
+        "symptom": "IR reads 0 or outputs 80,000 but no beat is ever detected.",
+        "cause": "Finger not covering both the LED and detector, or LED power amplitude set too low for skin thickness.",
+        "fix": "Reposition finger to cover the entire sensor face. Increase amplitude in code and warm up cold hands first."
+    },
+    {
+        "title": "I²C Bus Freezing",
+        "symptom": "Serial monitor outputs data for 3 seconds then stops permanently.",
+        "cause": "I²C bus pulled down by loose wiring during finger repositioning, or insufficient power supply.",
+        "fix": "Solder headers firmly. Add 4.7kΩ pull-up resistors to SDA and SCL if the breakout board lacks them."
+    }
+];
+
 
 const ARDUINO_CODE = `// Heartbeat Sensor - MAX30102 (I2C)
 #include <Wire.h>
@@ -49,10 +85,7 @@ const EXPERIMENTS = [
     { title: "Resting Heart Rate", instruction: "Place finger on sensor, wait 30s until stable.", observation: "What's your resting BPM?", expected: "Normal: 60-100 BPM at rest." }
 ];
 
-const COMMON_MISTAKES = [
-    { title: "No Heartbeat", symptom: "Flat line", cause: "Too much pressure squeezed out blood", fix: "Touch sensor gently. Don't press hard." },
-    { title: "Noisy Signal", symptom: "Erratic spikes", cause: "Finger movement or ambient light", fix: "Keep finger steady. Shield from bright overhead light." }
-];
+
 
 export default function HeartbeatPage() {
     const { isConnected, data } = useSocket();
@@ -134,7 +167,7 @@ export default function HeartbeatPage() {
                     <Card variant="default"><CardHeader><CardTitle className="flex items-center gap-2"><Info className="h-4 w-4 text-blue-400" />Wiring</CardTitle></CardHeader><CardContent><table className="w-full text-sm"><tbody className="divide-y divide-white/5"><tr><td className="py-1.5 font-mono text-white">SDA</td><td className="py-1.5 font-mono text-rose-400">20</td></tr><tr><td className="py-1.5 font-mono text-white">SCL</td><td className="py-1.5 font-mono text-rose-400">21</td></tr></tbody></table></CardContent></Card>
                 </div>
             </SensorDetailLayout>
-            {showQuiz && <AIQuizModal sensorName="Heartbeat Sensor" sensorId="Pulse" onClose={() => setShowQuiz(false)} />}
+            {showQuiz && <AIQuizModal sensorName="Heartbeat Sensor" sensorId="Pulse" onClose={() = defaultQuestions={SENSOR_QUIZZES["heartbeat"]} > setShowQuiz(false)} />}
             {showExplainer && <GraphExplainerModal sensorName="Heartbeat Sensor" data={chartData} onClose={() => setShowExplainer(false)} />}
         </>
     );

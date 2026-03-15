@@ -22,6 +22,30 @@ const THEORY = {
     "math": "**Capacitance to Voltage:**\n$ C = \\frac{\\varepsilon_0 \\cdot \\varepsilon_r \\cdot A}{d} $\n\nAs $d$ (distance) oscillates with the sound wave, $C$ oscillates. An internal Junction Field Effect Transistor (JFET) serves as an impedance converter, amplifying this microscopic voltage change into a measurable analog current.",
     "circuit": "**Hardware Architecture:**\n- **Electret Mic:** Captures the acoustic variations. Requires a tiny bias voltage to operate the internal JFET.\n- **LM393 Comparator:** The module features a precision generic Op-Amp configured as a comparator to convert the tiny analog audio waveform into a digital HIGH/LOW pulse train whenever the sound crosses a set decibel threshold.\n- **Analog Out:** A direct feed of the unamplified audio waveform, useful for crude Fourier Transform analysis on microcontrollers."
 };
+const EXPERIMENTS = [
+    {
+        "title": "Clap-Switch Echo Rebound Test",
+        "instruction": "Clap once sharply. Then turn on a fan or HVAC near the sensor.",
+        "observation": "A single clap may trigger 2–5 rapid consecutive readings. The fan may cause continuous low-level triggers.",
+        "expected": "Sound waves reflect off room walls and ceilings, arriving at the microphone multiple times as echoes. Low-frequency HVAC noise can exceed the threshold."
+    }
+];
+
+const COMMON_MISTAKES = [
+    {
+        "title": "Too Many Triggers from One Clap",
+        "symptom": "One clap registers as 8–10 rapid consecutive events.",
+        "cause": "Room echoes bouncing off walls arrive at the microphone milliseconds apart, each exceeding the threshold.",
+        "fix": "Add delay(100) after detection, or implement a software debounce: only accept a new trigger if at least 200ms have passed."
+    },
+    {
+        "title": "Sensitivity Too High or Too Low",
+        "symptom": "Either triggers from background noise or never triggers even with loud clapping.",
+        "cause": "The blue potentiometer is set wrong for the room's ambient noise level.",
+        "fix": "Turn the potentiometer slowly clockwise to increase sensitivity until normal speech does NOT trigger it, but a sharp hand clap does."
+    }
+];
+
 
 const ARDUINO_CODE = `// Sound Sensor - KY-038
 #define MIC_PIN A6
@@ -48,10 +72,7 @@ const EXPERIMENTS = [
     { title: "Clap Test", instruction: "Clap your hands near the sensor.", observation: "How high does the spike go?", expected: "Loud sounds should spike to 900+ briefly." }
 ];
 
-const COMMON_MISTAKES = [
-    { title: "No Response", symptom: "Value barely changes with sound", cause: "Microphone sensitivity screw is too low", fix: "Turn blue potentiometer CW until LED flickers." },
-    { title: "Too Noisy", symptom: "Jagged lines even in silence", cause: "Power supply noise or bad connection", fix: "Add capacitor to power rails. Check GND." }
-];
+
 
 export default function SoundPage() {
     const { isConnected, data } = useSocket();
@@ -133,7 +154,7 @@ export default function SoundPage() {
                     <Card variant="default"><CardHeader><CardTitle className="flex items-center gap-2"><Info className="h-4 w-4 text-blue-400" />Wiring</CardTitle></CardHeader><CardContent><table className="w-full text-sm"><tbody className="divide-y divide-white/5"><tr><td className="py-1.5 font-mono text-white">AO</td><td className="py-1.5 font-mono text-pink-400">A6</td></tr><tr><td className="py-1.5 font-mono text-white">DO</td><td className="py-1.5 font-mono text-pink-400">D9</td></tr></tbody></table></CardContent></Card>
                 </div>
             </SensorDetailLayout>
-            {showQuiz && <AIQuizModal sensorName="Sound Sensor" sensorId="KY-038" onClose={() => setShowQuiz(false)} />}
+            {showQuiz && <AIQuizModal sensorName="Sound Sensor" sensorId="KY-038" onClose={() = defaultQuestions={SENSOR_QUIZZES["sound"]} > setShowQuiz(false)} />}
             {showExplainer && <GraphExplainerModal sensorName="Sound Sensor" data={chartData} onClose={() => setShowExplainer(false)} />}
         </>
     );

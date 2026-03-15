@@ -16,6 +16,30 @@ const THEORY = {
     "math": "**Oscillator Damping (Eddy Currents):**\n$ P_{eddy} = \\frac{\\pi^2 \\cdot B^2 \\cdot d^2 \\cdot f^2}{6 \\cdot \\rho \\cdot D} $\n\nWhere:\n- $P_{eddy}$: Power dissipated in the target\n- $B$: Magnetic field density\n- $f$: Oscillator frequency\n- $\\rho$: Target resistivity\n\nThe sensor triggers precisely when the oscillator's energy drops below a designated threshold.",
     "circuit": "**Hardware Architecture:**\n- **Oscillator/Coil:** Generates the electromagnetic sensing field.\n- **Schmitt Trigger:** An internal flip-flop circuit monitors the oscillator's amplitude. When the amplitude collapses past the threshold, the Schmitt trigger snaps the output to a clean digital state.\n- **Industrial Housing:** Often packaged in a threaded metal body. The output is typically an NPN (sinks to ground) or PNP (sources voltage) industrial standard."
 };
+const EXPERIMENTS = [
+    {
+        "title": "Material Conductivity Sorter Test",
+        "instruction": "Slowly lower the inductive sensor toward a steel block until it triggers — record the distance. Repeat with aluminum, then plastic.",
+        "observation": "Steel triggers at ~4mm. Aluminum at ~1.5mm. Plastic never triggers.",
+        "expected": "Demonstrates magnetic permeability vs eddy-current conductivity. Ferrous steel has huge eddy current losses. Aluminum is conductive but non-magnetic. Plastic is an insulator."
+    }
+];
+
+const COMMON_MISTAKES = [
+    {
+        "title": "Destroying the Arduino with PNP Voltage",
+        "symptom": "Arduino immediately stops working after connecting sensor.",
+        "cause": "PNP sensor outputs 12V on its signal wire. Plugging directly into a 5V-rated Arduino logic pin.",
+        "fix": "Use an NPN sensor (which only sinks to GND), or build a voltage divider (e.g., 10kΩ + 15kΩ) to reduce 12V signal."
+    },
+    {
+        "title": "LED Works but Arduino Never Triggers",
+        "symptom": "Sensor LED turns on when metal is nearby but digitalRead always returns HIGH.",
+        "cause": "NPN sensor requires a pull-up. Using pinMode(INPUT) leaves the pin floating when sensor is not active.",
+        "fix": "Change configuration code to: pinMode(PROX_PIN, INPUT_PULLUP);"
+    }
+];
+
 
 const ARDUINO_CODE = `// Proximity Sensor (Demo Only - Not Connected)
 // This sensor is simulated with mock data.
@@ -40,10 +64,7 @@ const EXPERIMENTS = [
     { title: "Range Test", instruction: "Move your hand toward the sensor slowly.", observation: "At what distance does it detect?", expected: "Typical range 2-30cm for IR types." }
 ];
 
-const COMMON_MISTAKES = [
-    { title: "Blind Spot", symptom: "Fails detection when too close", cause: "IR reflection angle geometry", fix: "Keep object at least 2cm away from sensor." },
-    { title: "Interference", symptom: "Erratic switching", cause: "Other IR sources (Remotes, Sun)", fix: "Isolate from other IR sources." }
-];
+
 
 export default function ProximityPage() {
     const { isConnected, data } = useSocket();
@@ -103,7 +124,7 @@ export default function ProximityPage() {
                     <Card variant="default"><CardHeader><CardTitle className="flex items-center gap-2"><Info className="h-4 w-4 text-blue-400" />Wiring</CardTitle></CardHeader><CardContent><table className="w-full text-sm"><tbody className="divide-y divide-white/5"><tr><td className="py-1.5 font-mono text-white">OUT</td><td className="py-1.5 font-mono text-slate-400">D11 (not connected)</td></tr></tbody></table></CardContent></Card>
                 </div>
             </SensorDetailLayout>
-            {showQuiz && <AIQuizModal sensorName="Proximity Sensor" sensorId="E18-D80NK" onClose={() => setShowQuiz(false)} />}
+            {showQuiz && <AIQuizModal sensorName="Proximity Sensor" sensorId="E18-D80NK" onClose={() = defaultQuestions={SENSOR_QUIZZES["proximity"]} > setShowQuiz(false)} />}
         </>
     );
 }

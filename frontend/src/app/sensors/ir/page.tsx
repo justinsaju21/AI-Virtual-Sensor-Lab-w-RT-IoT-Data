@@ -16,6 +16,30 @@ const THEORY = {
     "math": "**Inverse Square Law:**\nThe intensity of the reflected IR light decreases exponentially with distance.\n\n$ I_{reflected} \\propto \\frac{1}{d^2} $\n\nWhere:\n- $d$ is the distance to the target.\nDark or matte surfaces absorb IR, reducing the effective sensing range, while glossy or white surfaces reflect highly.",
     "circuit": "**Hardware Architecture:**\n- **Optics:** Lenses focus both the emitted and incoming IR light into a tight beam, giving it a reliable range of 3cm to 80cm.\n- **Trimpot:** A dedicated screw on the back adjusts the sensitivity (trigger threshold) of the internal comparator.\n- **Output Stage:** Features an NPN Open-Collector output. It requires an internal or external pull-up resistor. When an object is detected, the transistor turns on, pulling the signal line firmly to GND (Active LOW)."
 };
+const EXPERIMENTS = [
+    {
+        "title": "Reflectivity (Albedo) Test",
+        "instruction": "Hold a bright white paper in front of the sensor and record the distance at which the green LED turns on. Repeat with a piece of matte black paper.",
+        "observation": "White paper triggers from 10–15cm away. The black paper may need to get within 1–2cm or may not trigger at all.",
+        "expected": "Demonstrates that dark matte surfaces absorb IR light instead of reflecting it. White shiny surfaces reflect excellently."
+    }
+];
+
+const COMMON_MISTAKES = [
+    {
+        "title": "Sensor Always Triggered",
+        "symptom": "Software constantly reads LOW even pointing into empty room.",
+        "cause": "The sensitivity potentiometer screw is turned too high, making the receiver hypersensitive to tiny ambient IR reflections.",
+        "fix": "Turn the blue potentiometer counter-clockwise until the green LED turns off. Then slowly clockwise until your hand at 5cm triggers it."
+    },
+    {
+        "title": "Sunlight Blindness",
+        "symptom": "Works perfectly indoors but triggers continuously outside.",
+        "cause": "The sun emits massive broadband IR radiation, completely flooding the receiver and making it think an object is always present.",
+        "fix": "Basic active IR modules cannot be used in direct sunlight. Advanced sensors solve this by pulsing the IR at 38kHz."
+    }
+];
+
 
 const ARDUINO_CODE = `// IR Obstacle Sensor
 #define IR_PIN 13
@@ -38,10 +62,7 @@ const EXPERIMENTS = [
     { title: "Color Test", instruction: "Compare detection of white paper vs black cloth.", observation: "Which is detected more reliably?", expected: "White/light objects reflect more IR and are detected more easily." }
 ];
 
-const COMMON_MISTAKES = [
-    { title: "Black Object Failure", symptom: "Fails to detect black objects", cause: "Black absorbs IR light", fix: "IR sensors cannot reliably detect pure black surfaces." },
-    { title: "False Trigger", symptom: "Triggers in sunlight", cause: "Sunlight contains IR", fix: "Shield sensor from direct sunlight." }
-];
+
 
 export default function IRPage() {
     const { isConnected, data } = useSocket();
@@ -103,7 +124,7 @@ export default function IRPage() {
                     <Card variant="default"><CardHeader><CardTitle className="flex items-center gap-2"><Info className="h-4 w-4 text-blue-400" />Wiring</CardTitle></CardHeader><CardContent><table className="w-full text-sm"><tbody className="divide-y divide-white/5"><tr><td className="py-1.5 font-mono text-white">OUT</td><td className="py-1.5 font-mono text-red-400">D13</td></tr></tbody></table></CardContent></Card>
                 </div>
             </SensorDetailLayout>
-            {showQuiz && <AIQuizModal sensorName="IR Sensor" sensorId="TCRT5000" onClose={() => setShowQuiz(false)} />}
+            {showQuiz && <AIQuizModal sensorName="IR Sensor" sensorId="TCRT5000" onClose={() = defaultQuestions={SENSOR_QUIZZES["ir"]} > setShowQuiz(false)} />}
         </>
     );
 }

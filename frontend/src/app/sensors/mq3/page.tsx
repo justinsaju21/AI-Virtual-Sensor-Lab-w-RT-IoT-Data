@@ -22,6 +22,30 @@ const THEORY = {
     "math": "**Resistance to BAC (Blood Alcohol Content):**\nThe relationship between ethanol concentration in mg/L and sensor resistance:\n\n$ R_s / R_0 = A \\times (ppm)^B $\n\nWith proper calibration in clean air ($R_0$), breath alcohol (mg/L) can be mathematically approximated. \n*Note: Output is heavily dependent on precise heater temperature, requiring a 24-48 hour initial burn-in period.*",
     "circuit": "**Hardware Architecture:**\n- **Heater Matrix:** Consumes ~150mA at 5V to maintain the specific high-temperature reaction zone.\n- **Load Resistor ($R_L$):** Typically 200k\\Omega for the MQ-3 (compared to 10k-47k\\Omega for the MQ-2). This higher resistor value shifts the voltage divider curve to better amplify the high-resistance changes specific to low ethanol concentrations."
 };
+const EXPERIMENTS = [
+    {
+        "title": "Hand Sanitizer Vapor Test",
+        "instruction": "Rub alcohol hand sanitizer onto hands. Cup them around sensor and breathe out gently onto them.",
+        "observation": "The analog reading spikes violently toward 800–1023 within 1–2 seconds.",
+        "expected": "Confirms the sensor's extreme sensitivity to ethanol vapor. Takes several minutes to recover and drop back to baseline as alcohol evaporates."
+    }
+];
+
+const COMMON_MISTAKES = [
+    {
+        "title": "Using Immediately After Power-On",
+        "symptom": "Readings are unstable, jumping by 200+ units randomly.",
+        "cause": "The internal heater has not yet reached its operating temperature.",
+        "fix": "Always wait at least 3–5 minutes after power-on before trusting any readings. For lab precision, 10 minutes is better."
+    },
+    {
+        "title": "False Positives from Breath Humidity",
+        "symptom": "Blowing normal air (without alcohol) causes the reading to spike from 150 to 190.",
+        "cause": "Human breath is warm and humid. The MQ-3 has slight cross-sensitivity to temperature and water vapor.",
+        "fix": "Count only large spikes (e.g., 200 to 500+) as alcohol. Small bumps from exhaling are moisture artifacts."
+    }
+];
+
 
 const ARDUINO_CODE = `// Alcohol Sensor - MQ3
 #define MQ3_PIN A1
@@ -45,10 +69,7 @@ const EXPERIMENTS = [
     { title: "Hand Sanitizer", instruction: "Apply hand sanitizer 30cm away and note the spike.", observation: "How sensitive is it?", expected: "Alcohol vapor should spike the reading significantly." }
 ];
 
-const COMMON_MISTAKES = [
-    { title: "Value keeps drifting", symptom: "Value won't stabilize", cause: "Alcohol residue or preheating", fix: "Ventilate the area fresh air. Wait 5 mins for heater to stabilize." },
-    { title: "Always Max Value", symptom: "Stuck at 1023", cause: "Short circuit or saturation", fix: "Move away from alcohol source. Check wiring for shorts." }
-];
+
 
 export default function MQ3Page() {
     const { isConnected, data } = useSocket();
@@ -121,7 +142,7 @@ export default function MQ3Page() {
                     <Card variant="default"><CardHeader><CardTitle className="flex items-center gap-2"><Info className="h-4 w-4 text-blue-400" />Wiring</CardTitle></CardHeader><CardContent><table className="w-full text-sm"><tbody className="divide-y divide-white/5"><tr><td className="py-1.5 font-mono text-white">A0</td><td className="py-1.5 font-mono text-amber-400">A1</td></tr></tbody></table></CardContent></Card>
                 </div>
             </SensorDetailLayout>
-            {showQuiz && <AIQuizModal sensorName="Alcohol Sensor" sensorId="MQ3" onClose={() => setShowQuiz(false)} />}
+            {showQuiz && <AIQuizModal sensorName="Alcohol Sensor" sensorId="MQ3" onClose={() = defaultQuestions={SENSOR_QUIZZES["mq3"]} > setShowQuiz(false)} />}
             {showExplainer && <GraphExplainerModal sensorName="Alcohol Sensor" data={chartData} onClose={() => setShowExplainer(false)} />}
         </>
     );

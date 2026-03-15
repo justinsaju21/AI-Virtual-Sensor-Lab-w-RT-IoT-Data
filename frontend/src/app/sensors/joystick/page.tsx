@@ -23,6 +23,30 @@ const THEORY = {
     "math": "**Voltage Divider Equation:**\nFor each axis (X and Y):\n\n$ V_{out} = V_{cc} \\times \\frac{R_2}{R_1 + R_2} $\n\nWhere $R_1 + R_2$ remains a constant 10k\\Omega. The Arduino's ADC converts this 0-5V continuous analog voltage into a digital integer ranging from 0 to 1023. \n\nCenter resting position theoretically sits at exactly 2.5V (ADC 512).",
     "circuit": "**Hardware Architecture:**\n- **X Axis:** 10k\\Omega potentiometer connected between 5V and GND. Wiper outputs to VRx.\n- **Y Axis:** 10k\\Omega potentiometer connected between 5V and GND. Wiper outputs to VRy.\n- **Z Axis (Switch):** Pressing the stick straight down actuates a standard momentary tactile pushbutton (SW pin). This pin typically requires a Pull-Up resistor (via software), reading HIGH when idle and LOW when pressed."
 };
+const EXPERIMENTS = [
+    {
+        "title": "Deadzone Demonstration",
+        "instruction": "Boot the code without touching the joystick. Observe raw values. Then push it fully left, right, up, and down.",
+        "observation": "At rest, values hover around 500–520, not a perfect 512. Full deflections hit 0 and 1023.",
+        "expected": "The mechanical spring center is electrically imperfect — demonstrating exactly why all game software implements a 'deadzone' to prevent drift."
+    }
+];
+
+const COMMON_MISTAKES = [
+    {
+        "title": "Button Always Reading Pressed",
+        "symptom": "'BUTTON CLICKED!' prints continuously without pressing.",
+        "cause": "Using pinMode(INPUT) instead of INPUT_PULLUP. The SW pin floats electromagnetically between reads.",
+        "fix": "Change to: pinMode(JOY_BUTTON, INPUT_PULLUP);"
+    },
+    {
+        "title": "Only Half the Range Works",
+        "symptom": "Up/down works but left/right is stuck at 1023.",
+        "cause": "VRx is disconnected or accidentally plugged into a digital pin (D-prefix) instead of an Analog (A-prefix) pin.",
+        "fix": "Ensure VRx and VRy are plugged into A0–A15 range pins, not digital pins."
+    }
+];
+
 
 const ARDUINO_CODE = `// Joystick - KY-023
 #define JOY_X A2
@@ -50,10 +74,7 @@ const EXPERIMENTS = [
     { title: "Center Calibration", instruction: "Note the X/Y values with joystick at rest.", observation: "Are they exactly 512?", expected: "Usually slightly off. Real applications use a deadzone." }
 ];
 
-const COMMON_MISTAKES = [
-    { title: "Drift", symptom: "Cursor moves when joystick is centered", cause: "Potentiometer tolerance", fix: "Implement a 'deadzone' in software (e.g., ignore 490-530)." },
-    { title: "Floating Values", symptom: "Random jumps", cause: "Missing GND connection or VCC", fix: "Check 5V and GND wires." }
-];
+
 
 export default function JoystickPage() {
     const { isConnected, data } = useSocket();
@@ -154,7 +175,7 @@ export default function JoystickPage() {
                     <Card variant="default"><CardHeader><CardTitle className="flex items-center gap-2"><Info className="h-4 w-4 text-blue-400" />Wiring</CardTitle></CardHeader><CardContent><table className="w-full text-sm"><tbody className="divide-y divide-white/5"><tr><td className="py-1.5 font-mono text-white">VRx</td><td className="py-1.5 font-mono text-violet-400">A2</td></tr><tr><td className="py-1.5 font-mono text-white">VRy</td><td className="py-1.5 font-mono text-violet-400">A3</td></tr><tr><td className="py-1.5 font-mono text-white">SW</td><td className="py-1.5 font-mono text-violet-400">D7</td></tr></tbody></table></CardContent></Card>
                 </div>
             </SensorDetailLayout>
-            {showQuiz && <AIQuizModal sensorName="Joystick" sensorId="KY-023" onClose={() => setShowQuiz(false)} />}
+            {showQuiz && <AIQuizModal sensorName="Joystick" sensorId="KY-023" onClose={() = defaultQuestions={SENSOR_QUIZZES["joystick"]} > setShowQuiz(false)} />}
             {showExplainer && <GraphExplainerModal sensorName="Joystick" data={chartData} onClose={() => setShowExplainer(false)} />}
         </>
     );

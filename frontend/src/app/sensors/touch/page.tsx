@@ -16,6 +16,30 @@ const THEORY = {
     "math": "**Capacitive Loading Equation:**\n$ C_{total} = C_{parasitic} + C_{finger} $\n\nThe TTP223 chip constantly measures the precise RC discharging time of the pad footprint. If $C_{total}$ suddenly increases by a margin greater than the programmed baseline threshold, the chip interprets it as a valid touch event.",
     "circuit": "**Hardware Architecture:**\n- **TTP223 IC:** A highly integrated ASIC. It constantly re-calibrates its baseline to ignore environmental factors like temperature drift or humidity changes.\n- **Power Draw:** Engineered for battery-powered IoT, it draws an incredibly microscopic 1.5uA in standby mode.\n- **Pads A & B:** Small solder jumpers on the back of the module allow you to configure the output state. You can toggle between Active-HIGH vs Active-LOW, and Momentary vs Latch (Toggle switch) configurations directly in hardware."
 };
+const EXPERIMENTS = [
+    {
+        "title": "Hidden Switch Test (Dielectric Penetration)",
+        "instruction": "Place a piece of printer paper over the copper face of the sensor. Touch the paper above the sensor. Then try thick cardboard, then a thin piece of glass.",
+        "observation": "The sensor triggers through the paper and glass. It may fail on thick cardboard.",
+        "expected": "Capacitance is based on electric fields, which penetrate non-conductive materials (dielectrics). Exactly how smartphone screens work."
+    }
+];
+
+const COMMON_MISTAKES = [
+    {
+        "title": "False Positives in Damp Environments",
+        "symptom": "Button presses itself when humidity is high or water is near the sensor.",
+        "cause": "Water is conductive. A bead of water bridging across the copper pad instantly mimics a human finger's capacitive effect.",
+        "fix": "For water-prone environments, standard conformal coatings help but consider using waterproof industrial capacitive sensors instead."
+    },
+    {
+        "title": "Sensor Ignores Finger After Power-On",
+        "symptom": "Touching the sensor has no effect for the first half second, or permanently if touched at startup.",
+        "cause": "The TTP223 performs a 0.5-second automatic baseline calibration at power-on. It calibrates your finger as the 'empty' baseline.",
+        "fix": "Keep hands away from the sensor, power cycle, and wait 1 second before touching."
+    }
+];
+
 
 const ARDUINO_CODE = `// Touch Sensor - TTP223
 #define TOUCH_PIN 5
@@ -38,10 +62,7 @@ const EXPERIMENTS = [
     { title: "Through Material", instruction: "Place thin paper over the sensor and try to touch.", observation: "Does it still detect?", expected: "Capacitive sensors work through non-conductive materials." }
 ];
 
-const COMMON_MISTAKES = [
-    { title: "Ghost Touches", symptom: "Triggers without touch", cause: "Noisy power or nearby metal", fix: "Move away from metal objects. Add 100nF cap to VCC/GND." },
-    { title: "Low Sensitivity", symptom: "Needs hard press", cause: "Thick covering material", fix: "TTP223 auto-calibrates on power up. Don't touch during startup." }
-];
+
 
 export default function TouchPage() {
     const { isConnected, data } = useSocket();
@@ -102,7 +123,7 @@ export default function TouchPage() {
                     <Card variant="default"><CardHeader><CardTitle className="flex items-center gap-2"><Info className="h-4 w-4 text-blue-400" />Wiring</CardTitle></CardHeader><CardContent><table className="w-full text-sm"><tbody className="divide-y divide-white/5"><tr><td className="py-1.5 font-mono text-white">I/O</td><td className="py-1.5 font-mono text-teal-400">D5</td></tr></tbody></table></CardContent></Card>
                 </div>
             </SensorDetailLayout>
-            {showQuiz && <AIQuizModal sensorName="Touch Sensor" sensorId="TTP223" onClose={() => setShowQuiz(false)} />}
+            {showQuiz && <AIQuizModal sensorName="Touch Sensor" sensorId="TTP223" onClose={() = defaultQuestions={SENSOR_QUIZZES["touch"]} > setShowQuiz(false)} />}
         </>
     );
 }

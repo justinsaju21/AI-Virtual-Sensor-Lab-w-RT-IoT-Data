@@ -16,6 +16,36 @@ const THEORY = {
     "math": "**Voltage Divider & Thresholding:**\nThe sensor employs an LM393 voltage comparator to provide a digital output alongside the raw analog signal.\n\n$ V_{out} = V_{cc} \\times \\frac{R_{photo}}{R_{photo} + R_{fixed}} $\n\n- **Digital Output:** $ V_{out} < V_{ref} \\rightarrow HIGH $ (Flame Detected)\n- **Analog Output:** Provides a continuous 0-1023 ADC mapping of IR intensity.",
     "circuit": "**Hardware Architecture:**\n- **Detector:** 5mm IR Receiver Diode (black casing).\n- **Comparator:** LM393 Dual Differential Comparator chip.\n- **Potentiometer:** A 10k\\Omega trimpot configures the $ V_{ref} $ pin on the LM393, allowing manual adjustment of the digital trigger sensitivity.\n- **Output Pins:** A0 (Analog Voltage) and D0 (Digital Logic Level).\n\n*Note:* While the sensor filters most visible light, direct sunlight contains massive amounts of IR radiation and can cause false positives."
 };
+const EXPERIMENTS = [
+    {
+        "title": "Lighter Distance Calibration Test",
+        "instruction": "Hold a lit lighter or candle at 50cm from the sensor. Slowly move it closer 5cm at a time.",
+        "observation": "The analog reading climbs (the inverted scale drops) as the flame approaches. The digital alarm LED triggers at a threshold distance.",
+        "expected": "Demonstrates the inverse relationship between analog output voltage and flame intensity. Adjusting the potentiometer screw on the module changes the digital trigger threshold distance."
+    },
+    {
+        "title": "Sunlight Interference Test",
+        "instruction": "Hold the sensor toward a window in bright sunlight. Note the reading, then cover the sensor.",
+        "observation": "Even without a flame, sunlight may produce a moderately elevated reading.",
+        "expected": "Proves that the black epoxy filter is important but not perfect — very intense broadband sunlight still bleeds some IR through."
+    }
+];
+
+const COMMON_MISTAKES = [
+    {
+        "title": "Sensor Always Triggered",
+        "symptom": "DO pin stays LOW constantly even in normal room light.",
+        "cause": "Potentiometer sensitivity is turned all the way up, making the sensor hypersensitive to ambient IR.",
+        "fix": "Rotate the blue potentiometer screw counter-clockwise to reduce sensitivity until the alarm clears in a normal environment."
+    },
+    {
+        "title": "Analog Output is Inverted Logic",
+        "symptom": "Reading is 1023 when pointing at a flame — seems backwards!",
+        "cause": "The AO output is inverted: lower voltage = more light detected.",
+        "fix": "Use map(value, 0, 1023, 100, 0) to remap: 100% = intense flame, 0% = no flame."
+    }
+];
+
 
 const ARDUINO_CODE = `// Flame Sensor - KY-026
 #define FLAME_PIN A5
@@ -41,10 +71,7 @@ const EXPERIMENTS = [
     { title: "Lighter Test (Caution!)", instruction: "Hold an unlit lighter 30cm away, then briefly ignite.", observation: "How quickly does it detect the flame?", expected: "Detection should be nearly instant within range." }
 ];
 
-const COMMON_MISTAKES = [
-    { title: "Sunlight Triggering", symptom: "Detects fire when sunny", cause: "Sun emits heavy IR radiation", fix: "Shield sensor from direct sunlight." },
-    { title: "Inverse Logic", symptom: "Value drops when fire present", cause: "Photodiode conductivity increases with light", fix: "This is normal behavior. Logic: IF val < 200 THEN Fire." }
-];
+
 
 export default function FlamePage() {
     const { isConnected, data } = useSocket();
@@ -110,7 +137,7 @@ export default function FlamePage() {
                     <Card variant="default"><CardHeader><CardTitle className="flex items-center gap-2"><Info className="h-4 w-4 text-blue-400" />Wiring</CardTitle></CardHeader><CardContent><table className="w-full text-sm"><tbody className="divide-y divide-white/5"><tr><td className="py-1.5 font-mono text-white">AO</td><td className="py-1.5 font-mono text-orange-400">A5</td></tr><tr><td className="py-1.5 font-mono text-white">DO</td><td className="py-1.5 font-mono text-orange-400">D8</td></tr></tbody></table></CardContent></Card>
                 </div>
             </SensorDetailLayout>
-            {showQuiz && <AIQuizModal sensorName="Flame Sensor" sensorId="KY-026" onClose={() => setShowQuiz(false)} />}
+            {showQuiz && <AIQuizModal sensorName="Flame Sensor" sensorId="KY-026" onClose={() = defaultQuestions={SENSOR_QUIZZES["flame"]} > setShowQuiz(false)} />}
         </>
     );
 }

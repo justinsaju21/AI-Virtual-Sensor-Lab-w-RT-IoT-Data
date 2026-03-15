@@ -22,6 +22,36 @@ const THEORY = {
     "math": "**Resistance to PPM Conversion:**\nThe relationship between gas concentration (ppm) and sensor resistance is logarithmic.\n\n$ R_s / R_0 = A \\cdot (ppm)^B $\n\nWhere:\n- $R_s$: Sensor resistance at a given gas concentration.\n- $R_0$: Sensor resistance in clean air.\n- $A$ & $B$: Gas-specific constants derived from the datasheet's sensitivity curves.",
     "circuit": "**Hardware Architecture:**\n- **Heater (H pins):** Draws ~800mW at 5V to maintain the 200°C reaction temperature.\n- **Sensing Element (A/B pins):** Forms a voltage divider with an external load resistor ($R_L$, typically 5k-47k\\Omega).\n- **Comparator:** Like most modules, an onboard LM393 chip compares the analog voltage against a potentiometer-set threshold to trigger a digital HIGH alert."
 };
+const EXPERIMENTS = [
+    {
+        "title": "Butane Gas Test (Unlit Lighter)",
+        "instruction": "Press a standard butane lighter button WITHOUT striking the flint so only unlit gas escapes. Hold 2cm from the metal mesh for 2 seconds.",
+        "observation": "Analog reading immediately spikes from ~150 to 600+ within 1–2 seconds.",
+        "expected": "Confirms the SnO₂ reaction to butane gas. Removing the lighter shows the reading slowly returns to baseline as gas dissipates."
+    },
+    {
+        "title": "Warm-Up Heat Observation",
+        "instruction": "Lightly touch the metal mesh case with a finger 5 minutes after powering on.",
+        "observation": "The metal case will be distinctly warm to the touch.",
+        "expected": "The internal heating coil draws ~150mA to maintain ceramic core at operating temperature (~300°C internal). This heat is necessary for the reaction."
+    }
+];
+
+const COMMON_MISTAKES = [
+    {
+        "title": "Inaccurate PPM Readings",
+        "symptom": "Students try to convert 0–1023 directly to Parts Per Million but get wildly wrong results.",
+        "cause": "The MQ-2 output is highly non-linear and extremely sensitive to ambient temperature and humidity.",
+        "fix": "Use relative thresholds: Baseline ≈ 100, Warning ≈ 400+. True PPM calibration requires logarithmic curves."
+    },
+    {
+        "title": "Sensor Baseline Drifts Downward Over Hours",
+        "symptom": "Fresh out of the box, readings are 500+ in clean air. After days of use, they stabilize lower.",
+        "cause": "Brand-new sensors have moisture and manufacturing impurities on the SnO₂ layer that burn off slowly.",
+        "fix": "Leave the sensor powered on at 5V continuously for 24–48 hours ('burn-in') to bake off impurities and stabilize the baseline."
+    }
+];
+
 
 const ARDUINO_CODE = `// Gas Sensor - MQ2
 #define MQ2_PIN A0
@@ -60,11 +90,7 @@ const EXPERIMENTS = [
     }
 ];
 
-const COMMON_MISTAKES = [
-    { title: "Value keeps rising", symptom: "Value increases steadily for 5-10 mins", cause: "Sensor is preheating (normal)", fix: "Wait 5-10 minutes for SnO₂ to reach operating temp." },
-    { title: "Low Sensitivity", symptom: "Barely reacts to gas", cause: "Load resistor sensitivity too low or gas too far", fix: "Adjust onboard potentiometer if module has one." },
-    { title: "Hot Sensor", symptom: "Sensor feels hot to touch", cause: "Heater element active", fix: "Normal. It needs heat to work. But if burning hot, check wiring." }
-];
+
 
 export default function GasPage() {
     const { isConnected, data } = useSocket();
@@ -149,7 +175,7 @@ export default function GasPage() {
                     <Card variant="default"><CardHeader><CardTitle className="flex items-center gap-2"><Info className="h-4 w-4 text-blue-400" />Wiring</CardTitle></CardHeader><CardContent><table className="w-full text-sm"><tbody className="divide-y divide-white/5"><tr><td className="py-1.5 font-mono text-white">VCC</td><td className="py-1.5 font-mono text-red-400">5V</td></tr><tr><td className="py-1.5 font-mono text-white">A0</td><td className="py-1.5 font-mono text-red-400">A0</td></tr><tr><td className="py-1.5 font-mono text-white">GND</td><td className="py-1.5 font-mono text-red-400">GND</td></tr></tbody></table></CardContent></Card>
                 </div>
             </SensorDetailLayout>
-            {showQuiz && <AIQuizModal sensorName="Gas Sensor" sensorId="MQ2" onClose={() => setShowQuiz(false)} />}
+            {showQuiz && <AIQuizModal sensorName="Gas Sensor" sensorId="MQ2" onClose={() = defaultQuestions={SENSOR_QUIZZES["gas"]} > setShowQuiz(false)} />}
             {showExplainer && <GraphExplainerModal sensorName="Gas Sensor" data={chartData} onClose={() => setShowExplainer(false)} />}
         </>
     );

@@ -16,6 +16,42 @@ const THEORY = {
     "math": "**The Lorentz Force & Hall Voltage:**\n$ V_H = \\frac{I \\cdot B}{n \\cdot e \\cdot d} $\n\nWhere:\n- $V_H$: Hall Voltage\n- $I$: Current passing through the sensor\n- $B$: Magnetic Flux Density (Teslas or Gauss)\n- $n$: Charge carrier density\n- $d$: Thickness of the semiconductor",
     "circuit": "**Hardware Architecture:**\n- **A3144 IC:** Contains the Hall element, an internal voltage regulator, a small signal amplifier, a Schmitt trigger (for clean digital switching), and an Open-Collector output transistor.\n- **Pull-up Resistor:** Because the output is open-collector, a 10k\\Omega pull-up resistor is required between the signal pin and VCC. When a magnetic field triggers the sensor, the internal transistor sinks the signal line to GND (Active LOW)."
 };
+const EXPERIMENTS = [
+    {
+        "title": "Pole Polarity Identification",
+        "instruction": "Approach the sensor face with the NORTH pole of a bar magnet. Record the analog direction. Then flip the magnet and approach with the SOUTH pole.",
+        "observation": "North pole: analog rises above 512. South pole: analog falls below 512.",
+        "expected": "The sign of the Hall Voltage reverses with field direction. This directional sensitivity is how brushless motor controllers determine rotor magnet orientation."
+    },
+    {
+        "title": "Distance-to-Field-Strength Mapping",
+        "instruction": "Move a neodymium magnet from 20cm to 1cm, recording the analog value at each centimeter.",
+        "observation": "Value moves slowly from 512 at first, then rapidly accelerates within the last 5cm.",
+        "expected": "Magnetic flux density follows an inverse-square law. This characteristic response curve is used in contactless position sensors."
+    }
+];
+
+const COMMON_MISTAKES = [
+    {
+        "title": "Digital Output Never Triggers",
+        "symptom": "Analog clearly moves away from 512 but DO pin stays HIGH even with a strong magnet.",
+        "cause": "Potentiometer sensitivity threshold is set too high for your magnet's field strength.",
+        "fix": "Slowly rotate the blue potentiometer clockwise until DO triggers with a neodymium magnet at 2-3cm."
+    },
+    {
+        "title": "Analog Pegged at 0 or 1023 Constantly",
+        "symptom": "Output is stuck at maximum or minimum with the magnet far away.",
+        "cause": "A very strong magnet placed directly on the sensor is saturating the Hall element beyond its linear sensing range.",
+        "fix": "Move the magnet 5-10cm back. Saturation beyond the linear range is normal Hall element behavior and does not damage the sensor."
+    },
+    {
+        "title": "AI Warning During Joystick Calibration",
+        "symptom": "AI Mistake Detector flags: Hall Effect active while calibrating the Joystick.",
+        "cause": "A magnetic screwdriver or nearby magnet is simultaneously triggering the Hall sensor while the student calibrates the joystick.",
+        "fix": "Remove all magnetic objects from the bench before Joystick zero-calibration."
+    }
+];
+
 
 const ARDUINO_CODE = `// Hall Effect Sensor
 #define HALL_PIN 6
@@ -38,10 +74,7 @@ const EXPERIMENTS = [
     { title: "Magnet Polarity", instruction: "Try both poles of a magnet near the sensor.", observation: "Does it detect both poles equally?", expected: "Most Hall sensors trigger on South pole. Flip the magnet to test." }
 ];
 
-const COMMON_MISTAKES = [
-    { title: "Wrong Pole", symptom: "No detection with magnet", cause: "Unipolar sensors only detect South pole", fix: "Flip the magnet over." },
-    { title: "Latching Behavior", symptom: "Stays ON after magnet removed", cause: "Using a Latching Hall Sensor", fix: "Use a Non-Latching (Switch) type or expose to North pole to reset." }
-];
+
 
 export default function HallPage() {
     const { isConnected, data } = useSocket();
@@ -101,7 +134,7 @@ export default function HallPage() {
                     <Card variant="default"><CardHeader><CardTitle className="flex items-center gap-2"><Info className="h-4 w-4 text-blue-400" />Wiring</CardTitle></CardHeader><CardContent><table className="w-full text-sm"><tbody className="divide-y divide-white/5"><tr><td className="py-1.5 font-mono text-white">VCC</td><td className="py-1.5 font-mono text-indigo-400">5V</td></tr><tr><td className="py-1.5 font-mono text-white">OUT</td><td className="py-1.5 font-mono text-indigo-400">D6</td></tr><tr><td className="py-1.5 font-mono text-white">GND</td><td className="py-1.5 font-mono text-indigo-400">GND</td></tr></tbody></table></CardContent></Card>
                 </div>
             </SensorDetailLayout>
-            {showQuiz && <AIQuizModal sensorName="Hall Sensor" sensorId="A3144" onClose={() => setShowQuiz(false)} />}
+            {showQuiz && <AIQuizModal sensorName="Hall Sensor" sensorId="A3144" onClose={() = defaultQuestions={SENSOR_QUIZZES["hall"]} > setShowQuiz(false)} />}
         </>
     );
 }

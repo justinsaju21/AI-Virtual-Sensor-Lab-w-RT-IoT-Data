@@ -52,6 +52,30 @@ RH% ≈ k × (C_measured / C_reference)
 
 Where k is a calibration constant stored in the sensor's EEPROM.`,
 };
+const EXPERIMENTS = [
+    {
+        "title": "The Warm Breath Test",
+        "instruction": "Blow warm, moist breath directly onto the blue grid of the sensor for 3–5 seconds.",
+        "observation": "Humidity rapidly spikes (often to 90%+) and temperature slowly creeps up within 1–2 seconds.",
+        "expected": "Verifies both the humidity and temperature sensors respond to localized changes. It takes several minutes to dry out and return to ambient, showing slow recovery."
+    }
+];
+
+const COMMON_MISTAKES = [
+    {
+        "title": "Failed to Read From DHT",
+        "symptom": "'Failed to read from DHT sensor!' printed continuously.",
+        "cause": "Wrong DHTPIN value in code, or missing pull-up resistor on the raw 4-pin module.",
+        "fix": "Verify DHTPIN matches your wiring. Add a 10kΩ resistor between the DATA pin and 5V if using the bare component."
+    },
+    {
+        "title": "Reading Too Fast",
+        "symptom": "Correct wiring but readings always return NaN or stale values.",
+        "cause": "Loop delay is less than 2000ms. The DHT11 processor needs 1–2 seconds between requests.",
+        "fix": "Ensure delay(2000) or longer in the loop. Never poll DHT11 faster than 0.5Hz."
+    }
+];
+
 
 const ARDUINO_CODE = `// Humidity Reading - DHT22
 #include <DHT.h>
@@ -102,11 +126,7 @@ const EXPERIMENTS = [
     }
 ];
 
-const COMMON_MISTAKES = [
-    { title: "Stuck at 99.9%", symptom: "Humidity reads max value constantly", cause: "Condensation on sensor or short circuit", fix: "Dry sensor with gentle air. Check for water bridges on pins." },
-    { title: "Reading 0%", symptom: "Humidity reads 0% constantly", cause: "Wiring issue or damaged sensor", fix: "Check data pin connection. replace sensor if persistent." },
-    { title: "Slow Response", symptom: "Takes long time to change value", cause: "Polymer absorption taking time", fix: "Normal for this sensor type. Don't use for rapid changes." }
-];
+
 
 export default function HumidityPage() {
     const { isConnected, data } = useSocket();
@@ -246,7 +266,7 @@ export default function HumidityPage() {
                     </Card>
                 </div>
             </SensorDetailLayout>
-            {showQuiz && <AIQuizModal sensorName="Humidity Sensor" sensorId="DHT11" onClose={() => setShowQuiz(false)} />}
+            {showQuiz && <AIQuizModal sensorName="Humidity Sensor" sensorId="DHT11" onClose={() = defaultQuestions={SENSOR_QUIZZES["humidity"]} > setShowQuiz(false)} />}
             {showExplainer && <GraphExplainerModal sensorName="Humidity Sensor" data={chartData} onClose={() => setShowExplainer(false)} />}
         </>
     );

@@ -16,6 +16,36 @@ const THEORY = {
     "math": "**Differential Pyroelectric Effect:**\n$ \\Delta V = \\frac{p \\cdot A \\cdot \\Delta T}{C_v} $\n\nWhere:\n- $p$: Pyroelectric coefficient\n- $A$: Area of the crystal\n- $\\Delta T$: Rate of temperature change (from the moving body crossing sectors)\n- $C_v$: Heat capacity",
     "circuit": "**Hardware Architecture:**\n- **Fresnel Lens:** The iconic white dome isn't just a cover. It's an array of precisely molded Fresnel lenses that focus IR light onto the specific halves of the pyroelectric element, greatly expanding the detection range and angle to ~110 degrees up to 7 meters.\n- **BISS0001 IC:** A dedicated PIR motion detector control chip that handles the micro-volt amplification, filtering, window comparison, and the timing logic for the HIGH output."
 };
+const EXPERIMENTS = [
+    {
+        "title": "Cross vs Direct Approach Test",
+        "instruction": "Have a friend walk slowly ACROSS the sensor's view, then try walking STRAIGHT TOWARD the sensor face.",
+        "observation": "Walking across triggers it almost instantly. Walking straight toward it takes much longer or fails entirely.",
+        "expected": "The Fresnel lens creates discrete detection zones side-by-side. Moving across multiple zones rapidly creates strong differential signals."
+    },
+    {
+        "title": "Glass Transparency Test",
+        "instruction": "Have someone wave their hands vigorously while standing behind a closed glass window.",
+        "observation": "The PIR likely will NOT trigger even though the person is clearly visible through the glass.",
+        "expected": "Standard window glass is opaque to the specific 9µm far-infrared wavelengths emitted by the human body."
+    }
+];
+
+const COMMON_MISTAKES = [
+    {
+        "title": "False Positives After Power-On",
+        "symptom": "Sensor triggers continuously when the room is empty.",
+        "cause": "The pyroelectric element is still stabilizing to the ambient room temperature during the 60-second warmup.",
+        "fix": "Implement the 60-second startup delay in code. Do not allow motion near the sensor during this calibration window."
+    },
+    {
+        "title": "HVAC False Positives",
+        "symptom": "Security alarm triggers when nobody is home.",
+        "cause": "Sensor mounted near an air vent, heater, or facing a sunny window — rapid hot/cold air changes look exactly like a moving body.",
+        "fix": "Relocate sensor away from vents and sunlight exposure. Turn the sensitivity dial (Tx) counter-clockwise."
+    }
+];
+
 
 const ARDUINO_CODE = `// Motion Sensor - PIR HC-SR501
 #define PIR_PIN 10
@@ -39,10 +69,7 @@ const EXPERIMENTS = [
     { title: "Pet vs Human", instruction: "Have a pet walk by if available.", observation: "Does it detect smaller heat sources?", expected: "PIR detects change in IR pattern - smaller sources may not trigger." }
 ];
 
-const COMMON_MISTAKES = [
-    { title: "False Positives", symptom: "Triggers randomly without motion", cause: "Sunlight, WiFi, or HVAC currents", fix: "Shield sensor from direct heat/light sources." },
-    { title: "Stuck High", symptom: "Always detects motion", cause: "Time Delay pot maxed or continuous motion", fix: "Turn Time Delay potentiometer CCW to varying minimum." }
-];
+
 
 export default function MotionPage() {
     const { isConnected, data } = useSocket();
@@ -116,7 +143,7 @@ export default function MotionPage() {
                     <Card variant="default"><CardHeader><CardTitle className="flex items-center gap-2"><Info className="h-4 w-4 text-blue-400" />Wiring</CardTitle></CardHeader><CardContent><table className="w-full text-sm"><tbody className="divide-y divide-white/5"><tr><td className="py-1.5 font-mono text-white">VCC</td><td className="py-1.5 font-mono text-green-400">5V</td></tr><tr><td className="py-1.5 font-mono text-white">OUT</td><td className="py-1.5 font-mono text-green-400">D10</td></tr><tr><td className="py-1.5 font-mono text-white">GND</td><td className="py-1.5 font-mono text-green-400">GND</td></tr></tbody></table></CardContent></Card>
                 </div>
             </SensorDetailLayout>
-            {showQuiz && <AIQuizModal sensorName="Motion Sensor" sensorId="PIR" onClose={() => setShowQuiz(false)} />}
+            {showQuiz && <AIQuizModal sensorName="Motion Sensor" sensorId="PIR" onClose={() = defaultQuestions={SENSOR_QUIZZES["motion"]} > setShowQuiz(false)} />}
         </>
     );
 }

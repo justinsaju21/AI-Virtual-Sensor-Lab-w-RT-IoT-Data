@@ -22,6 +22,42 @@ const THEORY = {
     "math": "**Barometric Formula (Altitude Calculation):**\nPressure can be directly used to calculate altitude above sea level:\n\n$ h = 44330 \\times \\left(1 - \\left(\\frac{P}{P_0}\\right)^{\\frac{1}{5.255}}\\right) $\n\nWhere:\n- $h$: Altitude in meters\n- $P$: Measured pressure in hPa\n- $P_0$: Sea level reference pressure (typically 1013.25 hPa)",
     "circuit": "**Hardware Architecture:**\n- **Bosch MEMS Silicon:** Integrates the pressure membrane, temperature sensor (necessary for pressure compensation math), and a highly accurate 20-bit Analog-to-Digital Converter (ADC) directly on the microscopic die.\n- **I2C/SPI Protocol:** Communicates fully formatted, digitized data via I2C (address 0x76 or 0x77) or SPI. Operates strictly at 3.3V, so typical modules include a low-dropout regulator (LDO) and I2C logic level shifters to safely connect to 5V Arduino boards."
 };
+const EXPERIMENTS = [
+    {
+        "title": "Floor-to-Ceiling Altitude Test",
+        "instruction": "Rest the sensor on the floor and note the altitude. Slowly raise it to ceiling height or climb stairs.",
+        "observation": "The altitude reading increases as the sensor rises.",
+        "expected": "An increase of roughly 2.5–3 meters depending on ceiling height. This proves the sensor can serve as a floor-level altimeter."
+    },
+    {
+        "title": "The Weather Station Drift Test",
+        "instruction": "Leave the sensor stationary on a desk for several hours or a full day while logging data.",
+        "observation": "Even without moving, the altitude reading will slowly drift up and down by 5–20 meters over hours.",
+        "expected": "Local atmospheric weather changes affect pressure. A passing weather front can shift the reference pressure by 5–10 hPa."
+    }
+];
+
+const COMMON_MISTAKES = [
+    {
+        "title": "Incorrect Voltage — Magic Smoke",
+        "symptom": "Sensor gets hot, readings fail, I²C scanner freezes.",
+        "cause": "Connecting the 3.3V module to the Arduino Mega's 5V pin without a logic level shifter.",
+        "fix": "Use the 3.3V pin. If using Mega's SCL/SDA which are 5V, add an I²C level shifter between them."
+    },
+    {
+        "title": "Wrong I²C Address",
+        "symptom": "'Could not find BMP280' in Serial Monitor.",
+        "cause": "The address in code (0x77) doesn't match the hardware — some modules default to 0x76.",
+        "fix": "Try bmp.begin(0x76). If unsure, upload an I²C Scanner sketch to find the correct address."
+    },
+    {
+        "title": "Altitude Reading is Completely Wrong",
+        "symptom": "Reads -150m when you are on the 2nd floor.",
+        "cause": "Default 1013.25 hPa sea-level reference doesn't account for today's weather pressure system.",
+        "fix": "Search the current sea-level pressure for your city and update: bmp.readAltitude(1021.5);"
+    }
+];
+
 
 const ARDUINO_CODE = `// Pressure Sensor - BMP280
 #include <Wire.h>
@@ -52,10 +88,7 @@ const EXPERIMENTS = [
     { title: "Altitude Experiment", instruction: "Note the reading, then move up/down one floor of a building.", observation: "How much does altitude change?", expected: "Each floor (~3m) should show ~30-40 Pa change." }
 ];
 
-const COMMON_MISTAKES = [
-    { title: "Wrong Altitude", symptom: "Altitude shows negative or huge value", cause: "Incorrect Sea Level Pressure P0", fix: "Calibrate P0 for your current local weather." },
-    { title: "I2C Error", symptom: "Sensor not found", cause: "Loose wiring or wrong address (default 0x76)", fix: "Check SDA/SCL connections. Use I2C scanner." }
-];
+
 
 export default function PressurePage() {
     const { isConnected, data } = useSocket();
@@ -145,7 +178,7 @@ export default function PressurePage() {
                     <Card variant="default"><CardHeader><CardTitle className="flex items-center gap-2"><Info className="h-4 w-4 text-blue-400" />Wiring (I2C)</CardTitle></CardHeader><CardContent><table className="w-full text-sm"><tbody className="divide-y divide-white/5"><tr><td className="py-1.5 font-mono text-white">SDA</td><td className="py-1.5 font-mono text-sky-400">20</td></tr><tr><td className="py-1.5 font-mono text-white">SCL</td><td className="py-1.5 font-mono text-sky-400">21</td></tr></tbody></table></CardContent></Card>
                 </div>
             </SensorDetailLayout>
-            {showQuiz && <AIQuizModal sensorName="Pressure Sensor" sensorId="BMP180" onClose={() => setShowQuiz(false)} />}
+            {showQuiz && <AIQuizModal sensorName="Pressure Sensor" sensorId="BMP180" onClose={() = defaultQuestions={SENSOR_QUIZZES["pressure"]} > setShowQuiz(false)} />}
             {showExplainer && <GraphExplainerModal sensorName="Pressure Sensor" data={chartData} onClose={() => setShowExplainer(false)} />}
         </>
     );

@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { Sparkles, X, CheckCircle, XCircle, Loader2 } from "lucide-react";
+import { Sparkles, X, CheckCircle, XCircle, Loader2, Brain } from "lucide-react";
 
 interface Question {
     question: string;
@@ -14,20 +14,25 @@ interface AIQuizModalProps {
     sensorName: string;
     sensorId: string;
     onClose: () => void;
+    defaultQuestions?: Question[];
 }
 
-export const AIQuizModal: React.FC<AIQuizModalProps> = ({ sensorName, sensorId, onClose }) => {
-    const [questions, setQuestions] = useState<Question[]>([]);
+export const AIQuizModal: React.FC<AIQuizModalProps> = ({ sensorName, sensorId, onClose, defaultQuestions }) => {
+    const [questions, setQuestions] = useState<Question[]>(defaultQuestions || []);
     const [currentQ, setCurrentQ] = useState(0);
     const [selectedAnswer, setSelectedAnswer] = useState<number | null>(null);
     const [showResult, setShowResult] = useState(false);
     const [score, setScore] = useState(0);
-    const [loading, setLoading] = useState(true);
+    const [loading, setLoading] = useState(!defaultQuestions || defaultQuestions.length === 0);
     const [error, setError] = useState<string | null>(null);
+    const [aiExtrasLoading, setAiExtrasLoading] = useState(false);
+    const [hasLoadedAiExtras, setHasLoadedAiExtras] = useState(false);
 
-    // Generate quiz on mount
+    // Generate quiz on mount ONLY if no defaults provided
     React.useEffect(() => {
-        generateQuiz();
+        if (!defaultQuestions || defaultQuestions.length === 0) {
+            generateQuiz();
+        }
     }, []);
 
     const generateQuiz = async () => {
@@ -47,7 +52,6 @@ export const AIQuizModal: React.FC<AIQuizModalProps> = ({ sensorName, sensorId, 
             setLoading(false);
         } catch (err) {
             setError("Could not generate quiz. Using fallback questions.");
-            // Fallback questions
             setQuestions([
                 {
                     question: `What physical principle does the ${sensorName} use?`,
@@ -69,6 +73,27 @@ export const AIQuizModal: React.FC<AIQuizModalProps> = ({ sensorName, sensorId, 
                 }
             ]);
             setLoading(false);
+        }
+    };
+
+    const loadAiExtras = async () => {
+        try {
+            setAiExtrasLoading(true);
+            const response = await fetch(`${process.env.NEXT_PUBLIC_SOCKET_URL || "http://localhost:5000"}/api/ai-quiz`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ sensorName, sensorId }),
+            });
+            if (!response.ok) throw new Error("Failed");
+            const data = await response.json();
+            if (data.questions && data.questions.length > 0) {
+                setQuestions(prev => [...prev, ...data.questions]);
+                setHasLoadedAiExtras(true);
+            }
+        } catch (err) {
+            setError("AI is temporarily unavailable. Try again later.");
+        } finally {
+            setAiExtrasLoading(false);
         }
     };
 
@@ -101,19 +126,32 @@ export const AIQuizModal: React.FC<AIQuizModalProps> = ({ sensorName, sensorId, 
     }
 
     if (showResult) {
+        const pct = Math.round((score / questions.length) * 100);
         return (
             <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50">
                 <div className="bg-slate-900 border border-white/10 rounded-2xl p-8 max-w-lg w-full mx-4 text-center">
-                    <div className={`h-20 w-20 mx-auto mb-4 rounded-full flex items-center justify-center ${score >= 2 ? "bg-emerald-500/20" : "bg-amber-500/20"}`}>
+                    <div className={`h-20 w-20 mx-auto mb-4 rounded-full flex items-center justify-center ${pct >= 70 ? "bg-emerald-500/20" : "bg-amber-500/20"}`}>
                         <span className="text-4xl font-bold text-white">{score}/{questions.length}</span>
                     </div>
                     <h3 className="text-xl font-bold text-white mb-2">
-                        {score === questions.length ? "Perfect! 🎉" : score >= 2 ? "Good job! 👍" : "Keep learning! 📚"}
+                        {pct === 100 ? "Perfect! 🎉" : pct >= 70 ? "Good job! 👍" : "Keep learning! 📚"}
                     </h3>
-                    <p className="text-slate-400 mb-6">You answered {score} out of {questions.length} questions correctly.</p>
-                    <button onClick={onClose} className="px-6 py-2 bg-cyan-500 text-white rounded-lg hover:bg-cyan-600 transition">
-                        Close
-                    </button>
+                    <p className="text-slate-400 mb-6">You answered {score} out of {questions.length} questions correctly ({pct}%).</p>
+                    <div className="flex gap-3 justify-center">
+                        {!hasLoadedAiExtras && (
+                            <button
+                                onClick={() => { setShowResult(false); loadAiExtras(); }}
+                                disabled={aiExtrasLoading}
+                                className="px-4 py-2 bg-purple-500/20 text-purple-300 border border-purple-500/30 rounded-lg hover:bg-purple-500/30 transition flex items-center gap-2"
+                            >
+                                <Brain size={16} />
+                                {aiExtrasLoading ? "Loading..." : "More AI Questions"}
+                            </button>
+                        )}
+                        <button onClick={onClose} className="px-6 py-2 bg-cyan-500 text-white rounded-lg hover:bg-cyan-600 transition">
+                            Close
+                        </button>
+                    </div>
                 </div>
             </div>
         );

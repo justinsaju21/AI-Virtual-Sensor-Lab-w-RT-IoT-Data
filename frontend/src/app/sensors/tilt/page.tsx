@@ -16,6 +16,30 @@ const THEORY = {
     "math": "**Kinematics & Bouncing:**\nAs a physical mechanism, the sensor is susceptible to 'contact bounce'. \nIf the module is mounted in a vibrating environment or precisely on the threshold angle, the microscopic bouncing of the ball creates a rapid sequence of HIGH/LOW voltage spikes. Software *debouncing*—waiting 10-50ms after a state change—is mathematically required to read a clean, stable state.",
     "circuit": "**Hardware Architecture:**\n- **Component:** The SW-520D itself is literally just a localized gravity switch.\n- **Interface:** It requires a Pull-Up or Pull-Down resistor exactly like a standard push-button. In the standard Arduino configuration, `INPUT_PULLUP` is used. Upright (closed) = 0V (LOW). Tilted (open) = 5V (HIGH).\n- **Warning:** Highly sensitive to vibration and lateral G-forces."
 };
+const EXPERIMENTS = [
+    {
+        "title": "Vibration & Impact Alarm",
+        "instruction": "Hold the sensor perfectly upright. Flick it hard with a finger, or place it on a desk and hit the desk surface with a fist.",
+        "observation": "A flurry of TILTED and UPRIGHT messages spam the serial monitor rapidly.",
+        "expected": "The sudden kinetic force momentarily bounces the ball off the contacts. Demonstrates a ball-tilt sensor can function as a crude vibration alarm."
+    }
+];
+
+const COMMON_MISTAKES = [
+    {
+        "title": "Constant Flapping in Breadboard",
+        "symptom": "Sensor never settles into stable reading even sitting still on a flat surface.",
+        "cause": "The sensor is physically wobbling in the breadboard socket, or was not inserted perfectly vertical.",
+        "fix": "The sensor relies purely on gravity. It must be fixed perpendicular to the protected object's intended orientation."
+    },
+    {
+        "title": "Random 0s and 1s When Tilted",
+        "symptom": "When tilted (open circuit), reads garbage values instead of a clean HIGH.",
+        "cause": "Without INPUT_PULLUP, the open pin is floating and picks up random electromagnetic noise from the room.",
+        "fix": "Always use: pinMode(TILT_PIN, INPUT_PULLUP). Or add a physical 10kΩ resistor from the pin to 5V."
+    }
+];
+
 
 const ARDUINO_CODE = `// Tilt Sensor
 #define TILT_PIN 12
@@ -38,10 +62,7 @@ const EXPERIMENTS = [
     { title: "Trigger Angle", instruction: "Slowly tilt the sensor until it triggers.", observation: "At what angle does it change state?", expected: "Typically triggers at 15-45° depending on sensor." }
 ];
 
-const COMMON_MISTAKES = [
-    { title: "Rattling Noise", symptom: "Sensor makes noise when shaken", cause: "Metal ball moving inside (Normal)", fix: "It's a feature, not a bug." },
-    { title: "Unstable", symptom: "Flickers when flat", cause: "Vibration or near threshold", fix: "Use software debouncing or secure mounting." }
-];
+
 
 export default function TiltPage() {
     const { isConnected, data } = useSocket();
@@ -105,7 +126,7 @@ export default function TiltPage() {
                     <Card variant="default"><CardHeader><CardTitle className="flex items-center gap-2"><Info className="h-4 w-4 text-blue-400" />Wiring</CardTitle></CardHeader><CardContent><table className="w-full text-sm"><tbody className="divide-y divide-white/5"><tr><td className="py-1.5 font-mono text-white">Signal</td><td className="py-1.5 font-mono text-amber-400">D12 (pull-up)</td></tr></tbody></table></CardContent></Card>
                 </div>
             </SensorDetailLayout>
-            {showQuiz && <AIQuizModal sensorName="Tilt Sensor" sensorId="SW-520D" onClose={() => setShowQuiz(false)} />}
+            {showQuiz && <AIQuizModal sensorName="Tilt Sensor" sensorId="SW-520D" onClose={() = defaultQuestions={SENSOR_QUIZZES["tilt"]} > setShowQuiz(false)} />}
         </>
     );
 }

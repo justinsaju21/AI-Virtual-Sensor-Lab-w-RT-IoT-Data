@@ -22,6 +22,36 @@ const THEORY = {
     "math": "**Photo-Resistance Equation:**\nThe relationship between illuminance (Lux) and LDR resistance is log-linear:\n\n$ R = A \\cdot E^{-\\alpha} $\n\nWhere:\n- $R$: Resistance (Ohms)\n- $E$: Illuminance (Lux)\n- $A, \\alpha$: Material-specific constants.\n\nTo map ADC value to approximated Lux:\n$ V_{out} = 5V \\times \\frac{R_{fixed}}{LDR + R_{fixed}} $",
     "circuit": "**Hardware Architecture:**\n- **Voltage Divider:** The LDR module inherently places the photoresistor in series with a fixed 10k\\Omega reference resistor. This configuration transforms the changing resistance into a changing voltage that a microcontroller can read.\n- **Comparator:** Most modules also include an LM393 operational amplifier configured as a comparator to provide a digital HIGH/LOW output when brightness crosses a potentiometer-defined threshold."
 };
+const EXPERIMENTS = [
+    {
+        "title": "Shadow Smoothness Test",
+        "instruction": "Hold your hand above the sensor so it casts a solid shadow. Slowly move it away.",
+        "observation": "The analog reading drops smoothly as the shadow falls and rises when the light returns.",
+        "expected": "Unlike active IR sensors, the LDR measures purely ambient light energy — demonstrating continuous, smooth analog behavior."
+    },
+    {
+        "title": "Color Spectral Response Test",
+        "instruction": "Shine a red LED directly on the LDR and record the peak value. Then shine a blue LED of equal brightness.",
+        "observation": "The LDR will register a significantly higher reading under red/yellow light than blue light.",
+        "expected": "CdS cells have a spectral response curve that heavily favors Green–Yellow–Red (500–600nm). They are nearly blind to deep blue or UV light."
+    }
+];
+
+const COMMON_MISTAKES = [
+    {
+        "title": "Raw LDR Floating Without Divider",
+        "symptom": "Analog reading randomly floats around 300, or always 1023 regardless of light.",
+        "cause": "Plugging a raw 2-leg LDR directly between 5V and A0 without a 10kΩ pull-down resistor creates an incomplete voltage divider.",
+        "fix": "Connect a 10kΩ resistor from the A0 junction to GND to complete the voltage divider circuit."
+    },
+    {
+        "title": "Slow Response Time",
+        "symptom": "Takes almost a full second to recover to dark reading after flashlight is turned off.",
+        "cause": "CdS material latency — inherent physics of the material; electrons take time to recombine after photo-excitation.",
+        "fix": "This is unavoidable. For high-speed optical applications, use a PIN Photodiode instead."
+    }
+];
+
 
 const ARDUINO_CODE = `// Light Sensor - LDR
 #define LDR_PIN A4
@@ -45,10 +75,7 @@ const EXPERIMENTS = [
     { title: "Cover the Sensor", instruction: "Cover the LDR completely with your hand or a dark cloth.", observation: "What's the minimum reading?", expected: "Values should drop to 10-100 range." }
 ];
 
-const COMMON_MISTAKES = [
-    { title: "Inverted Values", symptom: "Value drops when light increases", cause: "Swapped LDR and Resistor positions", fix: "Swap LDR and Resistor in the voltage divider." },
-    { title: "Always 0 or 1023", symptom: "Value stuck at extreme", cause: "Missing resistor or open circuit", fix: "Ensure voltage divider circuit is correctly built." }
-];
+
 
 export default function LightPage() {
     const { isConnected, data } = useSocket();
@@ -137,7 +164,7 @@ export default function LightPage() {
                     <Card variant="default"><CardHeader><CardTitle className="flex items-center gap-2"><Info className="h-4 w-4 text-blue-400" />Wiring</CardTitle></CardHeader><CardContent><table className="w-full text-sm"><tbody className="divide-y divide-white/5"><tr><td className="py-1.5 text-white">LDR → 10kΩ → GND</td><td className="py-1.5 font-mono text-yellow-400">A4</td></tr><tr><td className="py-1.5 text-white">LDR → VCC</td><td className="py-1.5 font-mono text-yellow-400">5V</td></tr></tbody></table></CardContent></Card>
                 </div>
             </SensorDetailLayout>
-            {showQuiz && <AIQuizModal sensorName="Light Sensor" sensorId="LDR" onClose={() => setShowQuiz(false)} />}
+            {showQuiz && <AIQuizModal sensorName="Light Sensor" sensorId="LDR" onClose={() = defaultQuestions={SENSOR_QUIZZES["light"]} > setShowQuiz(false)} />}
             {showExplainer && <GraphExplainerModal sensorName="Light Sensor" data={chartData} onClose={() => setShowExplainer(false)} />}
         </>
     );

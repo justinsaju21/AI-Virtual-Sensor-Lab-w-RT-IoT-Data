@@ -22,6 +22,42 @@ const THEORY = {
     "math": "**Thermodynamic Response:**\nBoth internal components are inherently nonlinear. The DHT11 relies on an internal 8-bit microcontroller. It reads the raw analog resistances from the humidity substrate and the thermistor, references an internal calibration lookup table, mathematically linearizes both values, and packages them into a pure digital signal.",
     "circuit": "**Hardware Architecture:**\n- **Custom 1-Wire Protocol:** Does NOT use standard I2C. The DHT11 uses a proprietary timing-based single-wire interface. The Arduino must pull the data line LOW for 18ms to 'wake' the sensor, which then replies with exactly 40 pulses of data. The length of each HIGH pulse determines if a bit is a `0` (28μs) or a `1` (70μs).\n- **Pull-up:** Always requires a 10k\\Omega pull-up resistor between the Data pin and 5V to maintain the idle HIGH state of the bus."
 };
+const EXPERIMENTS = [
+    {
+        "title": "Body Heat Finger-Touch Test",
+        "instruction": "Let sensor settle for 2 minutes. Record reading. Then gently pinch the thermistor bead between thumb and index finger for 30 seconds.",
+        "observation": "Temperature climbs steadily from room ambient toward 30-33 deg C.",
+        "expected": "Demonstrates fast response. No environmental changes needed -- finger contact alone creates a clear measurable shift, impossible this quickly with DHT11."
+    },
+    {
+        "title": "Response Speed Comparison vs DHT11",
+        "instruction": "Mount NTC thermistor and DHT11 side-by-side. Blow hot air on both simultaneously and log timestamp of first detectable response.",
+        "observation": "NTC registers a change within 100-300ms. DHT11 lags by at least 2-4 seconds.",
+        "expected": "Proves the speed advantage of continuous analog sensing. For thermal runaway detection, NTC response speed is essential."
+    }
+];
+
+const COMMON_MISTAKES = [
+    {
+        "title": "Temperature Reads NaN -- Arduino Crashes",
+        "symptom": "Serial monitor shows 'inf', 'nan', or the Arduino resets unexpectedly.",
+        "cause": "rawADC returns 0 due to a disconnected or open-circuit thermistor, causing division by zero in the resistance formula.",
+        "fix": "Add a guard block: if (rawADC == 0) { return; } immediately after the analogRead line."
+    },
+    {
+        "title": "Reading is Off by 30 Degrees",
+        "symptom": "Room temperature reads 55 deg C or -10 deg C when it is clearly ~25 deg C.",
+        "cause": "Wrong Beta constant. Different thermistors have values ranging from 3000 to 4500.",
+        "fix": "Check your thermistor datasheet for its Beta value. Or perform a two-point calibration experiment with ice water and boiling water."
+    },
+    {
+        "title": "Readings Fluctuate Rapidly",
+        "symptom": "Temperature jumps erratically even in stable environment.",
+        "cause": "Single-sample ADC reads are inherently noisy. Power supply ripple couples into the high-impedance analog circuit.",
+        "fix": "Average 10 consecutive samples in a for-loop. This simple oversampling reduces noise dramatically."
+    }
+];
+
 
 const ARDUINO_CODE = `// Temperature Reading - DHT22
 #include <DHT.h>
@@ -62,11 +98,7 @@ const EXPERIMENTS = [
     { title: "Cooling Effect", instruction: "Gently blow on the sensor from a distance of ~10cm for a few seconds.", observation: "Did the temperature decrease? By how much?", expected: "Evaporative cooling from your breath should cause a slight temperature drop of 1-3°C, followed by a gradual return to baseline." },
 ];
 
-const COMMON_MISTAKES = [
-    { title: "Reading Shows NaN or 0", symptom: "Temperature displays as NaN, 0, or doesn't update", cause: "Missing or loose data wire, or no pull-up resistor on data line", fix: "Ensure a 10kΩ pull-up resistor is connected between DATA and VCC. Check all wire connections." },
-    { title: "Temperature Too High", symptom: "Sensor reads 5-10°C higher than expected", cause: "Self-heating from being too close to power electronics or direct sunlight", fix: "Mount sensor away from heat sources. Ensure good ventilation around the sensor." },
-    { title: "Slow Response", symptom: "Readings lag behind actual temperature changes", cause: "Normal sensor behavior - the DHT22 has a slow response time", fix: "This is expected. For faster response, consider a thermistor with a smaller thermal mass." },
-];
+
 
 export default function TemperaturePage() {
     const { isConnected, data } = useSocket();
@@ -261,7 +293,7 @@ export default function TemperaturePage() {
             </SensorDetailLayout>
 
             {/* AI Modals */}
-            {showQuiz && <AIQuizModal sensorName="Temperature Sensor" sensorId="DHT11" onClose={() => setShowQuiz(false)} />}
+            {showQuiz && <AIQuizModal sensorName="Temperature Sensor" sensorId="DHT11" onClose={() = defaultQuestions={SENSOR_QUIZZES["temperature"]} > setShowQuiz(false)} />}
             {showExplainer && <GraphExplainerModal sensorName="Temperature Sensor" data={chartData} onClose={() => setShowExplainer(false)} />}
         </>
     );

@@ -22,6 +22,36 @@ const THEORY = {
     "math": "**Time-of-Flight (ToF) Kinematics:**\nThe distance to an object is calculated by measuring the total time the sound takes to travel to the object and back.\n\n$ Distance = \\frac{Time \\times Speed\\:Of\\:Sound}{2} $\n\n- Speed of sound at 20°C: ~343 meters/second, or **0.0343 cm/microsecond**.\n- Since the burst traveled *to* the object and *back*, we divide the total time by 2.\n- Algorithm: `Distance(cm) = (Duration(us) * 0.0343) / 2`",
     "circuit": "**Hardware Architecture:**\n- **Trigger Pin:** The Arduino sends a 10-microsecond HIGH pulse on this pin to command the module to fire.\n- **Echo Pin:** The HC-SR04 pulls this pin HIGH the moment the sound bursts, and pulls it LOW the moment the echo is received. The Arduino relies on `pulseIn()` to measure the exact microsecond duration of this HIGH state.\n- **Piezo Transducers:** Operates completely indepedently of light, making it effective in total darkness, but utterly useless in a vacuum or high-noise environments."
 };
+const EXPERIMENTS = [
+    {
+        "title": "Minimum Range Dead Zone",
+        "instruction": "Bring a flat book closer and closer to the sensor face.",
+        "observation": "Around 2cm, readings become erratic, jump to 0, or give wildly wrong values.",
+        "expected": "Below 2cm, the sound cone angle means the echo bounces at an angle outside the receiver's narrow cylinder — a fundamental physical limitation."
+    },
+    {
+        "title": "Surface Material Absorption Test",
+        "instruction": "Measure the distance to a flat wooden board at 30cm, then repeat with a fluffy pillow at the same distance.",
+        "observation": "The wood gives a perfect reading. The pillow gives erratic results or 'Out of range'.",
+        "expected": "Soft, porous materials absorb ultrasonic energy. HC-SR04 only works reliably against hard, flat, sound-reflective surfaces."
+    }
+];
+
+const COMMON_MISTAKES = [
+    {
+        "title": "pulseIn() Freezes the Arduino",
+        "symptom": "Code stops entirely when pointing at the open sky or an empty room.",
+        "cause": "pulseIn(ECHO_PIN, HIGH) with no timeout waits up to 1 second for an echo that never comes.",
+        "fix": "Always include the timeout: pulseIn(ECHO_PIN, HIGH, 30000);"
+    },
+    {
+        "title": "Constant 0 cm Output",
+        "symptom": "Always reads 0 regardless of distance.",
+        "cause": "TRIG and ECHO pins swapped in wiring vs code.",
+        "fix": "Verify the TRIG pin (output) and ECHO pin (input) are not reversed in both the physical wiring and the #define statements."
+    }
+];
+
 
 const ARDUINO_CODE = `// Ultrasonic Distance - HC-SR04
 #define TRIG_PIN 3
@@ -57,10 +87,7 @@ const EXPERIMENTS = [
     { title: "Soft Surface", instruction: "Target a pillow or fabric.", observation: "Is reading stable?", expected: "Fabric absorbs sound, causing unstable or lost readings." }
 ];
 
-const COMMON_MISTAKES = [
-    { title: "Always 0cm", symptom: "Reading stuck at 0", cause: "Out of range (>4m) or bad wiring", fix: "Check Trig/Echo connections. Ensure object is within 4m." },
-    { title: "Jittery Values", symptom: "Values jump ±5cm", cause: "Noisy power or angled target", fix: "Use flat target surface. Add capacitor to power rails." }
-];
+
 
 export default function UltrasonicPage() {
     const { isConnected, data } = useSocket();
@@ -146,7 +173,7 @@ export default function UltrasonicPage() {
                     <Card variant="default"><CardHeader><CardTitle className="flex items-center gap-2"><Info className="h-4 w-4 text-blue-400" />Wiring</CardTitle></CardHeader><CardContent><table className="w-full text-sm"><tbody className="divide-y divide-white/5"><tr><td className="py-1.5 font-mono text-white">VCC</td><td className="py-1.5 font-mono text-purple-400">5V</td></tr><tr><td className="py-1.5 font-mono text-white">TRIG</td><td className="py-1.5 font-mono text-purple-400">D3</td></tr><tr><td className="py-1.5 font-mono text-white">ECHO</td><td className="py-1.5 font-mono text-purple-400">D4</td></tr><tr><td className="py-1.5 font-mono text-white">GND</td><td className="py-1.5 font-mono text-purple-400">GND</td></tr></tbody></table></CardContent></Card>
                 </div>
             </SensorDetailLayout>
-            {showQuiz && <AIQuizModal sensorName="Ultrasonic Sensor" sensorId="HC-SR04" onClose={() => setShowQuiz(false)} />}
+            {showQuiz && <AIQuizModal sensorName="Ultrasonic Sensor" sensorId="HC-SR04" onClose={() = defaultQuestions={SENSOR_QUIZZES["ultrasonic"]} > setShowQuiz(false)} />}
             {showExplainer && <GraphExplainerModal sensorName="Ultrasonic Sensor" data={chartData} onClose={() => setShowExplainer(false)} />}
         </>
     );
