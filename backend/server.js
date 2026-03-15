@@ -47,6 +47,10 @@ const mergeHardwareWithMock = (mock, real) => {
 };
 
 let lastHardwareSensors = null;
+let latestReading = null;
+let useRealData = false;
+let lastRealDataTime = 0;
+const REAL_DATA_TIMEOUT = 10000; // 10 seconds stale timeout
 
 // Health check
 app.get('/', (req, res) => {
