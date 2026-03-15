@@ -37,11 +37,11 @@ ADC_value = (V_out / V_ref) × 1023`,
     5V ──┬── [10kΩ] ──┬── GND
          │            │
          └── [LDR] ───┤
-                    A1 (ADC)`,
+                    A4 (ADC)`,
 };
 
 const ARDUINO_CODE = `// Light Sensor - LDR
-#define LDR_PIN A1
+#define LDR_PIN A4
 
 void setup() {
   Serial.begin(115200);
@@ -79,7 +79,7 @@ export default function LightPage() {
     const [dismissedAnomalies, setDismissedAnomalies] = useState<number[]>([]);
     const [calibrationOffset, setCalibrationOffset] = useState(0);
 
-    const rawVal = data?.sensors.ldr?.value ?? 0;
+    const rawVal = data?.sensors.ldr?.raw ?? 0;
     const { injectedValue, fault, setFault } = useFaultInjector(rawVal);
     const calibratedValue = (typeof injectedValue === 'number') ? injectedValue + calibrationOffset : injectedValue;
     const { filter, setFilter, processedData } = useSignalProcessing(history.map(d => d.value));
@@ -101,7 +101,7 @@ export default function LightPage() {
         const csv = "Time,Light (raw),Processed\n" + chartData.map(d => `${d.time},${d.value},${d.processingValue ?? ''}`).join("\n");
         const blob = new Blob([csv], { type: "text/csv" });
         const url = URL.createObjectURL(blob);
-        const a = document.createElement("a"); a.href = url; a.download = "light_data.csv"; a.click();
+        const a = document.createElement("a"); a.href = url; a.download = "light_data.csv"; a.click(); URL.revokeObjectURL(url);
     };
 
     return (
@@ -110,7 +110,7 @@ export default function LightPage() {
                 title="Light Sensor (LDR)"
                 description="Photoresistor that decreases resistance with increasing light intensity."
                 sensorId="LDR / CdS Cell"
-                dataSnippet={{ value: displayValue, unit: "raw", type: "Analog", pin: "A1" }}
+                dataSnippet={{ value: displayValue, unit: "raw", type: "Analog", pin: "A4" }}
                 theory={THEORY}
                 arduinoCode={ARDUINO_CODE}
                 experiments={EXPERIMENTS}
@@ -151,7 +151,7 @@ export default function LightPage() {
                 </div>
                 <div className="grid gap-6 md:grid-cols-2">
                     <Card variant="default"><CardHeader><CardTitle className="flex items-center gap-2"><Cpu className="h-4 w-4 text-cyan-400" />Specs</CardTitle></CardHeader><CardContent className="space-y-2 text-sm"><SpecRow label="Type" value="Analog (10-bit ADC)" /><SpecRow label="Dark R" value="~1 MΩ" /><SpecRow label="Light R" value="~100Ω - 10kΩ" /></CardContent></Card>
-                    <Card variant="default"><CardHeader><CardTitle className="flex items-center gap-2"><Info className="h-4 w-4 text-blue-400" />Wiring</CardTitle></CardHeader><CardContent><table className="w-full text-sm"><tbody className="divide-y divide-white/5"><tr><td className="py-1.5 text-white">LDR → 10kΩ → GND</td><td className="py-1.5 font-mono text-yellow-400">A1</td></tr><tr><td className="py-1.5 text-white">LDR → VCC</td><td className="py-1.5 font-mono text-yellow-400">5V</td></tr></tbody></table></CardContent></Card>
+                    <Card variant="default"><CardHeader><CardTitle className="flex items-center gap-2"><Info className="h-4 w-4 text-blue-400" />Wiring</CardTitle></CardHeader><CardContent><table className="w-full text-sm"><tbody className="divide-y divide-white/5"><tr><td className="py-1.5 text-white">LDR → 10kΩ → GND</td><td className="py-1.5 font-mono text-yellow-400">A4</td></tr><tr><td className="py-1.5 text-white">LDR → VCC</td><td className="py-1.5 font-mono text-yellow-400">5V</td></tr></tbody></table></CardContent></Card>
                 </div>
             </SensorDetailLayout>
             {showQuiz && <AIQuizModal sensorName="Light Sensor" sensorId="LDR" onClose={() => setShowQuiz(false)} />}

@@ -1,10 +1,9 @@
 "use client";
 
 import React from "react";
-import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/Card";
+import { Card, CardContent } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
 import { Beaker, Clock, ArrowRight, Thermometer, Droplets, Flame, Sun } from "lucide-react";
-import Link from "next/link";
 
 const experiments = [
     {
@@ -15,7 +14,7 @@ const experiments = [
         duration: "30 min",
         difficulty: "Beginner",
         icon: <Thermometer className="h-5 w-5 text-orange-400" />,
-        color: "orange",
+        bgClass: "bg-orange-500/20",
     },
     {
         id: 2,
@@ -25,7 +24,7 @@ const experiments = [
         duration: "15 min",
         difficulty: "Beginner",
         icon: <Droplets className="h-5 w-5 text-blue-400" />,
-        color: "blue",
+        bgClass: "bg-blue-500/20",
     },
     {
         id: 3,
@@ -35,7 +34,7 @@ const experiments = [
         duration: "45 min",
         difficulty: "Intermediate",
         icon: <Flame className="h-5 w-5 text-red-400" />,
-        color: "red",
+        bgClass: "bg-red-500/20",
     },
     {
         id: 4,
@@ -45,7 +44,7 @@ const experiments = [
         duration: "20 min",
         difficulty: "Beginner",
         icon: <Sun className="h-5 w-5 text-yellow-400" />,
-        color: "yellow",
+        bgClass: "bg-yellow-500/20",
     },
 ];
 
@@ -70,7 +69,7 @@ export default function ExperimentsPage() {
                     <Card key={exp.id} variant="gradient" className="group cursor-pointer">
                         <CardContent className="p-5">
                             <div className="flex items-start justify-between mb-4">
-                                <div className={`h-12 w-12 rounded-xl bg-${exp.color}-500/20 flex items-center justify-center`}>
+                                <div className={`h-12 w-12 rounded-xl ${exp.bgClass} flex items-center justify-center`}>
                                     {exp.icon}
                                 </div>
                                 <Badge variant="default" size="sm">

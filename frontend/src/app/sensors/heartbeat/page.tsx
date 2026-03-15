@@ -35,16 +35,25 @@ BPM = 60 / (Time between peaks in seconds)
 Example: Peaks every 0.8s → BPM = 75`,
 };
 
-const ARDUINO_CODE = `// Heartbeat Sensor - Pulse Sensor
-#define PULSE_PIN A5
+const ARDUINO_CODE = `// Heartbeat Sensor - MAX30102 (I2C)
+#include <Wire.h>
+#include "MAX30105.h"
+
+MAX30105 particleSensor;
 
 void setup() {
   Serial.begin(115200);
+  Wire.begin();
+  if (!particleSensor.begin(Wire, I2C_SPEED_FAST)) {
+    Serial.println("MAX30102 not found!");
+    while(1);
+  }
+  particleSensor.setup();
 }
 
 void loop() {
-  int signal = analogRead(PULSE_PIN);
-  Serial.println(signal);
+  long irValue = particleSensor.getIR();
+  Serial.println(irValue);
   delay(20); // Fast sampling for waveform
 }`;
 
@@ -68,7 +77,7 @@ export default function HeartbeatPage() {
     const [dismissedAnomalies, setDismissedAnomalies] = useState<number[]>([]);
     const [calibrationOffset, setCalibrationOffset] = useState(0);
 
-    const rawVal = data?.sensors.heartbeat?.value ?? 0;
+    const rawVal = data?.sensors.max30102?.ir ?? 0;
     const { injectedValue, fault, setFault } = useFaultInjector(rawVal);
     const calibratedValue = (typeof injectedValue === 'number') ? injectedValue + calibrationOffset : injectedValue;
     const { filter, setFilter, processedData } = useSignalProcessing(history.map(d => d.value));
@@ -88,7 +97,7 @@ export default function HeartbeatPage() {
         const csv = "Time,PPG,Processed\n" + chartData.map(d => `${d.time},${d.value},${d.processingValue ?? ''}`).join("\n");
         const blob = new Blob([csv], { type: "text/csv" });
         const url = URL.createObjectURL(blob);
-        const a = document.createElement("a"); a.href = url; a.download = "heartbeat_data.csv"; a.click();
+        const a = document.createElement("a"); a.href = url; a.download = "heartbeat_data.csv"; a.click(); URL.revokeObjectURL(url);
     };
 
     return (
@@ -96,8 +105,8 @@ export default function HeartbeatPage() {
             <SensorDetailLayout
                 title="Heartbeat Sensor"
                 description="Detects heart rate via photoplethysmography."
-                sensorId="Pulse Sensor"
-                dataSnippet={{ value: displayValue, pin: "A5" }}
+                sensorId="MAX30102"
+                dataSnippet={{ value: displayValue, interface: "I2C (SDA/SCL)" }}
                 theory={THEORY}
                 arduinoCode={ARDUINO_CODE}
                 experiments={EXPERIMENTS}
@@ -134,7 +143,7 @@ export default function HeartbeatPage() {
                 </div>
                 <div className="grid gap-6 md:grid-cols-2">
                     <Card variant="default"><CardHeader><CardTitle className="flex items-center gap-2"><Cpu className="h-4 w-4 text-cyan-400" />Specs</CardTitle></CardHeader><CardContent className="space-y-2 text-sm"><SpecRow label="Method" value="PPG" /><SpecRow label="LED" value="Green ~530nm" /></CardContent></Card>
-                    <Card variant="default"><CardHeader><CardTitle className="flex items-center gap-2"><Info className="h-4 w-4 text-blue-400" />Wiring</CardTitle></CardHeader><CardContent><table className="w-full text-sm"><tbody className="divide-y divide-white/5"><tr><td className="py-1.5 font-mono text-white">Signal</td><td className="py-1.5 font-mono text-rose-400">A5</td></tr></tbody></table></CardContent></Card>
+                    <Card variant="default"><CardHeader><CardTitle className="flex items-center gap-2"><Info className="h-4 w-4 text-blue-400" />Wiring</CardTitle></CardHeader><CardContent><table className="w-full text-sm"><tbody className="divide-y divide-white/5"><tr><td className="py-1.5 font-mono text-white">SDA</td><td className="py-1.5 font-mono text-rose-400">20</td></tr><tr><td className="py-1.5 font-mono text-white">SCL</td><td className="py-1.5 font-mono text-rose-400">21</td></tr></tbody></table></CardContent></Card>
                 </div>
             </SensorDetailLayout>
             {showQuiz && <AIQuizModal sensorName="Heartbeat Sensor" sensorId="Pulse" onClose={() => setShowQuiz(false)} />}

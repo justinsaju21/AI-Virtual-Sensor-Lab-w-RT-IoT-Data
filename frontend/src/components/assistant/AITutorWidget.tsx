@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useRef, useEffect } from "react";
-import { Bot, Send, X, Sparkles, User, Minimize2 } from "lucide-react";
+import { Bot, Send, Sparkles, Minimize2 } from "lucide-react";
 import { useAI } from "@/contexts/AIContext";
 
 interface Message {

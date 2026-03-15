@@ -35,9 +35,9 @@ speed = map(joystickValue, 0, 1023, -255, 255);`,
 };
 
 const ARDUINO_CODE = `// Joystick - KY-023
-#define JOY_X A6
-#define JOY_Y A7
-#define JOY_SW 11
+#define JOY_X A2
+#define JOY_Y A3
+#define JOY_SW 7
 
 void setup() {
   Serial.begin(115200);
@@ -103,7 +103,7 @@ export default function JoystickPage() {
         const csv = "Time,X,Processed\n" + chartData.map(d => `${d.time},${d.value},${d.processingValue ?? ''}`).join("\n");
         const blob = new Blob([csv], { type: "text/csv" });
         const url = URL.createObjectURL(blob);
-        const a = document.createElement("a"); a.href = url; a.download = "joystick_data.csv"; a.click();
+        const a = document.createElement("a"); a.href = url; a.download = "joystick_data.csv"; a.click(); URL.revokeObjectURL(url);
     };
 
     return (
@@ -112,7 +112,7 @@ export default function JoystickPage() {
                 title="Joystick"
                 description="Dual-axis analog joystick with potentiometers."
                 sensorId="KY-023"
-                dataSnippet={{ x: displayX, y: displayY, button, pins: ["A6", "A7", "D11"] }}
+                dataSnippet={{ x: displayX, y: displayY, button, pins: ["A2", "A3", "D7"] }}
                 theory={THEORY}
                 arduinoCode={ARDUINO_CODE}
                 experiments={EXPERIMENTS}
@@ -161,7 +161,7 @@ export default function JoystickPage() {
                 </div>
                 <div className="grid gap-6 md:grid-cols-2">
                     <Card variant="default"><CardHeader><CardTitle className="flex items-center gap-2"><Cpu className="h-4 w-4 text-cyan-400" />Specs</CardTitle></CardHeader><CardContent className="space-y-2 text-sm"><SpecRow label="Axes" value="X, Y (analog)" /><SpecRow label="Button" value="Digital push" /></CardContent></Card>
-                    <Card variant="default"><CardHeader><CardTitle className="flex items-center gap-2"><Info className="h-4 w-4 text-blue-400" />Wiring</CardTitle></CardHeader><CardContent><table className="w-full text-sm"><tbody className="divide-y divide-white/5"><tr><td className="py-1.5 font-mono text-white">VRx</td><td className="py-1.5 font-mono text-violet-400">A6</td></tr><tr><td className="py-1.5 font-mono text-white">VRy</td><td className="py-1.5 font-mono text-violet-400">A7</td></tr><tr><td className="py-1.5 font-mono text-white">SW</td><td className="py-1.5 font-mono text-violet-400">D11</td></tr></tbody></table></CardContent></Card>
+                    <Card variant="default"><CardHeader><CardTitle className="flex items-center gap-2"><Info className="h-4 w-4 text-blue-400" />Wiring</CardTitle></CardHeader><CardContent><table className="w-full text-sm"><tbody className="divide-y divide-white/5"><tr><td className="py-1.5 font-mono text-white">VRx</td><td className="py-1.5 font-mono text-violet-400">A2</td></tr><tr><td className="py-1.5 font-mono text-white">VRy</td><td className="py-1.5 font-mono text-violet-400">A3</td></tr><tr><td className="py-1.5 font-mono text-white">SW</td><td className="py-1.5 font-mono text-violet-400">D7</td></tr></tbody></table></CardContent></Card>
                 </div>
             </SensorDetailLayout>
             {showQuiz && <AIQuizModal sensorName="Joystick" sensorId="KY-023" onClose={() => setShowQuiz(false)} />}

@@ -31,7 +31,7 @@ void setup() {
 }
 
 void loop() {
-  if (digitalRead(TILT_PIN) == HIGH) {
+  if (digitalRead(TILT_PIN) == LOW) {
     Serial.println("Tilted!");
   } else {
     Serial.println("Level");

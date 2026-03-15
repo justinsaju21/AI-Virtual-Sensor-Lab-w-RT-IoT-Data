@@ -39,14 +39,16 @@ export async function GET(
 ) {
     try {
         const { sensorId: rawSensorId } = await params;
-        let sensorId = sanitizeSensorId(rawSensorId).toUpperCase();
+        let sensorId = sanitizeSensorId(rawSensorId);
 
         if (!sensorId) {
             return NextResponse.json({ error: "Invalid sensor ID" }, { status: 400 });
         }
 
-        // Look for file mapping, or fallback to exact match
-        const filename = idToFileMap[sensorId] || `${sensorId}.md`;
+        // Look for file mapping: try exact, then uppercase, then case-insensitive
+        const filename = idToFileMap[sensorId] || idToFileMap[sensorId.toUpperCase()] ||
+            Object.entries(idToFileMap).find(([key]) => key.toLowerCase() === sensorId.toLowerCase())?.[1] ||
+            `${sensorId}.md`;
 
         const docsDir = path.join(process.cwd(), '..', 'documentation', 'sensors');
 

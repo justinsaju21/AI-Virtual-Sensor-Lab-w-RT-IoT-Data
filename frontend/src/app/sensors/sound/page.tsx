@@ -97,7 +97,7 @@ export default function SoundPage() {
         const csv = "Time,Sound (ADC),Processed\n" + chartData.map(d => `${d.time},${d.value},${d.processingValue ?? ''}`).join("\n");
         const blob = new Blob([csv], { type: "text/csv" });
         const url = URL.createObjectURL(blob);
-        const a = document.createElement("a"); a.href = url; a.download = "sound_data.csv"; a.click();
+        const a = document.createElement("a"); a.href = url; a.download = "sound_data.csv"; a.click(); URL.revokeObjectURL(url);
     };
 
     return (

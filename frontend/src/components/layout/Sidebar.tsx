@@ -5,15 +5,11 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
     Activity,
-    BarChart3,
-    Beaker,
-    Bot,
     ChevronLeft,
     ChevronRight,
     Droplets,
     Flame,
     Globe,
-    GraduationCap,
     LayoutDashboard,
     Settings,
     Sun,

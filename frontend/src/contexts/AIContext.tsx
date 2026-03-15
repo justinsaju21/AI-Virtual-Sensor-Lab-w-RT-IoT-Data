@@ -1,6 +1,6 @@
 "use client";
 
-import React, { createContext, useContext, useState, ReactNode } from "react";
+import React, { createContext, useContext, useState, useCallback, useMemo, ReactNode } from "react";
 
 interface AIContextType {
     isChatOpen: boolean;
@@ -23,14 +23,16 @@ export const AIProvider = ({ children }: { children: ReactNode }) => {
         dataSnippet: null as any,
     });
 
-    const toggleChat = () => setIsChatOpen(!isChatOpen);
+    const toggleChat = useCallback(() => setIsChatOpen(prev => !prev), []);
 
-    const updateContext = (ctx: { page: string; sensor?: string; dataSnippet?: any }) => {
+    const updateContext = useCallback((ctx: { page: string; sensor?: string; dataSnippet?: any }) => {
         setCurrentContext((prev) => ({ ...prev, ...ctx }));
-    };
+    }, []);
+
+    const value = useMemo(() => ({ isChatOpen, toggleChat, currentContext, updateContext }), [isChatOpen, toggleChat, currentContext, updateContext]);
 
     return (
-        <AIContext.Provider value={{ isChatOpen, toggleChat, currentContext, updateContext }}>
+        <AIContext.Provider value={value}>
             {children}
         </AIContext.Provider>
     );

@@ -38,28 +38,28 @@ Where:
 Example: P = 900hPa → h ≈ 988m`,
 };
 
-const ARDUINO_CODE = `// Pressure Sensor - BMP180
+const ARDUINO_CODE = `// Pressure Sensor - BMP280
 #include <Wire.h>
-#include <Adafruit_BMP085.h>
+#include <Adafruit_BMP280.h>
 
-Adafruit_BMP085 bmp;
+Adafruit_BMP280 bmp;
 
 void setup() {
   Serial.begin(115200);
-  if (!bmp.begin()) {
-    Serial.println("BMP180 not found!");
+  if (!bmp.begin(0x76)) {
+    Serial.println("BMP280 not found!");
     while(1);
   }
 }
 
 void loop() {
   float pressure = bmp.readPressure() / 100.0; // hPa
-  float altitude = bmp.readAltitude();
-  
+  float temp = bmp.readTemperature();
+
   Serial.print("Pressure: ");
   Serial.print(pressure);
-  Serial.print(" hPa, Alt: ");
-  Serial.println(altitude);
+  Serial.print(" hPa, Temp: ");
+  Serial.println(temp);
   delay(1000);
 }`;
 
@@ -69,7 +69,7 @@ const EXPERIMENTS = [
 
 const COMMON_MISTAKES = [
     { title: "Wrong Altitude", symptom: "Altitude shows negative or huge value", cause: "Incorrect Sea Level Pressure P0", fix: "Calibrate P0 for your current local weather." },
-    { title: "I2C Error", symptom: "Sensor not found", cause: "Loose wiring or wrong address (0x77)", fix: "Check SDA/SCL connections. Use I2C scanner." }
+    { title: "I2C Error", symptom: "Sensor not found", cause: "Loose wiring or wrong address (default 0x76)", fix: "Check SDA/SCL connections. Use I2C scanner." }
 ];
 
 export default function PressurePage() {
@@ -109,7 +109,7 @@ export default function PressurePage() {
         const csv = "Time,Pressure (hPa),Processed\n" + chartData.map(d => `${d.time},${d.value},${d.processingValue ?? ''}`).join("\n");
         const blob = new Blob([csv], { type: "text/csv" });
         const url = URL.createObjectURL(blob);
-        const a = document.createElement("a"); a.href = url; a.download = "pressure_data.csv"; a.click();
+        const a = document.createElement("a"); a.href = url; a.download = "pressure_data.csv"; a.click(); URL.revokeObjectURL(url);
     };
 
     return (
@@ -117,8 +117,8 @@ export default function PressurePage() {
             <SensorDetailLayout
                 title="Pressure Sensor"
                 description="Piezoresistive barometric pressure with altitude calculation."
-                sensorId="BMP180"
-                dataSnippet={{ pressure: displayPressure, altitude: displayAltitude, address: "0x77" }}
+                sensorId="BMP280"
+                dataSnippet={{ pressure: displayPressure, altitude: displayAltitude, address: "0x76" }}
                 theory={THEORY}
                 arduinoCode={ARDUINO_CODE}
                 experiments={EXPERIMENTS}

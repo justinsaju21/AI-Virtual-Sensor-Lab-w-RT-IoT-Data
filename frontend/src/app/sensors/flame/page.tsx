@@ -58,7 +58,7 @@ export default function FlamePage() {
     const [showTestingPanel, setShowTestingPanel] = useState(false);
     const [dismissedAnomalies, setDismissedAnomalies] = useState<number[]>([]);
 
-    const rawVal = data?.sensors.flame?.value ?? 1023; // Default 1023 (no fire)
+    const rawVal = data?.sensors.flame?.analog ?? 1023; // Default 1023 (no fire)
     const { injectedValue, fault, setFault } = useFaultInjector(rawVal);
 
     // Logic: Low value (< 200) means fire

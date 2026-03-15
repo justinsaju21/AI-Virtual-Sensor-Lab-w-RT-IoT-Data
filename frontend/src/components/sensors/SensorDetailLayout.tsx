@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from "react";
 import { useAI } from "@/contexts/AIContext";
 import { useStudentNotes } from "@/hooks/useStudentNotes";
-import { Activity, BookOpen, Code2, FlaskConical, AlertTriangle, FileText, Download, Check, Save, Settings } from "lucide-react";
+import { Activity, BookOpen, Code2, FlaskConical, AlertTriangle, FileText, Check, Save, Settings } from "lucide-react";
 import ReactMarkdown from 'react-markdown';
 
 interface TheoryContent {

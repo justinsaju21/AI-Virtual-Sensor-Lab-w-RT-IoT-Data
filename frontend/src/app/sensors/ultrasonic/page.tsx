@@ -51,8 +51,8 @@ d = 580 / 58.2 ≈ 10 cm`,
 };
 
 const ARDUINO_CODE = `// Ultrasonic Distance - HC-SR04
-#define TRIG_PIN 9
-#define ECHO_PIN 10
+#define TRIG_PIN 3
+#define ECHO_PIN 4
 
 void setup() {
   Serial.begin(115200);
@@ -120,7 +120,7 @@ export default function UltrasonicPage() {
         const csv = "Time,Distance (cm),Processed\n" + chartData.map(d => `${d.time},${d.value},${d.processingValue ?? ''}`).join("\n");
         const blob = new Blob([csv], { type: "text/csv" });
         const url = URL.createObjectURL(blob);
-        const a = document.createElement("a"); a.href = url; a.download = "distance_data.csv"; a.click();
+        const a = document.createElement("a"); a.href = url; a.download = "distance_data.csv"; a.click(); URL.revokeObjectURL(url);
     };
 
     return (
@@ -129,7 +129,7 @@ export default function UltrasonicPage() {
                 title="Ultrasonic Distance Sensor"
                 description="Measures distance using 40kHz ultrasonic pulses and time-of-flight calculation."
                 sensorId="HC-SR04"
-                dataSnippet={{ value: displayValue, unit: "cm", trigPin: "D9", echoPin: "D10" }}
+                dataSnippet={{ value: displayValue, unit: "cm", trigPin: "D3", echoPin: "D4" }}
                 theory={THEORY}
                 arduinoCode={ARDUINO_CODE}
                 experiments={EXPERIMENTS}
@@ -170,7 +170,7 @@ export default function UltrasonicPage() {
                 </div>
                 <div className="grid gap-6 md:grid-cols-2">
                     <Card variant="default"><CardHeader><CardTitle className="flex items-center gap-2"><Cpu className="h-4 w-4 text-cyan-400" />Specs</CardTitle></CardHeader><CardContent className="space-y-2 text-sm"><SpecRow label="Range" value="2 - 400 cm" /><SpecRow label="Accuracy" value="±3mm" /><SpecRow label="Frequency" value="40 kHz" /></CardContent></Card>
-                    <Card variant="default"><CardHeader><CardTitle className="flex items-center gap-2"><Info className="h-4 w-4 text-blue-400" />Wiring</CardTitle></CardHeader><CardContent><table className="w-full text-sm"><tbody className="divide-y divide-white/5"><tr><td className="py-1.5 font-mono text-white">VCC</td><td className="py-1.5 font-mono text-purple-400">5V</td></tr><tr><td className="py-1.5 font-mono text-white">TRIG</td><td className="py-1.5 font-mono text-purple-400">D9</td></tr><tr><td className="py-1.5 font-mono text-white">ECHO</td><td className="py-1.5 font-mono text-purple-400">D10</td></tr><tr><td className="py-1.5 font-mono text-white">GND</td><td className="py-1.5 font-mono text-purple-400">GND</td></tr></tbody></table></CardContent></Card>
+                    <Card variant="default"><CardHeader><CardTitle className="flex items-center gap-2"><Info className="h-4 w-4 text-blue-400" />Wiring</CardTitle></CardHeader><CardContent><table className="w-full text-sm"><tbody className="divide-y divide-white/5"><tr><td className="py-1.5 font-mono text-white">VCC</td><td className="py-1.5 font-mono text-purple-400">5V</td></tr><tr><td className="py-1.5 font-mono text-white">TRIG</td><td className="py-1.5 font-mono text-purple-400">D3</td></tr><tr><td className="py-1.5 font-mono text-white">ECHO</td><td className="py-1.5 font-mono text-purple-400">D4</td></tr><tr><td className="py-1.5 font-mono text-white">GND</td><td className="py-1.5 font-mono text-purple-400">GND</td></tr></tbody></table></CardContent></Card>
                 </div>
             </SensorDetailLayout>
             {showQuiz && <AIQuizModal sensorName="Ultrasonic Sensor" sensorId="HC-SR04" onClose={() => setShowQuiz(false)} />}

@@ -3,7 +3,7 @@
 import React from "react";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
-import { Settings, Wifi, Bell, Moon, Globe, Database, Shield } from "lucide-react";
+import { Settings, Wifi, Moon, Database } from "lucide-react";
 
 export default function SettingsPage() {
     return (

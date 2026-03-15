@@ -34,7 +34,7 @@ Legal limit (0.08% BAC) ≈ 0.35 mg/L.`,
 };
 
 const ARDUINO_CODE = `// Alcohol Sensor - MQ3
-#define MQ3_PIN A2
+#define MQ3_PIN A1
 
 void setup() {
   Serial.begin(115200);
@@ -71,7 +71,7 @@ export default function MQ3Page() {
     const [dismissedAnomalies, setDismissedAnomalies] = useState<number[]>([]);
     const [calibrationOffset, setCalibrationOffset] = useState(0);
 
-    const rawValFromSocket = data?.sensors.mq3?.value ?? 0;
+    const rawValFromSocket = data?.sensors.mq3?.raw ?? 0;
     const { injectedValue, fault, setFault } = useFaultInjector(rawValFromSocket);
     const calibratedValue = (typeof injectedValue === 'number') ? injectedValue + calibrationOffset : injectedValue;
     const { filter, setFilter, processedData } = useSignalProcessing(history.map(d => d.value));
@@ -91,12 +91,12 @@ export default function MQ3Page() {
         const csv = "Time,Alcohol (ADC),Processed\n" + chartData.map(d => `${d.time},${d.value},${d.processingValue ?? ''}`).join("\n");
         const blob = new Blob([csv], { type: "text/csv" });
         const url = URL.createObjectURL(blob);
-        const a = document.createElement("a"); a.href = url; a.download = "alcohol_data.csv"; a.click();
+        const a = document.createElement("a"); a.href = url; a.download = "alcohol_data.csv"; a.click(); URL.revokeObjectURL(url);
     };
 
     return (
         <>
-            <SensorDetailLayout title="Alcohol Sensor (MQ3)" description="Chemiresistor optimized for ethanol vapor detection." sensorId="MQ3" dataSnippet={{ value: displayValue, pin: "A2" }} theory={THEORY} arduinoCode={ARDUINO_CODE} experiments={EXPERIMENTS} commonMistakes={COMMON_MISTAKES} testingProps={{ showPanel: showTestingPanel, setShowPanel: setShowTestingPanel, renderPanel: () => <TestingControlPanel faultType={fault.type} setFault={setFault} filterType={filter.type} setFilter={setFilter} calibrationOffset={calibrationOffset} setCalibrationOffset={setCalibrationOffset} /> }}>
+            <SensorDetailLayout title="Alcohol Sensor (MQ3)" description="Chemiresistor optimized for ethanol vapor detection." sensorId="MQ3" dataSnippet={{ value: displayValue, pin: "A1" }} theory={THEORY} arduinoCode={ARDUINO_CODE} experiments={EXPERIMENTS} commonMistakes={COMMON_MISTAKES} testingProps={{ showPanel: showTestingPanel, setShowPanel: setShowTestingPanel, renderPanel: () => <TestingControlPanel faultType={fault.type} setFault={setFault} filterType={filter.type} setFilter={setFilter} calibrationOffset={calibrationOffset} setCalibrationOffset={setCalibrationOffset} /> }}>
                 {anomalies.map((anomaly, i) => <MistakeAlert key={i} anomaly={anomaly} onDismiss={() => setDismissedAnomalies([...dismissedAnomalies, i])} />)}
                 <div className="grid gap-6 md:grid-cols-3">
                     <Card variant="gradient" className="md:col-span-1 relative overflow-hidden">
@@ -128,7 +128,7 @@ export default function MQ3Page() {
                 </div>
                 <div className="grid gap-6 md:grid-cols-2">
                     <Card variant="default"><CardHeader><CardTitle className="flex items-center gap-2"><Cpu className="h-4 w-4 text-cyan-400" />Specs</CardTitle></CardHeader><CardContent className="space-y-2 text-sm"><SpecRow label="Target" value="Ethanol" /><SpecRow label="Range" value="0.04-4 mg/L" /></CardContent></Card>
-                    <Card variant="default"><CardHeader><CardTitle className="flex items-center gap-2"><Info className="h-4 w-4 text-blue-400" />Wiring</CardTitle></CardHeader><CardContent><table className="w-full text-sm"><tbody className="divide-y divide-white/5"><tr><td className="py-1.5 font-mono text-white">A0</td><td className="py-1.5 font-mono text-amber-400">A2</td></tr></tbody></table></CardContent></Card>
+                    <Card variant="default"><CardHeader><CardTitle className="flex items-center gap-2"><Info className="h-4 w-4 text-blue-400" />Wiring</CardTitle></CardHeader><CardContent><table className="w-full text-sm"><tbody className="divide-y divide-white/5"><tr><td className="py-1.5 font-mono text-white">A0</td><td className="py-1.5 font-mono text-amber-400">A1</td></tr></tbody></table></CardContent></Card>
                 </div>
             </SensorDetailLayout>
             {showQuiz && <AIQuizModal sensorName="Alcohol Sensor" sensorId="MQ3" onClose={() => setShowQuiz(false)} />}

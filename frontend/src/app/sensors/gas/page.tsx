@@ -100,7 +100,7 @@ export default function GasPage() {
     const [dismissedAnomalies, setDismissedAnomalies] = useState<number[]>([]);
     const [calibrationOffset, setCalibrationOffset] = useState(0);
 
-    const rawValFromSocket = data?.sensors.mq2?.value ?? 0;
+    const rawValFromSocket = data?.sensors.mq2?.raw ?? 0;
     const { injectedValue, fault, setFault } = useFaultInjector(rawValFromSocket);
     const calibratedValue = (typeof injectedValue === 'number') ? injectedValue + calibrationOffset : injectedValue;
     const { filter, setFilter, processedData } = useSignalProcessing(history.map(d => d.value));
@@ -120,7 +120,7 @@ export default function GasPage() {
         const csv = "Time,Gas (ADC),Processed\n" + chartData.map(d => `${d.time},${d.value},${d.processingValue ?? ''}`).join("\n");
         const blob = new Blob([csv], { type: "text/csv" });
         const url = URL.createObjectURL(blob);
-        const a = document.createElement("a"); a.href = url; a.download = "gas_data.csv"; a.click();
+        const a = document.createElement("a"); a.href = url; a.download = "gas_data.csv"; a.click(); URL.revokeObjectURL(url);
     };
 
     return (

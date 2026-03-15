@@ -20,6 +20,13 @@ export function useFaultInjector(realValue: number | null) {
     const [injectedValue, setInjectedValue] = useState<number | null>(realValue);
     const driftStartRef = useRef<number>(Date.now());
 
+    // Reset drift timer when switching to drift fault
+    useEffect(() => {
+        if (fault.type === 'drift') {
+            driftStartRef.current = Date.now();
+        }
+    }, [fault.type]);
+
     useEffect(() => {
         if (realValue === null) {
             setInjectedValue(null);

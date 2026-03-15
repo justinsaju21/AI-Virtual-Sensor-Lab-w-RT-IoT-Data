@@ -12,7 +12,7 @@ import { useMistakeDetector, MistakeAlert } from "@/components/ai/MistakeDetecto
 import { useFaultInjector } from "@/hooks/useFaultInjector";
 import { useSignalProcessing } from "@/hooks/useSignalProcessing";
 import { TestingControlPanel } from "@/components/testing/TestingControlPanel";
-import { Activity, Cpu, Info, Thermometer, Download, Sparkles, Brain, AlertTriangle } from "lucide-react";
+import { Activity, Cpu, Info, Thermometer, Download, Sparkles, Brain } from "lucide-react";
 
 interface DataPoint { time: string; value: number; processingValue?: number; }
 const MAX_DATA_POINTS = 50;
@@ -82,7 +82,7 @@ const ARDUINO_CODE = `// Temperature Reading - DHT22
 #include <DHT.h>
 
 #define DHT_PIN 2
-#define DHT_TYPE DHT22
+#define DHT_TYPE DHT11
 
 DHT dht(DHT_PIN, DHT_TYPE);
 
@@ -183,7 +183,7 @@ export default function TemperaturePage() {
         const csv = "Time,Temperature (°C),Processed\n" + chartData.map(d => `${d.time},${d.value},${d.processingValue ?? ''}`).join("\n");
         const blob = new Blob([csv], { type: "text/csv" });
         const url = URL.createObjectURL(blob);
-        const a = document.createElement("a"); a.href = url; a.download = "temperature_data.csv"; a.click();
+        const a = document.createElement("a"); a.href = url; a.download = "temperature_data.csv"; a.click(); URL.revokeObjectURL(url);
     };
 
     return (
@@ -191,7 +191,7 @@ export default function TemperaturePage() {
             <SensorDetailLayout
                 title="Temperature Sensor"
                 description="The DHT22 uses an NTC thermistor whose resistance decreases as temperature increases."
-                sensorId="DHT22 / AM2302"
+                sensorId="DHT11"
                 dataSnippet={{ value: displayValue, unit: "°C", type: "Digital", pin: "D2" }}
                 theory={THEORY}
                 arduinoCode={ARDUINO_CODE}
@@ -316,7 +316,7 @@ export default function TemperaturePage() {
             </SensorDetailLayout>
 
             {/* AI Modals */}
-            {showQuiz && <AIQuizModal sensorName="Temperature Sensor" sensorId="DHT22" onClose={() => setShowQuiz(false)} />}
+            {showQuiz && <AIQuizModal sensorName="Temperature Sensor" sensorId="DHT11" onClose={() => setShowQuiz(false)} />}
             {showExplainer && <GraphExplainerModal sensorName="Temperature Sensor" data={chartData} onClose={() => setShowExplainer(false)} />}
         </>
     );

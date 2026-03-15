@@ -1,10 +1,9 @@
 "use client";
 
 import React from "react";
-import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/Card";
+import { Card, CardContent } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
 import { GraduationCap, BookOpen, Video, FileText, ArrowRight } from "lucide-react";
-import Link from "next/link";
 
 const topics = [
     {

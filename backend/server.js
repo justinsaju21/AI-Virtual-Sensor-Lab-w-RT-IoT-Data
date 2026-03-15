@@ -95,38 +95,46 @@ app.post('/api/sensor-data', (req, res) => {
 
 // Toggle between mock and real data
 app.post('/api/mode', (req, res) => {
-  const { mode } = req.body;
-  if (mode === 'mock') {
-    useRealData = false;
-    res.json({ mode: 'mock', message: 'Switched to mock data' });
-  } else if (mode === 'hardware') {
-    useRealData = true;
-    res.json({ mode: 'hardware', message: 'Waiting for hardware data' });
-  } else {
-    res.status(400).json({ error: 'Invalid mode. Use "mock" or "hardware"' });
+  try {
+    const { mode } = req.body || {};
+    if (mode === 'mock') {
+      useRealData = false;
+      res.json({ mode: 'mock', message: 'Switched to mock data' });
+    } else if (mode === 'hardware') {
+      useRealData = true;
+      res.json({ mode: 'hardware', message: 'Waiting for hardware data' });
+    } else {
+      res.status(400).json({ error: 'Invalid mode. Use "mock" or "hardware"' });
+    }
+  } catch (error) {
+    console.error('Error in /api/mode:', error);
+    res.status(500).json({ error: 'Server error' });
   }
 });
 
 // AI Chat Endpoint (Mock for Gemini)
 app.post("/api/ai-chat", (req, res) => {
-  const { message, context } = req.body;
-  console.log("AI Query:", message, "Context:", context);
+  try {
+    const { message, context } = req.body || {};
+    console.log("AI Query:", message, "Context:", context);
 
-  // TODO: Replace with real Gemini API call
-  let reply = "I'm still learning, but here's what I know about sensors!";
+    let reply = "I'm still learning, but here's what I know about sensors!";
 
-  if (context && context.sensor) {
-    reply = `I see you're looking at the **${context.sensor}**. \n\nBased on your current data, everything looks normal. Would you like to know how the ${context.sensor} physically measures data?`;
-  } else if (message.toLowerCase().includes("sensor")) {
-    reply = "Sensors are devices that detect events or changes in the environment and send the information to other electronics, frequently a computer processor.";
-  } else {
-    reply = "I'm your AI Assistant. I can explain code, sensor physics, or help debug your experiments!";
+    if (context && context.sensor) {
+      reply = `I see you're looking at the **${context.sensor}**. \n\nBased on your current data, everything looks normal. Would you like to know how the ${context.sensor} physically measures data?`;
+    } else if (message && message.toLowerCase().includes("sensor")) {
+      reply = "Sensors are devices that detect events or changes in the environment and send the information to other electronics, frequently a computer processor.";
+    } else {
+      reply = "I'm your AI Assistant. I can explain code, sensor physics, or help debug your experiments!";
+    }
+
+    setTimeout(() => {
+      res.json({ reply });
+    }, 1000);
+  } catch (error) {
+    console.error('Error in /api/ai-chat:', error);
+    res.status(500).json({ error: 'Server error' });
   }
-
-  // Simulate delay
-  setTimeout(() => {
-    res.json({ reply });
-  }, 1000);
 });
 
 // Helper to parse markdown files for quiz questions
@@ -207,8 +215,9 @@ const sensorFileMap = {
 
 // AI Quiz Generation Endpoint
 app.post("/api/ai-quiz", (req, res) => {
-  const { sensorName, sensorId } = req.body;
-  console.log("Generating quiz for:", sensorName, "ID:", sensorId);
+  try {
+    const { sensorName, sensorId } = req.body || {};
+    console.log("Generating quiz for:", sensorName, "ID:", sensorId);
 
   let questions = null;
   const docsDir = path.join(__dirname, '..', 'documentation', 'sensors');
@@ -260,21 +269,26 @@ app.post("/api/ai-quiz", (req, res) => {
   setTimeout(() => {
     res.json({ questions });
   }, 500);
+  } catch (error) {
+    console.error('Error in /api/ai-quiz:', error);
+    res.status(500).json({ error: 'Server error' });
+  }
 });
 
 // AI Graph Explanation Endpoint
 app.post("/api/ai-explain", (req, res) => {
-  const { sensorName, data } = req.body;
-  console.log("Explaining graph for:", sensorName, "with", data?.length, "points");
+  try {
+    const { sensorName, data } = req.body || {};
+    console.log("Explaining graph for:", sensorName, "with", data?.length, "points");
 
-  if (!data || data.length < 3) {
-    return res.json({ explanation: "Not enough data points to analyze. Collect more readings." });
-  }
+    if (!data || !Array.isArray(data) || data.length < 3) {
+      return res.json({ explanation: "Not enough data points to analyze. Collect more readings." });
+    }
 
-  const values = data.map(d => d.value);
-  const avg = values.reduce((a, b) => a + b, 0) / values.length;
-  const min = Math.min(...values);
-  const max = Math.max(...values);
+    const values = data.map(d => d.value);
+    const avg = values.reduce((a, b) => a + b, 0) / values.length;
+    const min = values.reduce((a, b) => a < b ? a : b, values[0]);
+    const max = values.reduce((a, b) => a > b ? a : b, values[0]);
   const range = max - min;
   const trend = values[values.length - 1] - values[0];
 
@@ -304,6 +318,10 @@ app.post("/api/ai-explain", (req, res) => {
   setTimeout(() => {
     res.json({ explanation });
   }, 800);
+  } catch (error) {
+    console.error('Error in /api/ai-explain:', error);
+    res.status(500).json({ error: 'Server error' });
+  }
 });
 
 // ============ MOCK DATA LOOP ============

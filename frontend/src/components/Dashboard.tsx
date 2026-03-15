@@ -43,11 +43,7 @@ export const Dashboard = () => {
     const { isConnected, data } = useSocket();
     // History states for charts
     const [tempHistory, setTempHistory] = useState<DataPoint[]>([]);
-    const [humidityHistory, setHumidityHistory] = useState<DataPoint[]>([]);
-    const [gasHistory, setGasHistory] = useState<DataPoint[]>([]);
-    const [lightHistory, setLightHistory] = useState<DataPoint[]>([]);
     const [soundHistory, setSoundHistory] = useState<DataPoint[]>([]);
-    const [pressureHistory, setPressureHistory] = useState<DataPoint[]>([]);
 
     useEffect(() => {
         if (data) {
@@ -60,18 +56,10 @@ export const Dashboard = () => {
 
             // Handle legacy DHT22 or new DHT11
             const temp = data.sensors.dht11?.temp ?? data.sensors.dht22?.temperature ?? 0;
-            const humidity = data.sensors.dht11?.humidity ?? data.sensors.dht22?.humidity ?? 0;
-            const gas = data.sensors.mq2?.raw ?? data.sensors.mq2?.value ?? 0;
-            const light = data.sensors.ldr?.raw ?? data.sensors.ldr?.value ?? 0;
             const sound = data.sensors.sound?.analog ?? data.sensors.mic?.level ?? 0;
-            const pressure = data.sensors.bmp280?.pressure ?? data.sensors.bmp180?.pressure ?? 0;
 
             setTempHistory((prev) => [...prev, { time: timeLabel, value: temp }].slice(-MAX_DATA_POINTS));
-            setHumidityHistory((prev) => [...prev, { time: timeLabel, value: humidity }].slice(-MAX_DATA_POINTS));
-            setGasHistory((prev) => [...prev, { time: timeLabel, value: gas }].slice(-MAX_DATA_POINTS));
-            setLightHistory((prev) => [...prev, { time: timeLabel, value: light }].slice(-MAX_DATA_POINTS));
             setSoundHistory((prev) => [...prev, { time: timeLabel, value: sound }].slice(-MAX_DATA_POINTS));
-            setPressureHistory((prev) => [...prev, { time: timeLabel, value: pressure }].slice(-MAX_DATA_POINTS));
         }
     }, [data]);
 

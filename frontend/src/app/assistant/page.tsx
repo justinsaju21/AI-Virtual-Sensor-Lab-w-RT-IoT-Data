@@ -3,7 +3,7 @@
 import React, { useState } from "react";
 import { Card, CardContent } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
-import { Bot, Send, Sparkles, MessageCircle, Lightbulb } from "lucide-react";
+import { Bot, Send, Sparkles, Lightbulb } from "lucide-react";
 import { useSocket } from "@/hooks/useSocket";
 
 const suggestionPrompts = [
@@ -104,7 +104,7 @@ export default function AssistantPage() {
                             type="text"
                             value={input}
                             onChange={(e) => setInput(e.target.value)}
-                            onKeyPress={(e) => e.key === "Enter" && handleSend()}
+                            onKeyDown={(e) => e.key === "Enter" && handleSend()}
                             placeholder="Ask about sensors, data, or experiments..."
                             className="flex-1 bg-slate-800/50 border border-white/10 rounded-xl px-4 py-3 text-sm text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-cyan-500/50"
                         />

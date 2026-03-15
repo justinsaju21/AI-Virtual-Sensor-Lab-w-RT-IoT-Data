@@ -57,7 +57,7 @@ const ARDUINO_CODE = `// Humidity Reading - DHT22
 #include <DHT.h>
 
 #define DHT_PIN 2
-#define DHT_TYPE DHT22
+#define DHT_TYPE DHT11
 
 DHT dht(DHT_PIN, DHT_TYPE);
 
@@ -157,7 +157,7 @@ export default function HumidityPage() {
         const csv = "Time,Humidity (%),Processed\n" + chartData.map(d => `${d.time},${d.value},${d.processingValue ?? ''}`).join("\n");
         const blob = new Blob([csv], { type: "text/csv" });
         const url = URL.createObjectURL(blob);
-        const a = document.createElement("a"); a.href = url; a.download = "humidity_data.csv"; a.click();
+        const a = document.createElement("a"); a.href = url; a.download = "humidity_data.csv"; a.click(); URL.revokeObjectURL(url);
     };
 
     return (
@@ -165,7 +165,7 @@ export default function HumidityPage() {
             <SensorDetailLayout
                 title="Humidity Sensor"
                 description="Measures relative humidity using a capacitive polymer sensor. Dielectric constant changes with absorbed moisture."
-                sensorId="DHT22 / AM2302"
+                sensorId="DHT11"
                 dataSnippet={{ value: displayValue, unit: "%", type: "Digital", pin: "D2" }}
                 theory={THEORY}
                 arduinoCode={ARDUINO_CODE}
@@ -246,7 +246,7 @@ export default function HumidityPage() {
                     </Card>
                 </div>
             </SensorDetailLayout>
-            {showQuiz && <AIQuizModal sensorName="Humidity Sensor" sensorId="DHT22" onClose={() => setShowQuiz(false)} />}
+            {showQuiz && <AIQuizModal sensorName="Humidity Sensor" sensorId="DHT11" onClose={() => setShowQuiz(false)} />}
             {showExplainer && <GraphExplainerModal sensorName="Humidity Sensor" data={chartData} onClose={() => setShowExplainer(false)} />}
         </>
     );

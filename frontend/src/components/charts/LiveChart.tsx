@@ -3,7 +3,6 @@
 import React from "react";
 import {
     ResponsiveContainer,
-    LineChart,
     Line,
     CartesianGrid,
     XAxis,
@@ -91,7 +90,7 @@ export const LiveChart: React.FC<LiveChartProps> = ({
                     />
 
                     {/* Processed Data (Secondary Overlay) - Only if present */}
-                    {data.length > 0 && data[0].processingValue !== undefined && (
+                    {data.some(d => d.processingValue !== undefined) && (
                         <Line
                             type="monotone"
                             dataKey="processingValue"
