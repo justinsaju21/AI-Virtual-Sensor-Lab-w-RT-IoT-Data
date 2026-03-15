@@ -147,7 +147,7 @@ export const Dashboard = () => {
                             </div>
                             <div>
                                 <p className="text-[10px] font-medium text-slate-500 uppercase tracking-wider">Sensors</p>
-                                <p className="text-sm font-semibold text-white">17 Active</p>
+                                <p className="text-sm font-semibold text-white">18 Active</p>
                             </div>
                         </div>
 
@@ -174,12 +174,12 @@ export const Dashboard = () => {
                     {/* 1. Ultraviolet/Distance */}
                     <MetricCard
                         title="Distance"
-                        value={s.ultrasonic.distance_cm}
+                        value={s.ultrasonic?.distance_cm ?? 0}
                         unit="cm"
                         icon={<Radar className="h-5 w-5" />}
                         iconColor="text-purple-400"
-                        status={s.ultrasonic.isReal ? "success" : "ok"}
-                        subtitle={s.ultrasonic.isReal ? "REAL HARDWARE" : "HC-SR04 (Mock)"}
+                        status={s.ultrasonic?.isReal ? "success" : "ok"}
+                        subtitle={s.ultrasonic?.isReal ? "REAL HARDWARE" : "HC-SR04 (Mock)"}
                     />
                     
                     {/* 2. DHT11 Temp */}
