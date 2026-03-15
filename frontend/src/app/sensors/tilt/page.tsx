@@ -12,14 +12,9 @@ import { useFaultInjector } from "@/hooks/useFaultInjector";
 import { TestingControlPanel } from "@/components/testing/TestingControlPanel";
 
 const THEORY = {
-    physics: `Tilt sensors detect orientation via simple mechanics.
-
-**Ball Switch:**
-• Metal ball inside conductive cylinder.
-• When upright: ball rests on contacts → circuit closed.
-• When tilted: ball rolls away → circuit open.
-
-Gravity does all the work!`,
+    "physics": "The SW-520D Tilt Sensor (or ball switch) is a purely mechanical digital sensor based on gravity and contact mechanics. Inside its small, sealed gold-plated or black cylindrical housing sits two stationary conductive pins and one or two free-rolling gold-plated metal balls. When the sensor is held upright, gravity forces the balls to the bottom of the cylinder, where they physically bridge the gap between the two conductive pins, completing the electrical circuit. If the sensor is tilted past a certain angle (typically >15 degrees), gravity pulls the balls away from the pins, abruptly breaking the circuit.",
+    "math": "**Kinematics & Bouncing:**\nAs a physical mechanism, the sensor is susceptible to 'contact bounce'. \nIf the module is mounted in a vibrating environment or precisely on the threshold angle, the microscopic bouncing of the ball creates a rapid sequence of HIGH/LOW voltage spikes. Software *debouncing*—waiting 10-50ms after a state change—is mathematically required to read a clean, stable state.",
+    "circuit": "**Hardware Architecture:**\n- **Component:** The SW-520D itself is literally just a localized gravity switch.\n- **Interface:** It requires a Pull-Up or Pull-Down resistor exactly like a standard push-button. In the standard Arduino configuration, `INPUT_PULLUP` is used. Upright (closed) = 0V (LOW). Tilted (open) = 5V (HIGH).\n- **Warning:** Highly sensitive to vibration and lateral G-forces."
 };
 
 const ARDUINO_CODE = `// Tilt Sensor

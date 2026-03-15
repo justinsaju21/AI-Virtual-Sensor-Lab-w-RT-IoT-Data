@@ -19,19 +19,9 @@ interface JoystickPoint { time: string; x: number; y: number; }
 const MAX_DATA_POINTS = 50;
 
 const THEORY = {
-    physics: `Analog joysticks use **two potentiometers** for X/Y position.
-
-**How it works:**
-• X potentiometer changes with left/right.
-• Y potentiometer changes with up/down.
-• Both form voltage dividers.
-
-At center: V_out ≈ V_in/2 ≈ 512 on 10-bit ADC.`,
-    math: `**deadzone:**
-if (abs(x - 512) < 50) x = 512; // Treat as centered
-
-**Mapping:**
-speed = map(joystickValue, 0, 1023, -255, 255);`,
+    "physics": "An analog joystick operates using classic voltage divider principles through mechanical resistive tracks. Inside the module are two independent 10k\\Omega variable resistors (potentiometers) mounted at 90 degrees to each other. One potentiometer tracks the X-axis (left/right motion), while the other tracks the Y-axis (up/down motion). The central stick acts as the wiper for both potentiometers. As you physically move the stick, the wiper slides along the carbon resistance track, altering the resistance ratio and thereby sweeping the output voltage linearly between 0V and 5V.",
+    "math": "**Voltage Divider Equation:**\nFor each axis (X and Y):\n\n$ V_{out} = V_{cc} \\times \\frac{R_2}{R_1 + R_2} $\n\nWhere $R_1 + R_2$ remains a constant 10k\\Omega. The Arduino's ADC converts this 0-5V continuous analog voltage into a digital integer ranging from 0 to 1023. \n\nCenter resting position theoretically sits at exactly 2.5V (ADC 512).",
+    "circuit": "**Hardware Architecture:**\n- **X Axis:** 10k\\Omega potentiometer connected between 5V and GND. Wiper outputs to VRx.\n- **Y Axis:** 10k\\Omega potentiometer connected between 5V and GND. Wiper outputs to VRy.\n- **Z Axis (Switch):** Pressing the stick straight down actuates a standard momentary tactile pushbutton (SW pin). This pin typically requires a Pull-Up resistor (via software), reading HIGH when idle and LOW when pressed."
 };
 
 const ARDUINO_CODE = `// Joystick - KY-023

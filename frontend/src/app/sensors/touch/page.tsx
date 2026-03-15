@@ -12,14 +12,9 @@ import { useFaultInjector } from "@/hooks/useFaultInjector";
 import { TestingControlPanel } from "@/components/testing/TestingControlPanel";
 
 const THEORY = {
-    physics: `Capacitive touch sensors detect **electric field disturbance**.
-
-**TTP223 Principle:**
-• Creates small electric field around conductive pad.
-• Your finger acts as a capacitor plate.
-• Touching increases capacitance → IC detects change → output toggles.
-
-Works through plastic, glass, and thin wood!`,
+    "physics": "The TTP223 is a dedicated capacitive touch sensor controller. Unlike resistive touchscreens that require physical pressure, capacitive touch senses the electrical properties of the human body. The sensor pad acts as one plate of a virtual capacitor, and the surrounding ground plane acts as the other. A constant high-frequency electrical charge is applied to the pad, establishing a baseline capacitance. The human body is mostly saltwater and acts as a massive conductive dielectric. When a finger approaches (even through 2-3mm of plastic or glass), it bleeds off a tiny amount of the electric field to human-ground, increasing the total capacitance of the node.",
+    "math": "**Capacitive Loading Equation:**\n$ C_{total} = C_{parasitic} + C_{finger} $\n\nThe TTP223 chip constantly measures the precise RC discharging time of the pad footprint. If $C_{total}$ suddenly increases by a margin greater than the programmed baseline threshold, the chip interprets it as a valid touch event.",
+    "circuit": "**Hardware Architecture:**\n- **TTP223 IC:** A highly integrated ASIC. It constantly re-calibrates its baseline to ignore environmental factors like temperature drift or humidity changes.\n- **Power Draw:** Engineered for battery-powered IoT, it draws an incredibly microscopic 1.5uA in standby mode.\n- **Pads A & B:** Small solder jumpers on the back of the module allow you to configure the output state. You can toggle between Active-HIGH vs Active-LOW, and Momentary vs Latch (Toggle switch) configurations directly in hardware."
 };
 
 const ARDUINO_CODE = `// Touch Sensor - TTP223

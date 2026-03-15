@@ -18,19 +18,9 @@ interface DataPoint { time: string; value: number; processingValue?: number; }
 const MAX_DATA_POINTS = 50;
 
 const THEORY = {
-    physics: `The MQ3 is optimized for **ethanol (alcohol)** detection.
-
-**Same principle as MQ2 (Chemiresistor):**
-• SnO₂ heated to ~200°C.
-• Alcohol molecules react with adsorbed oxygen.
-• Resistance drops when alcohol present.
-
-MQ3's formulation is tuned for ethanol sensitivity.`,
-    math: `**Resistance Relationship:**
-Rs / R₀ = A × (ppm)^B
-
-Detection range: 0.04 - 4 mg/L breath alcohol.
-Legal limit (0.08% BAC) ≈ 0.35 mg/L.`,
+    "physics": "The MQ-3 is a specialized electro-chemical gas sensor tuned aggressively for ethanol (alcohol vapor) detection. Like the MQ-2, it uses a Tin Dioxide (SnO₂) semiconductor heating element. However, the exact chemical doping and the temperature at which the micro-ceramic tube is maintained are precisely calibrated to maximize the catalytic reaction with ethanol molecules. When exposed to alcohol vapor in breath or air, the ethanol reacts with oxygen adsorbed on the SnO₂ surface, lowering the potential barrier at the grain boundaries and increasing electron mobility, which translates to a sharp drop in electrical resistance.",
+    "math": "**Resistance to BAC (Blood Alcohol Content):**\nThe relationship between ethanol concentration in mg/L and sensor resistance:\n\n$ R_s / R_0 = A \\times (ppm)^B $\n\nWith proper calibration in clean air ($R_0$), breath alcohol (mg/L) can be mathematically approximated. \n*Note: Output is heavily dependent on precise heater temperature, requiring a 24-48 hour initial burn-in period.*",
+    "circuit": "**Hardware Architecture:**\n- **Heater Matrix:** Consumes ~150mA at 5V to maintain the specific high-temperature reaction zone.\n- **Load Resistor ($R_L$):** Typically 200k\\Omega for the MQ-3 (compared to 10k-47k\\Omega for the MQ-2). This higher resistor value shifts the voltage divider curve to better amplify the high-resistance changes specific to low ethanol concentrations."
 };
 
 const ARDUINO_CODE = `// Alcohol Sensor - MQ3

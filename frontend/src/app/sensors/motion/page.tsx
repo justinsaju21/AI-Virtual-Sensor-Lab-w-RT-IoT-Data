@@ -12,23 +12,9 @@ import { useFaultInjector } from "@/hooks/useFaultInjector";
 import { TestingControlPanel } from "@/components/testing/TestingControlPanel";
 
 const THEORY = {
-    physics: `The PIR sensor detects motion via **infrared radiation changes**.
-
-**Pyroelectric Effect:**
-• Uses lithium tantalate material that generates charge when IR changes.
-
-**Dual-Element Design:**
-• Two pyroelectric elements side-by-side.
-• Stationary: both see same IR → no signal.
-• Movement: one detects first → differential pulse triggers output.`,
-    circuit: `**HC-SR501 Module:**
-• VCC: 5V power
-• OUT: Digital HIGH when motion detected
-• GND: Ground
-
-**Adjustments:**
-• Sensitivity potentiometer
-• Time delay potentiometer (1-300s)`,
+    "physics": "The HC-SR501 Passive Infrared (PIR) sensor detects motion by mapping changes in the infrared radiation emitted by warm bodies (humans/animals). It features a specialized pyroelectric sensor split into two identical, electrically opposed halves. In a static environment, both halves receive the same ambient IR levels, canceling each other out to produce zero voltage. When a warm body walks past, it crosses the field of view of the first half, causing a positive voltage spike, and then crosses the second half, causing an equal negative spike. This differential AC waveform is what triggers the 'Motion Detected' logic.",
+    "math": "**Differential Pyroelectric Effect:**\n$ \\Delta V = \\frac{p \\cdot A \\cdot \\Delta T}{C_v} $\n\nWhere:\n- $p$: Pyroelectric coefficient\n- $A$: Area of the crystal\n- $\\Delta T$: Rate of temperature change (from the moving body crossing sectors)\n- $C_v$: Heat capacity",
+    "circuit": "**Hardware Architecture:**\n- **Fresnel Lens:** The iconic white dome isn't just a cover. It's an array of precisely molded Fresnel lenses that focus IR light onto the specific halves of the pyroelectric element, greatly expanding the detection range and angle to ~110 degrees up to 7 meters.\n- **BISS0001 IC:** A dedicated PIR motion detector control chip that handles the micro-volt amplification, filtering, window comparison, and the timing logic for the HIGH output."
 };
 
 const ARDUINO_CODE = `// Motion Sensor - PIR HC-SR501

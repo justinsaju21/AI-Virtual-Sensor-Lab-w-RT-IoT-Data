@@ -18,24 +18,9 @@ interface DataPoint { time: string; value: number; processingValue?: number; }
 const MAX_DATA_POINTS = 50;
 
 const THEORY = {
-    physics: `The BMP180 measures pressure via **piezoresistive sensing**.
-
-**Piezoresistive Effect:**
-Silicon changes resistance when mechanically stressed.
-
-**How it works:**
-1. Atmospheric pressure flexes a silicon diaphragm.
-2. Embedded piezoresistors change resistance.
-3. Wheatstone bridge converts to voltage.
-4. ADC digitizes; calibration data corrects output.`,
-    math: `**Altitude from Pressure:**
-h = 44330 × (1 - (P/P₀)^0.1903)
-
-Where:
-• P = measured pressure (hPa)
-• P₀ = sea level pressure (1013.25 hPa)
-
-Example: P = 900hPa → h ≈ 988m`,
+    "physics": "The BMP280 is an absolute barometric pressure and temperature sensor designed by Bosch. It utilizes piezoresistive MEMS (Micro-Electro-Mechanical Systems) technology. At its core is an incredibly thin, hermetically sealed silicon membrane suspended over a vacuum reference cavity. As atmospheric pressure changes, this microscopic membrane flexes. Embedded within the membrane are piezoresistors arranged in a Wheatstone bridge. The mechanical stress of the flexing alters their crystalline lattice structure, changing their electrical resistance in direct, linear proportion to the atmospheric pressure.",
+    "math": "**Barometric Formula (Altitude Calculation):**\nPressure can be directly used to calculate altitude above sea level:\n\n$ h = 44330 \\times \\left(1 - \\left(\\frac{P}{P_0}\\right)^{\\frac{1}{5.255}}\\right) $\n\nWhere:\n- $h$: Altitude in meters\n- $P$: Measured pressure in hPa\n- $P_0$: Sea level reference pressure (typically 1013.25 hPa)",
+    "circuit": "**Hardware Architecture:**\n- **Bosch MEMS Silicon:** Integrates the pressure membrane, temperature sensor (necessary for pressure compensation math), and a highly accurate 20-bit Analog-to-Digital Converter (ADC) directly on the microscopic die.\n- **I2C/SPI Protocol:** Communicates fully formatted, digitized data via I2C (address 0x76 or 0x77) or SPI. Operates strictly at 3.3V, so typical modules include a low-dropout regulator (LDO) and I2C logic level shifters to safely connect to 5V Arduino boards."
 };
 
 const ARDUINO_CODE = `// Pressure Sensor - BMP280

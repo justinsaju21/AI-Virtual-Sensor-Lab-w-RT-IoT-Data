@@ -18,21 +18,9 @@ interface DataPoint { time: string; value: number; processingValue?: number; }
 const MAX_DATA_POINTS = 100;
 
 const THEORY = {
-    physics: `Heartbeat sensors use **Photoplethysmography (PPG)**.
-
-**How PPG Works:**
-1. LED shines light into skin tissue.
-2. Blood absorbs light; more blood = more absorption.
-3. With each heartbeat, arteries expand, absorbing more light.
-4. Photodiode measures reflected light intensity.
-5. Variation in signal = heart rate.
-
-**Why Green Light?**
-Green (~530nm) is well absorbed by hemoglobin.`,
-    math: `**BPM Calculation:**
-BPM = 60 / (Time between peaks in seconds)
-
-Example: Peaks every 0.8s → BPM = 75`,
+    "physics": "The MAX30102 operates on the principle of Photoplethysmography (PPG). It physically combines a red LED (660nm), an infrared LED (880nm), and a highly sensitive photodetector into a single module. As the heart beats, a pulse of oxygen-rich blood surges through the capillary bed in the finger. Oxygenated hemoglobin (HbO₂) absorbs more IR light and lets more Red light pass through, while deoxygenated hemoglobin (Hb) absorbs more Red light. By rapidly alternating the LEDs and measuring the reflected light, the sensor detects the volumetric change in the blood vessels, generating a pulsatile AC waveform.",
+    "math": "**SpO2 & Heart Rate Calculation:**\nHeart Rate is determined by measuring the time interval between consecutive peaks of the AC pulsatile waveform.\n\n$ BPM = \\frac{60}{Time\\:Between\\:Peaks\\:(seconds)} $\n\nBlood Oxygen (SpO2%) is calculated using the Ratio of Ratios (R) between the Red and IR AC/DC components:\n\n$ R = \\frac{AC_{Red} / DC_{Red}}{AC_{IR} / DC_{IR}} $\n$ SpO_2 = 104 - 17 \\times R $",
+    "circuit": "**Hardware Architecture:**\n- **MAX30102 Silicon:** An integrated pulse oximetry and heart-rate monitor biosensor module. It includes internal LEDs, photodetectors, optical elements, and low-noise electronics with ambient light rejection.\n- **Interface:** Communicates via the I2C protocol at up to 400kHz.\n- **Voltage:** The core operates at 1.8V, driven by an onboard 1.8V LDO voltage regulator, while the I2C lines are logic-level shifted to safely interface with 5V Arduino boards."
 };
 
 const ARDUINO_CODE = `// Heartbeat Sensor - MAX30102 (I2C)

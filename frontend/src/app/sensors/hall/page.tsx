@@ -12,21 +12,9 @@ import { useFaultInjector } from "@/hooks/useFaultInjector";
 import { TestingControlPanel } from "@/components/testing/TestingControlPanel";
 
 const THEORY = {
-    physics: `Hall Effect sensors detect **magnetic fields**.
-
-**The Hall Effect:**
-When current flows through a conductor in a perpendicular magnetic field:
-1. Lorentz force deflects charge carriers to one side.
-2. Charge separation creates a measurable "Hall Voltage."
-3. V_H proportional to magnetic field strength.`,
-    math: `**Hall Voltage:**
-V_H = (I × B) / (q × n × d)
-
-Where:
-• I = Current
-• B = Magnetic field
-• q = Charge
-• d = Thickness`,
+    "physics": "The A3144 Hall Effect sensor detects the presence of magnetic fields based on the Hall Effect principle—discovered by Edwin Hall in 1879. When a current-carrying semiconductor is placed in a perpendicular magnetic field, the Lorentz force deflects the charge carriers (electrons or holes) to one side of the material. This separation of charge creates a measurable transverse voltage (the Hall Voltage) across the semiconductor. The A3144 is a *Unipolar Switch*, meaning it specifically activates when a south magnetic pole of sufficient strength acts upon its face.",
+    "math": "**The Lorentz Force & Hall Voltage:**\n$ V_H = \\frac{I \\cdot B}{n \\cdot e \\cdot d} $\n\nWhere:\n- $V_H$: Hall Voltage\n- $I$: Current passing through the sensor\n- $B$: Magnetic Flux Density (Teslas or Gauss)\n- $n$: Charge carrier density\n- $d$: Thickness of the semiconductor",
+    "circuit": "**Hardware Architecture:**\n- **A3144 IC:** Contains the Hall element, an internal voltage regulator, a small signal amplifier, a Schmitt trigger (for clean digital switching), and an Open-Collector output transistor.\n- **Pull-up Resistor:** Because the output is open-collector, a 10k\\Omega pull-up resistor is required between the signal pin and VCC. When a magnetic field triggers the sensor, the internal transistor sinks the signal line to GND (Active LOW)."
 };
 
 const ARDUINO_CODE = `// Hall Effect Sensor

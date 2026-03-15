@@ -18,26 +18,9 @@ interface DataPoint { time: string; value: number; processingValue?: number; }
 const MAX_DATA_POINTS = 50;
 
 const THEORY = {
-    physics: `A **Light Dependent Resistor (LDR)** operates on **photoconductivity**.
-
-**Semiconductor Physics:**
-• LDRs are made from Cadmium Sulfide (CdS) or Cadmium Selenide (CdSe).
-• In darkness, electrons are bound in the valence band.
-• Light energy frees electrons -> High conductivity.
-
-**The Relationship:**
-• Bright light → Low resistance (~100Ω - 1kΩ)
-• Darkness → High resistance (~1MΩ+)`,
-    math: `**Voltage Divider Circuit:**
-V_out = V_in × (R_fixed / (R_LDR + R_fixed))
-
-**ADC Conversion (10-bit):**
-ADC_value = (V_out / V_ref) × 1023`,
-    circuit: `**Standard LDR Circuit:**
-    5V ──┬── [10kΩ] ──┬── GND
-         │            │
-         └── [LDR] ───┤
-                    A4 (ADC)`,
+    "physics": "The Light Dependent Resistor (LDR), or Photoresistor, is built upon a high-resistance semiconductor block, typically Cadmium Sulfide (CdS). CdS is a direct bandgap semiconductor. In darkness, it has very few free electrons, resulting in massive electrical resistance (up to 1M\\Omega). When photons of light possessing energy greater than the semiconductor's bandgap (2.42 eV for CdS) strike the material, they excite electrons from the valence band into the conduction band. This massive influx of free charge carriers drastically drops the material's resistance, often down to ~100\\Omega in bright sunlight.",
+    "math": "**Photo-Resistance Equation:**\nThe relationship between illuminance (Lux) and LDR resistance is log-linear:\n\n$ R = A \\cdot E^{-\\alpha} $\n\nWhere:\n- $R$: Resistance (Ohms)\n- $E$: Illuminance (Lux)\n- $A, \\alpha$: Material-specific constants.\n\nTo map ADC value to approximated Lux:\n$ V_{out} = 5V \\times \\frac{R_{fixed}}{LDR + R_{fixed}} $",
+    "circuit": "**Hardware Architecture:**\n- **Voltage Divider:** The LDR module inherently places the photoresistor in series with a fixed 10k\\Omega reference resistor. This configuration transforms the changing resistance into a changing voltage that a microcontroller can read.\n- **Comparator:** Most modules also include an LM393 operational amplifier configured as a comparator to provide a digital HIGH/LOW output when brightness crosses a potentiometer-defined threshold."
 };
 
 const ARDUINO_CODE = `// Light Sensor - LDR

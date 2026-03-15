@@ -12,14 +12,9 @@ import { useFaultInjector } from "@/hooks/useFaultInjector";
 import { TestingControlPanel } from "@/components/testing/TestingControlPanel";
 
 const THEORY = {
-    physics: `Proximity sensors detect nearby objects without physical contact.
-
-**Types:**
-1. **IR Proximity:** LED + photodiode, measures reflected IR light intensity.
-2. **Capacitive:** Detects changes in electric field caused by nearby objects.
-3. **Ultrasonic:** Time-of-flight measurement using sound waves.
-
-Note: This sensor runs in demo/mock mode. No physical proximity sensor is connected to the Arduino.`,
+    "physics": "Inductive proximity sensors operate purely on electromagnetism and Faraday's Law of Induction. The sensor head contains an oscillator circuit that drives an alternating current through an internal copper coil, generating a high-frequency alternating magnetic field out the front face. When a conductive metal object (like steel, aluminum, or copper) enters this field, the changing magnetic flux induces 'Eddy Currents' within the surface of the metal target. These eddy currents generate their own opposing magnetic field, which absorbs energy from the sensor's oscillator, causing the oscillation amplitude to collapse.",
+    "math": "**Oscillator Damping (Eddy Currents):**\n$ P_{eddy} = \\frac{\\pi^2 \\cdot B^2 \\cdot d^2 \\cdot f^2}{6 \\cdot \\rho \\cdot D} $\n\nWhere:\n- $P_{eddy}$: Power dissipated in the target\n- $B$: Magnetic field density\n- $f$: Oscillator frequency\n- $\\rho$: Target resistivity\n\nThe sensor triggers precisely when the oscillator's energy drops below a designated threshold.",
+    "circuit": "**Hardware Architecture:**\n- **Oscillator/Coil:** Generates the electromagnetic sensing field.\n- **Schmitt Trigger:** An internal flip-flop circuit monitors the oscillator's amplitude. When the amplitude collapses past the threshold, the Schmitt trigger snaps the output to a clean digital state.\n- **Industrial Housing:** Often packaged in a threaded metal body. The output is typically an NPN (sinks to ground) or PNP (sources voltage) industrial standard."
 };
 
 const ARDUINO_CODE = `// Proximity Sensor (Demo Only - Not Connected)

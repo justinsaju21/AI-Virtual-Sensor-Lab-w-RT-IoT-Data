@@ -18,32 +18,9 @@ interface DataPoint { time: string; value: number; processingValue?: number; }
 const MAX_DATA_POINTS = 50;
 
 const THEORY = {
-    physics: `The MQ2 is a **Metal Oxide Semiconductor (MOS) gas sensor** (chemiresistor).
-
-**Core Material:** SnO₂ (Tin Dioxide) heated to 200-400°C.
-
-**Detection Mechanism (Redox Reaction):**
-
-**In Clean Air:**
-1. Oxygen adsorbs on SnO₂ surface, trapping electrons.
-2. Creates depletion layer → HIGH resistance.
-
-**When Gas Present:**
-1. Combustible gases react with adsorbed oxygen.
-2. Electrons released back to SnO₂.
-3. Depletion layer shrinks → LOW resistance.
-
-Higher gas concentration → Lower resistance → Higher output voltage.`,
-
-    math: `**Resistance Relationship:**
-Rs / R₀ ∝ 1 / [Gas]^α
-
-Where α ≈ 0.4-0.6
-
-**Output Voltage:**
-V_out = V_cc × (RL / (Rs + RL))
-
-RL is typically 10kΩ load resistor.`,
+    "physics": "The MQ-2 is an electro-chemical gas sensor (Chemiresistor) designed to detect combustible gases like LPG, Propane, Methane, and general smoke. At its core is a micro-tubular ceramic structure coated with Tin Dioxide (SnO₂), enclosed in stainless steel mesh. An internal heating coil warms the SnO₂ to approximately 200°C. In clean air, oxygen molecules adsorb onto the SnO₂ surface, trapping electrons and maintaining high electrical resistance. When combustible gases are present, they react with the adsorbed oxygen, releasing the trapped electrons back into the conduction band, which rapidly drops the sensor's internal resistance.",
+    "math": "**Resistance to PPM Conversion:**\nThe relationship between gas concentration (ppm) and sensor resistance is logarithmic.\n\n$ R_s / R_0 = A \\cdot (ppm)^B $\n\nWhere:\n- $R_s$: Sensor resistance at a given gas concentration.\n- $R_0$: Sensor resistance in clean air.\n- $A$ & $B$: Gas-specific constants derived from the datasheet's sensitivity curves.",
+    "circuit": "**Hardware Architecture:**\n- **Heater (H pins):** Draws ~800mW at 5V to maintain the 200°C reaction temperature.\n- **Sensing Element (A/B pins):** Forms a voltage divider with an external load resistor ($R_L$, typically 5k-47k\\Omega).\n- **Comparator:** Like most modules, an onboard LM393 chip compares the analog voltage against a potentiometer-set threshold to trigger a digital HIGH alert."
 };
 
 const ARDUINO_CODE = `// Gas Sensor - MQ2

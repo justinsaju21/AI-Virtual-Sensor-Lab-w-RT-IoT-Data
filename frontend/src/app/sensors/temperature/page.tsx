@@ -18,64 +18,9 @@ interface DataPoint { time: string; value: number; processingValue?: number; }
 const MAX_DATA_POINTS = 50;
 
 const THEORY = {
-    physics: `The DHT22 measures temperature using an NTC (Negative Temperature Coefficient) thermistor.
-
-**How NTC Thermistors Work:**
-• Made from semiconductor materials (metal oxides like manganese, nickel, cobalt).
-• At the atomic level, higher temperatures give electrons more energy to jump to the conduction band.
-• This creates more charge carriers, reducing the material's electrical resistance.
-
-**The Relationship:**
-As temperature ↑, resistance ↓ (inverse relationship).
-The resistance change is non-linear and follows an exponential curve.
-
-**Inside the DHT22:**
-1. The thermistor is part of a voltage divider circuit.
-2. The analog voltage is converted to digital by an internal 8-bit microcontroller.
-3. The MCU also applies factory calibration to correct for individual sensor variations.`,
-
-    math: `The resistance-temperature relationship of an NTC thermistor is described by the **Steinhart-Hart Equation**:
-
-1/T = A + B·ln(R) + C·(ln(R))³
-
-Where:
-• T = Temperature in Kelvin
-• R = Resistance at temperature T
-• A, B, C = Steinhart-Hart coefficients (device-specific)
-
-**Simplified Beta Equation (Common Approximation):**
-
-R(T) = R₀ · exp(β · (1/T - 1/T₀))
-
-Where:
-• R₀ = Resistance at reference temperature T₀ (usually 25°C)
-• β = Beta constant (typically 3000-5000K for common thermistors)
-
-**Example Calculation:**
-If R₀ = 10kΩ at 25°C (298K) and β = 3950:
-At 50°C (323K): R ≈ 10000 × exp(3950 × (1/323 - 1/298)) ≈ 3.6kΩ`,
-
-    protocol: `The DHT22 uses a **proprietary single-wire serial protocol** for communication.
-
-**Communication Sequence:**
-1. **Start Signal (Host → Sensor):**
-   - Host pulls data line LOW for at least 1ms (typically 18ms).
-   - Host releases line, it goes HIGH via pull-up resistor.
-
-2. **Response Signal (Sensor → Host):**
-   - Sensor pulls line LOW for 80µs.
-   - Sensor releases line HIGH for 80µs.
-
-3. **Data Transmission (40 bits total):**
-   - 8 bits: Humidity Integer
-   - 8 bits: Humidity Decimal
-   - 8 bits: Temperature Integer
-   - 8 bits: Temperature Decimal
-   - 8 bits: Checksum (sum of first 4 bytes)
-
-**Bit Encoding:**
-• A '0' bit: LOW for 50µs, then HIGH for 26-28µs.
-• A '1' bit: LOW for 50µs, then HIGH for 70µs.`,
+    "physics": "The DHT11 is a basic, ultra-low-cost digital temperature and humidity sensor. Inside the plastic grating are two simple but effective components. \n1. **Humidity:** Measured via a moisture-holding substrate sandwiched between two electrodes. As the substrate absorbs water vapor from the air, it releases ions, drastically increasing the electrical conductivity (dropping resistance). \n2. **Temperature:** Measured via a standard NTC (Negative Temperature Coefficient) thermistor. As ambient heat increases, the semiconducting material's crystalline lattice allows electrons to flow much more freely, dropping its resistance.",
+    "math": "**Thermodynamic Response:**\nBoth internal components are inherently nonlinear. The DHT11 relies on an internal 8-bit microcontroller. It reads the raw analog resistances from the humidity substrate and the thermistor, references an internal calibration lookup table, mathematically linearizes both values, and packages them into a pure digital signal.",
+    "circuit": "**Hardware Architecture:**\n- **Custom 1-Wire Protocol:** Does NOT use standard I2C. The DHT11 uses a proprietary timing-based single-wire interface. The Arduino must pull the data line LOW for 18ms to 'wake' the sensor, which then replies with exactly 40 pulses of data. The length of each HIGH pulse determines if a bit is a `0` (28μs) or a `1` (70μs).\n- **Pull-up:** Always requires a 10k\\Omega pull-up resistor between the Data pin and 5V to maintain the idle HIGH state of the bus."
 };
 
 const ARDUINO_CODE = `// Temperature Reading - DHT22

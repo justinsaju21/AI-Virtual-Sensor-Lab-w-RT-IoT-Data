@@ -12,15 +12,9 @@ import { useFaultInjector } from "@/hooks/useFaultInjector";
 import { TestingControlPanel } from "@/components/testing/TestingControlPanel";
 
 const THEORY = {
-    physics: `Flame sensors detect fire by sensing **infrared radiation** emitted by flames.
-
-**Why Flames Emit IR:**
-• Flames produce electromagnetic radiation across a wide spectrum.
-• Hot combustion gases (CO₂, H₂O) emit characteristic IR wavelengths.
-• The KY-026 uses an IR photodiode sensitive to 760-1100nm.`,
-    circuit: `**Module:** IR receiver + LM393 comparator + sensitivity pot.
-• AO: Analog intensity output (Lower value = stronger fire).
-• DO: Digital threshold output.`,
+    "physics": "The flame sensor leverages an infrared (IR) photodiode specifically tuned to detect light wavelengths in the 760nm - 1100nm range. This spectrum corresponds directly to the thermal radiation emitted by hydrocarbon flames. When IR photons strike the photodiode's semiconductor junction, they excite electrons, creating electron-hole pairs. This generates a small photocurrent proportional to the intensity of the incident IR radiation. The sensor is highly directional, typically featuring a 60-degree detection angle, making it highly sensitive to active fires while somewhat rejecting ambient light.",
+    "math": "**Voltage Divider & Thresholding:**\nThe sensor employs an LM393 voltage comparator to provide a digital output alongside the raw analog signal.\n\n$ V_{out} = V_{cc} \\times \\frac{R_{photo}}{R_{photo} + R_{fixed}} $\n\n- **Digital Output:** $ V_{out} < V_{ref} \\rightarrow HIGH $ (Flame Detected)\n- **Analog Output:** Provides a continuous 0-1023 ADC mapping of IR intensity.",
+    "circuit": "**Hardware Architecture:**\n- **Detector:** 5mm IR Receiver Diode (black casing).\n- **Comparator:** LM393 Dual Differential Comparator chip.\n- **Potentiometer:** A 10k\\Omega trimpot configures the $ V_{ref} $ pin on the LM393, allowing manual adjustment of the digital trigger sensitivity.\n- **Output Pins:** A0 (Analog Voltage) and D0 (Digital Logic Level).\n\n*Note:* While the sensor filters most visible light, direct sunlight contains massive amounts of IR radiation and can cause false positives."
 };
 
 const ARDUINO_CODE = `// Flame Sensor - KY-026

@@ -12,15 +12,9 @@ import { useFaultInjector } from "@/hooks/useFaultInjector";
 import { TestingControlPanel } from "@/components/testing/TestingControlPanel";
 
 const THEORY = {
-    physics: `IR Obstacle sensors use **infrared light reflection**.
-
-**Detection:**
-1. IR LED emits continuously (~940nm).
-2. If object present, IR reflects back.
-3. Photodiode detects reflection → output triggers.
-
-**Factors:** Color/texture matters. White reflects more than black.`,
-    circuit: `**Module:** IR LED + Photodiode + LM393 comparator + sensitivity pot.`,
+    "physics": "The E18-D80NK is an active photoelectric proximity sensor based on modulated infrared light reflection. It houses both an IR emitter and an IR receiver. The emitter continuously pulses IR light at a specific high frequency (typically 38kHz). Modulating the light prevents interference from continuous ambient light sources (like sunlight or indoor bulbs). When an object enters the sensor's range, the modulated IR light bounces off the object and scatters back into the receiver. The internal circuitry filters out non-38kHz light and measures the returned signal intensity.",
+    "math": "**Inverse Square Law:**\nThe intensity of the reflected IR light decreases exponentially with distance.\n\n$ I_{reflected} \\propto \\frac{1}{d^2} $\n\nWhere:\n- $d$ is the distance to the target.\nDark or matte surfaces absorb IR, reducing the effective sensing range, while glossy or white surfaces reflect highly.",
+    "circuit": "**Hardware Architecture:**\n- **Optics:** Lenses focus both the emitted and incoming IR light into a tight beam, giving it a reliable range of 3cm to 80cm.\n- **Trimpot:** A dedicated screw on the back adjusts the sensitivity (trigger threshold) of the internal comparator.\n- **Output Stage:** Features an NPN Open-Collector output. It requires an internal or external pull-up resistor. When an object is detected, the transistor turns on, pulling the signal line firmly to GND (Active LOW)."
 };
 
 const ARDUINO_CODE = `// IR Obstacle Sensor

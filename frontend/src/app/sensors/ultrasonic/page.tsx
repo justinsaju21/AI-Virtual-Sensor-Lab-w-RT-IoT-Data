@@ -18,36 +18,9 @@ interface DataPoint { time: string; value: number; processingValue?: number; }
 const MAX_DATA_POINTS = 50;
 
 const THEORY = {
-    physics: `The HC-SR04 uses **ultrasonic echolocation** to measure distance.
-
-**Key Components:**
-• **Transmitter (Tx):** 40kHz ultrasound.
-• **Receiver (Rx):** Detects returning echo.
-
-**Piezoelectric Effect:**
-• Applying voltage vibrates crystal (sound generation).
-• Sound vibration creates voltage (sound detection).
-
-**Sensing Process:**
-1. Trig: 10µs HIGH pulse.
-2. Tx: Emits 8 bursts.
-3. Sound travels, hits object, reflects.
-4. Echo: Pin goes HIGH for duration of flight.`,
-
-    math: `**Time-of-Flight:**
-Distance = (Speed × Time) / 2
-
-**Formula:**
-d = t / 58.2  (cm, t in µs)
-
-**Example:**
-If echo pulse = 580µs:
-d = 580 / 58.2 ≈ 10 cm`,
-
-    protocol: `**Timing Sequence:**
-1. Trigger: 10µs HIGH on TRIG pin
-2. Sensor sends 8 × 40kHz pulses
-3. ECHO goes HIGH until echo returns`,
+    "physics": "The HC-SR04 operates heavily on the principles of acoustic wave propagation and reflection. It houses a piezoelectric ultrasonic transmitter (the 'T' speaker) and receiver (the 'R' microphone). The physics are identical to bat echolocation. When triggered, the transmitter physically deforms a piezoelectric crystal at a high frequency, emitting an inaudible 40,000 Hz sound wave burst. This high-frequency acoustic wave propagates through the air at the speed of sound. If it strikes a solid object, the pressure wave rebounds. The receiver crystal gets compressed by the returning echo wave, generating a tiny voltage spike.",
+    "math": "**Time-of-Flight (ToF) Kinematics:**\nThe distance to an object is calculated by measuring the total time the sound takes to travel to the object and back.\n\n$ Distance = \\frac{Time \\times Speed\\:Of\\:Sound}{2} $\n\n- Speed of sound at 20°C: ~343 meters/second, or **0.0343 cm/microsecond**.\n- Since the burst traveled *to* the object and *back*, we divide the total time by 2.\n- Algorithm: `Distance(cm) = (Duration(us) * 0.0343) / 2`",
+    "circuit": "**Hardware Architecture:**\n- **Trigger Pin:** The Arduino sends a 10-microsecond HIGH pulse on this pin to command the module to fire.\n- **Echo Pin:** The HC-SR04 pulls this pin HIGH the moment the sound bursts, and pulls it LOW the moment the echo is received. The Arduino relies on `pulseIn()` to measure the exact microsecond duration of this HIGH state.\n- **Piezo Transducers:** Operates completely indepedently of light, making it effective in total darkness, but utterly useless in a vacuum or high-noise environments."
 };
 
 const ARDUINO_CODE = `// Ultrasonic Distance - HC-SR04

@@ -18,22 +18,9 @@ interface DataPoint { time: string; value: number; processingValue?: number; }
 const MAX_DATA_POINTS = 50;
 
 const THEORY = {
-    physics: `Sound sensors use an **Electret Condenser Microphone (ECM)**.
-
-**How ECM Works:**
-• Thin metallized diaphragm + metal backplate form a capacitor.
-• Electret material holds permanent charge.
-• Sound waves vibrate diaphragm, changing capacitance.
-• C = Q/V: fixed charge → varying voltage = audio signal.
-
-**The Module (KY-038):**
-• Contains mic + LM393 comparator.
-• AO: Raw analog output.
-• DO: Digital output when threshold exceeded.`,
-    circuit: `**Signal Path:**
-Mic → Amplifier → Comparator → Digital Out
-                ↓
-           Analog Out (A2)`,
+    "physics": "The KY-038 Sound Sensor utilizes an electret condenser microphone to detect acoustic transverse waveforms (sound waves) traveling through the air. The microphone consists of a thin, permanently charged conductive membrane (a diaphragm made of Teflon) placed extremely close to a solid backplate. As sound waves strike the diaphragm, alternating zones of high and low air pressure cause it to physically vibrate. This microscopic movement changes the distance between the membrane and the backplate, operating essentially as a variable capacitor. Because the charge ($Q$) is constant, changing the capacitance ($C$) causes a proportional change in voltage ($V = Q/C$).",
+    "math": "**Capacitance to Voltage:**\n$ C = \\frac{\\varepsilon_0 \\cdot \\varepsilon_r \\cdot A}{d} $\n\nAs $d$ (distance) oscillates with the sound wave, $C$ oscillates. An internal Junction Field Effect Transistor (JFET) serves as an impedance converter, amplifying this microscopic voltage change into a measurable analog current.",
+    "circuit": "**Hardware Architecture:**\n- **Electret Mic:** Captures the acoustic variations. Requires a tiny bias voltage to operate the internal JFET.\n- **LM393 Comparator:** The module features a precision generic Op-Amp configured as a comparator to convert the tiny analog audio waveform into a digital HIGH/LOW pulse train whenever the sound crosses a set decibel threshold.\n- **Analog Out:** A direct feed of the unamplified audio waveform, useful for crude Fourier Transform analysis on microcontrollers."
 };
 
 const ARDUINO_CODE = `// Sound Sensor - KY-038
