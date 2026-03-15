@@ -8,10 +8,15 @@ const path = require('path');
 const { generateMockData } = require('./mockDataGenerator');
 const { GoogleGenerativeAI } = require('@google/generative-ai');
 
-// Initialize Gemini
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
-const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
-
+// Initialize Gemini (graceful — server still starts without a key)
+let model = null;
+if (process.env.GEMINI_API_KEY) {
+  const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+  model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+  console.log('[AI] Gemini 1.5 Flash initialized successfully.');
+} else {
+  console.warn('[AI] WARNING: GEMINI_API_KEY not set. AI endpoints will return fallback responses.');
+}
 
 const app = express();
 app.use(cors());
@@ -119,6 +124,10 @@ app.post("/api/ai-chat", async (req, res) => {
     const { message, context } = req.body || {};
     console.log("Gemini AI Query:", message, "with context:", context?.sensor);
 
+    if (!model) {
+      return res.json({ reply: `I see you're looking at the **${context?.sensor || 'dashboard'}**. The AI key is not configured on the server yet. Please add GEMINI_API_KEY as an environment variable on Render.` });
+    }
+
     const systemPrompt = `You are an expert IoT Virtual Lab Assistant. 
     The student is currently viewing: ${context?.sensor || "the dashboard"}.
     Live Data Snippet: ${JSON.stringify(context?.dataSnippet || {})}.
@@ -224,6 +233,12 @@ app.post("/api/ai-quiz", async (req, res) => {
     const { sensorName, sensorId } = req.body || {};
     console.log("Gemini generating quiz for:", sensorName);
 
+    if (!model) {
+      return res.json({ questions: [
+        { question: "What is the primary function of this sensor?", options: ["To heat up", "To detect environmental changes", "To store data", "To emit light"], correctIndex: 1, explanation: "Sensors detect changes and output signals." }
+      ] });
+    }
+
     const prompt = `Generate a 3-question multiple choice quiz for an engineering student about the ${sensorName} (ID: ${sensorId}).
     Return the response ONLY as a JSON object in this exact format:
     {
@@ -263,6 +278,10 @@ app.post("/api/ai-explain", async (req, res) => {
   try {
     const { sensorName, data } = req.body || {};
     console.log("Gemini explaining graph for:", sensorName);
+
+    if (!model) {
+      return res.json({ explanation: "AI analysis requires GEMINI_API_KEY. Please set it in your Render environment variables." });
+    }
 
     if (!data || !Array.isArray(data) || data.length < 3) {
       return res.json({ explanation: "Not enough data points for Gemini to analyze." });
