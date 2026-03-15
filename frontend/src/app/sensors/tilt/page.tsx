@@ -126,7 +126,7 @@ export default function TiltPage() {
                     <Card variant="default"><CardHeader><CardTitle className="flex items-center gap-2"><Info className="h-4 w-4 text-blue-400" />Wiring</CardTitle></CardHeader><CardContent><table className="w-full text-sm"><tbody className="divide-y divide-white/5"><tr><td className="py-1.5 font-mono text-white">Signal</td><td className="py-1.5 font-mono text-amber-400">D12 (pull-up)</td></tr></tbody></table></CardContent></Card>
                 </div>
             </SensorDetailLayout>
-            {showQuiz && <AIQuizModal sensorName="Tilt Sensor" sensorId="SW-520D" onClose={() = defaultQuestions={SENSOR_QUIZZES["tilt"]} > setShowQuiz(false)} />}
+            {showQuiz && <AIQuizModal sensorName="Tilt Sensor" sensorId="SW-520D" onClose={() => setShowQuiz(false)} defaultQuestions={SENSOR_QUIZZES["tilt"]} />}
         </>
     );
 }

@@ -175,7 +175,7 @@ export default function GasPage() {
                     <Card variant="default"><CardHeader><CardTitle className="flex items-center gap-2"><Info className="h-4 w-4 text-blue-400" />Wiring</CardTitle></CardHeader><CardContent><table className="w-full text-sm"><tbody className="divide-y divide-white/5"><tr><td className="py-1.5 font-mono text-white">VCC</td><td className="py-1.5 font-mono text-red-400">5V</td></tr><tr><td className="py-1.5 font-mono text-white">A0</td><td className="py-1.5 font-mono text-red-400">A0</td></tr><tr><td className="py-1.5 font-mono text-white">GND</td><td className="py-1.5 font-mono text-red-400">GND</td></tr></tbody></table></CardContent></Card>
                 </div>
             </SensorDetailLayout>
-            {showQuiz && <AIQuizModal sensorName="Gas Sensor" sensorId="MQ2" onClose={() = defaultQuestions={SENSOR_QUIZZES["gas"]} > setShowQuiz(false)} />}
+            {showQuiz && <AIQuizModal sensorName="Gas Sensor" sensorId="MQ2" onClose={() => setShowQuiz(false)} defaultQuestions={SENSOR_QUIZZES["gas"]} />}
             {showExplainer && <GraphExplainerModal sensorName="Gas Sensor" data={chartData} onClose={() => setShowExplainer(false)} />}
         </>
     );

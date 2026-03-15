@@ -124,7 +124,7 @@ export default function ProximityPage() {
                     <Card variant="default"><CardHeader><CardTitle className="flex items-center gap-2"><Info className="h-4 w-4 text-blue-400" />Wiring</CardTitle></CardHeader><CardContent><table className="w-full text-sm"><tbody className="divide-y divide-white/5"><tr><td className="py-1.5 font-mono text-white">OUT</td><td className="py-1.5 font-mono text-slate-400">D11 (not connected)</td></tr></tbody></table></CardContent></Card>
                 </div>
             </SensorDetailLayout>
-            {showQuiz && <AIQuizModal sensorName="Proximity Sensor" sensorId="E18-D80NK" onClose={() = defaultQuestions={SENSOR_QUIZZES["proximity"]} > setShowQuiz(false)} />}
+            {showQuiz && <AIQuizModal sensorName="Proximity Sensor" sensorId="E18-D80NK" onClose={() => setShowQuiz(false)} defaultQuestions={SENSOR_QUIZZES["proximity"]} />}
         </>
     );
 }

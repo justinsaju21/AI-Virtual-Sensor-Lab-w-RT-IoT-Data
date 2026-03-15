@@ -124,7 +124,7 @@ export default function IRPage() {
                     <Card variant="default"><CardHeader><CardTitle className="flex items-center gap-2"><Info className="h-4 w-4 text-blue-400" />Wiring</CardTitle></CardHeader><CardContent><table className="w-full text-sm"><tbody className="divide-y divide-white/5"><tr><td className="py-1.5 font-mono text-white">OUT</td><td className="py-1.5 font-mono text-red-400">D13</td></tr></tbody></table></CardContent></Card>
                 </div>
             </SensorDetailLayout>
-            {showQuiz && <AIQuizModal sensorName="IR Sensor" sensorId="TCRT5000" onClose={() = defaultQuestions={SENSOR_QUIZZES["ir"]} > setShowQuiz(false)} />}
+            {showQuiz && <AIQuizModal sensorName="IR Sensor" sensorId="TCRT5000" onClose={() => setShowQuiz(false)} defaultQuestions={SENSOR_QUIZZES["ir"]} />}
         </>
     );
 }

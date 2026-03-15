@@ -293,7 +293,7 @@ export default function TemperaturePage() {
             </SensorDetailLayout>
 
             {/* AI Modals */}
-            {showQuiz && <AIQuizModal sensorName="Temperature Sensor" sensorId="DHT11" onClose={() = defaultQuestions={SENSOR_QUIZZES["temperature"]} > setShowQuiz(false)} />}
+            {showQuiz && <AIQuizModal sensorName="Temperature Sensor" sensorId="DHT11" onClose={() => setShowQuiz(false)} defaultQuestions={SENSOR_QUIZZES["temperature"]} />}
             {showExplainer && <GraphExplainerModal sensorName="Temperature Sensor" data={chartData} onClose={() => setShowExplainer(false)} />}
         </>
     );

@@ -164,7 +164,7 @@ export default function LightPage() {
                     <Card variant="default"><CardHeader><CardTitle className="flex items-center gap-2"><Info className="h-4 w-4 text-blue-400" />Wiring</CardTitle></CardHeader><CardContent><table className="w-full text-sm"><tbody className="divide-y divide-white/5"><tr><td className="py-1.5 text-white">LDR → 10kΩ → GND</td><td className="py-1.5 font-mono text-yellow-400">A4</td></tr><tr><td className="py-1.5 text-white">LDR → VCC</td><td className="py-1.5 font-mono text-yellow-400">5V</td></tr></tbody></table></CardContent></Card>
                 </div>
             </SensorDetailLayout>
-            {showQuiz && <AIQuizModal sensorName="Light Sensor" sensorId="LDR" onClose={() = defaultQuestions={SENSOR_QUIZZES["light"]} > setShowQuiz(false)} />}
+            {showQuiz && <AIQuizModal sensorName="Light Sensor" sensorId="LDR" onClose={() => setShowQuiz(false)} defaultQuestions={SENSOR_QUIZZES["light"]} />}
             {showExplainer && <GraphExplainerModal sensorName="Light Sensor" data={chartData} onClose={() => setShowExplainer(false)} />}
         </>
     );

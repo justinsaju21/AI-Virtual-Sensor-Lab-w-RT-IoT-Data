@@ -137,7 +137,7 @@ export default function FlamePage() {
                     <Card variant="default"><CardHeader><CardTitle className="flex items-center gap-2"><Info className="h-4 w-4 text-blue-400" />Wiring</CardTitle></CardHeader><CardContent><table className="w-full text-sm"><tbody className="divide-y divide-white/5"><tr><td className="py-1.5 font-mono text-white">AO</td><td className="py-1.5 font-mono text-orange-400">A5</td></tr><tr><td className="py-1.5 font-mono text-white">DO</td><td className="py-1.5 font-mono text-orange-400">D8</td></tr></tbody></table></CardContent></Card>
                 </div>
             </SensorDetailLayout>
-            {showQuiz && <AIQuizModal sensorName="Flame Sensor" sensorId="KY-026" onClose={() = defaultQuestions={SENSOR_QUIZZES["flame"]} > setShowQuiz(false)} />}
+            {showQuiz && <AIQuizModal sensorName="Flame Sensor" sensorId="KY-026" onClose={() => setShowQuiz(false)} defaultQuestions={SENSOR_QUIZZES["flame"]} />}
         </>
     );
 }

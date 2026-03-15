@@ -173,7 +173,7 @@ export default function UltrasonicPage() {
                     <Card variant="default"><CardHeader><CardTitle className="flex items-center gap-2"><Info className="h-4 w-4 text-blue-400" />Wiring</CardTitle></CardHeader><CardContent><table className="w-full text-sm"><tbody className="divide-y divide-white/5"><tr><td className="py-1.5 font-mono text-white">VCC</td><td className="py-1.5 font-mono text-purple-400">5V</td></tr><tr><td className="py-1.5 font-mono text-white">TRIG</td><td className="py-1.5 font-mono text-purple-400">D3</td></tr><tr><td className="py-1.5 font-mono text-white">ECHO</td><td className="py-1.5 font-mono text-purple-400">D4</td></tr><tr><td className="py-1.5 font-mono text-white">GND</td><td className="py-1.5 font-mono text-purple-400">GND</td></tr></tbody></table></CardContent></Card>
                 </div>
             </SensorDetailLayout>
-            {showQuiz && <AIQuizModal sensorName="Ultrasonic Sensor" sensorId="HC-SR04" onClose={() = defaultQuestions={SENSOR_QUIZZES["ultrasonic"]} > setShowQuiz(false)} />}
+            {showQuiz && <AIQuizModal sensorName="Ultrasonic Sensor" sensorId="HC-SR04" onClose={() => setShowQuiz(false)} defaultQuestions={SENSOR_QUIZZES["ultrasonic"]} />}
             {showExplainer && <GraphExplainerModal sensorName="Ultrasonic Sensor" data={chartData} onClose={() => setShowExplainer(false)} />}
         </>
     );

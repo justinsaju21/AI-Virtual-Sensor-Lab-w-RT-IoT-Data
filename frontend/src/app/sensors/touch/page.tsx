@@ -123,7 +123,7 @@ export default function TouchPage() {
                     <Card variant="default"><CardHeader><CardTitle className="flex items-center gap-2"><Info className="h-4 w-4 text-blue-400" />Wiring</CardTitle></CardHeader><CardContent><table className="w-full text-sm"><tbody className="divide-y divide-white/5"><tr><td className="py-1.5 font-mono text-white">I/O</td><td className="py-1.5 font-mono text-teal-400">D5</td></tr></tbody></table></CardContent></Card>
                 </div>
             </SensorDetailLayout>
-            {showQuiz && <AIQuizModal sensorName="Touch Sensor" sensorId="TTP223" onClose={() = defaultQuestions={SENSOR_QUIZZES["touch"]} > setShowQuiz(false)} />}
+            {showQuiz && <AIQuizModal sensorName="Touch Sensor" sensorId="TTP223" onClose={() => setShowQuiz(false)} defaultQuestions={SENSOR_QUIZZES["touch"]} />}
         </>
     );
 }

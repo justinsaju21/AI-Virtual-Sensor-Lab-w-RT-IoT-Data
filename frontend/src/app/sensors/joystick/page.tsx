@@ -175,7 +175,7 @@ export default function JoystickPage() {
                     <Card variant="default"><CardHeader><CardTitle className="flex items-center gap-2"><Info className="h-4 w-4 text-blue-400" />Wiring</CardTitle></CardHeader><CardContent><table className="w-full text-sm"><tbody className="divide-y divide-white/5"><tr><td className="py-1.5 font-mono text-white">VRx</td><td className="py-1.5 font-mono text-violet-400">A2</td></tr><tr><td className="py-1.5 font-mono text-white">VRy</td><td className="py-1.5 font-mono text-violet-400">A3</td></tr><tr><td className="py-1.5 font-mono text-white">SW</td><td className="py-1.5 font-mono text-violet-400">D7</td></tr></tbody></table></CardContent></Card>
                 </div>
             </SensorDetailLayout>
-            {showQuiz && <AIQuizModal sensorName="Joystick" sensorId="KY-023" onClose={() = defaultQuestions={SENSOR_QUIZZES["joystick"]} > setShowQuiz(false)} />}
+            {showQuiz && <AIQuizModal sensorName="Joystick" sensorId="KY-023" onClose={() => setShowQuiz(false)} defaultQuestions={SENSOR_QUIZZES["joystick"]} />}
             {showExplainer && <GraphExplainerModal sensorName="Joystick" data={chartData} onClose={() => setShowExplainer(false)} />}
         </>
     );

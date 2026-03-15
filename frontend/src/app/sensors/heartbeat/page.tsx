@@ -167,7 +167,7 @@ export default function HeartbeatPage() {
                     <Card variant="default"><CardHeader><CardTitle className="flex items-center gap-2"><Info className="h-4 w-4 text-blue-400" />Wiring</CardTitle></CardHeader><CardContent><table className="w-full text-sm"><tbody className="divide-y divide-white/5"><tr><td className="py-1.5 font-mono text-white">SDA</td><td className="py-1.5 font-mono text-rose-400">20</td></tr><tr><td className="py-1.5 font-mono text-white">SCL</td><td className="py-1.5 font-mono text-rose-400">21</td></tr></tbody></table></CardContent></Card>
                 </div>
             </SensorDetailLayout>
-            {showQuiz && <AIQuizModal sensorName="Heartbeat Sensor" sensorId="Pulse" onClose={() = defaultQuestions={SENSOR_QUIZZES["heartbeat"]} > setShowQuiz(false)} />}
+            {showQuiz && <AIQuizModal sensorName="Heartbeat Sensor" sensorId="Pulse" onClose={() => setShowQuiz(false)} defaultQuestions={SENSOR_QUIZZES["heartbeat"]} />}
             {showExplainer && <GraphExplainerModal sensorName="Heartbeat Sensor" data={chartData} onClose={() => setShowExplainer(false)} />}
         </>
     );

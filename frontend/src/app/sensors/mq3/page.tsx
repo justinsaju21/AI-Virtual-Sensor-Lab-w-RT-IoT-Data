@@ -142,7 +142,7 @@ export default function MQ3Page() {
                     <Card variant="default"><CardHeader><CardTitle className="flex items-center gap-2"><Info className="h-4 w-4 text-blue-400" />Wiring</CardTitle></CardHeader><CardContent><table className="w-full text-sm"><tbody className="divide-y divide-white/5"><tr><td className="py-1.5 font-mono text-white">A0</td><td className="py-1.5 font-mono text-amber-400">A1</td></tr></tbody></table></CardContent></Card>
                 </div>
             </SensorDetailLayout>
-            {showQuiz && <AIQuizModal sensorName="Alcohol Sensor" sensorId="MQ3" onClose={() = defaultQuestions={SENSOR_QUIZZES["mq3"]} > setShowQuiz(false)} />}
+            {showQuiz && <AIQuizModal sensorName="Alcohol Sensor" sensorId="MQ3" onClose={() => setShowQuiz(false)} defaultQuestions={SENSOR_QUIZZES["mq3"]} />}
             {showExplainer && <GraphExplainerModal sensorName="Alcohol Sensor" data={chartData} onClose={() => setShowExplainer(false)} />}
         </>
     );

@@ -266,7 +266,7 @@ export default function HumidityPage() {
                     </Card>
                 </div>
             </SensorDetailLayout>
-            {showQuiz && <AIQuizModal sensorName="Humidity Sensor" sensorId="DHT11" onClose={() = defaultQuestions={SENSOR_QUIZZES["humidity"]} > setShowQuiz(false)} />}
+            {showQuiz && <AIQuizModal sensorName="Humidity Sensor" sensorId="DHT11" onClose={() => setShowQuiz(false)} defaultQuestions={SENSOR_QUIZZES["humidity"]} />}
             {showExplainer && <GraphExplainerModal sensorName="Humidity Sensor" data={chartData} onClose={() => setShowExplainer(false)} />}
         </>
     );

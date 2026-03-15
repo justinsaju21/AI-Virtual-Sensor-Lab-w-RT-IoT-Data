@@ -134,7 +134,7 @@ export default function HallPage() {
                     <Card variant="default"><CardHeader><CardTitle className="flex items-center gap-2"><Info className="h-4 w-4 text-blue-400" />Wiring</CardTitle></CardHeader><CardContent><table className="w-full text-sm"><tbody className="divide-y divide-white/5"><tr><td className="py-1.5 font-mono text-white">VCC</td><td className="py-1.5 font-mono text-indigo-400">5V</td></tr><tr><td className="py-1.5 font-mono text-white">OUT</td><td className="py-1.5 font-mono text-indigo-400">D6</td></tr><tr><td className="py-1.5 font-mono text-white">GND</td><td className="py-1.5 font-mono text-indigo-400">GND</td></tr></tbody></table></CardContent></Card>
                 </div>
             </SensorDetailLayout>
-            {showQuiz && <AIQuizModal sensorName="Hall Sensor" sensorId="A3144" onClose={() = defaultQuestions={SENSOR_QUIZZES["hall"]} > setShowQuiz(false)} />}
+            {showQuiz && <AIQuizModal sensorName="Hall Sensor" sensorId="A3144" onClose={() => setShowQuiz(false)} defaultQuestions={SENSOR_QUIZZES["hall"]} />}
         </>
     );
 }
