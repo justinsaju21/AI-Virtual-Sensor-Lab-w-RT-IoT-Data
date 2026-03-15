@@ -23,9 +23,9 @@ const io = new Server(server, {
 // Specify which sensors should use real data when available.
 // All other sensors will use animated mock data.
 const REAL_SENSORS = [
-  "dht11", "mq2", "mq3", "ldr", 
-  "bmp280", "flame", "sound", "pir", "ir", 
-  "touch", "tilt", "hall", 
+  "ultrasonic", "dht11", "mq2", "mq3", "ldr",
+  "bmp280", "flame", "sound", "pir", "ir",
+  "touch", "tilt", "hall",
   "joystick", "thermistor", "max30102"
 ];
 
@@ -77,16 +77,11 @@ app.post('/api/sensor-data', (req, res) => {
     useRealData = true;
     lastRealDataTime = Date.now();
 
-    // Create hybrid payload and emit immediately for responsiveness
-    const mock = generateMockData();
-    latestReading = mergeHardwareWithMock(mock, lastHardwareSensors);
-    latestReading.timestamp = new Date().toISOString();
-    latestReading.device_id = data.device_id;
+    // Store hardware data; the setInterval loop handles all emissions
+    // at a consistent 2-second cadence to prevent duplicate/bursty updates
 
-    io.emit('data_stream', latestReading);
-
-    console.log(`[HYBRID] Real data received from ${data.device_id}. Merging with mocks.`);
-    res.json({ success: true, message: 'Data merged and emitted' });
+    console.log(`[HYBRID] Real data received from ${data.device_id}. Will merge on next tick.`);
+    res.json({ success: true, message: 'Data received and queued for merge' });
   } catch (error) {
     console.error('Error processing sensor data:', error);
     res.status(500).json({ error: 'Server error' });
@@ -129,7 +124,7 @@ app.post("/api/ai-chat", (req, res) => {
     }
 
     setTimeout(() => {
-      res.json({ reply });
+      if (!res.headersSent) res.json({ reply });
     }, 1000);
   } catch (error) {
     console.error('Error in /api/ai-chat:', error);
@@ -267,7 +262,7 @@ app.post("/api/ai-quiz", (req, res) => {
   }
 
   setTimeout(() => {
-    res.json({ questions });
+    if (!res.headersSent) res.json({ questions });
   }, 500);
   } catch (error) {
     console.error('Error in /api/ai-quiz:', error);
@@ -316,7 +311,7 @@ app.post("/api/ai-explain", (req, res) => {
   }
 
   setTimeout(() => {
-    res.json({ explanation });
+    if (!res.headersSent) res.json({ explanation });
   }, 800);
   } catch (error) {
     console.error('Error in /api/ai-explain:', error);
@@ -328,6 +323,7 @@ app.post("/api/ai-explain", (req, res) => {
 
 // Generate mock data and merge with hardware readings
 setInterval(() => {
+  try {
   const now = Date.now();
 
   // If using real data but it's been too long, clear the hardware cache
@@ -339,18 +335,19 @@ setInterval(() => {
 
   // ALWAYS generate mock data to keep the 'other' sensors moving
   const mock = generateMockData();
-  
-  // Merge in real data for the 4 specific sensors if available
+
+  // Merge in real data for REAL_SENSORS if available
   latestReading = mergeHardwareWithMock(mock, lastHardwareSensors);
   latestReading.timestamp = new Date().toISOString();
   latestReading.is_hybrid = true;
 
   io.emit('data_stream', latestReading);
-  
+
   if (useRealData) {
     console.log('[HYBRID] Emitted merged payload (Real + Mock)');
-  } else {
-    // console.log('[MOCK] Emitted pure mock data');
+  }
+  } catch (err) {
+    console.error('[CRITICAL] Error in data loop:', err);
   }
 }, 2000);
 

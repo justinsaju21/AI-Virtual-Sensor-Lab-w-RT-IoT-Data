@@ -10,6 +10,7 @@ export const useSocket = () => {
     const [socket, setSocket] = useState<Socket | null>(null);
     const [isConnected, setIsConnected] = useState(false);
     const [data, setData] = useState<SensorData | null>(null);
+    const [error, setError] = useState<string | null>(null);
 
     useEffect(() => {
         const socketInstance = io(SOCKET_URL);
@@ -17,11 +18,18 @@ export const useSocket = () => {
         socketInstance.on("connect", () => {
             console.log("Connected to backend");
             setIsConnected(true);
+            setError(null);
         });
 
         socketInstance.on("disconnect", () => {
             console.log("Disconnected from backend");
             setIsConnected(false);
+        });
+
+        socketInstance.on("connect_error", (err) => {
+            console.error("Socket connection error:", err.message);
+            setIsConnected(false);
+            setError(`Cannot reach server: ${err.message}`);
         });
 
         socketInstance.on("data_stream", (newData: SensorData) => {
@@ -35,5 +43,5 @@ export const useSocket = () => {
         };
     }, []);
 
-    return { socket, isConnected, data };
+    return { socket, isConnected, data, error };
 };

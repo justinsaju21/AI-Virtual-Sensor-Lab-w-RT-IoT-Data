@@ -33,8 +33,8 @@ export const GraphExplainerModal: React.FC<GraphExplainerModalProps> = ({ sensor
             // Fallback: local analysis
             const values = data.map(d => d.value);
             const avg = values.reduce((a, b) => a + b, 0) / values.length;
-            const min = Math.min(...values);
-            const max = Math.max(...values);
+            const min = values.reduce((a, b) => a < b ? a : b, values[0]);
+            const max = values.reduce((a, b) => a > b ? a : b, values[0]);
             const trend = values[values.length - 1] - values[0];
 
             let analysis = `**${sensorName} Pattern Analysis**\n\n`;

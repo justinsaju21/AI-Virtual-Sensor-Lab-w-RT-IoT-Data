@@ -1,3 +1,5 @@
+const mockStartTime = Date.now();
+
 const generateMockData = () => {
     const timestamp = new Date().toISOString();
 
@@ -7,11 +9,18 @@ const generateMockData = () => {
     return {
         device_id: "mega_node_01",
         timestamp: timestamp,
+        system: {
+            wifi_rssi: Math.floor(-40 + Math.sin(time * 0.02) * 10),
+            ip: "192.168.1.100",
+            heap: Math.floor(30000 + Math.random() * 5000),
+            version: "2.0.0-mock",
+            uptime_ms: Date.now() - mockStartTime
+        },
         sensors: {
-            /* ultrasonic: {
+            ultrasonic: {
                 distance_cm: parseFloat((50 + Math.sin(time) * 30 + (Math.random() * 2 - 1)).toFixed(1)),
                 isReal: false
-            }, */
+            },
             dht11: {
                 temp: parseFloat((24 + Math.sin(time * 0.1) * 2 + (Math.random() * 0.2)).toFixed(1)),
                 humidity: parseFloat((60 + Math.sin(time * 0.1) * 10 + (Math.random() * 1)).toFixed(1)),
@@ -47,10 +56,10 @@ const generateMockData = () => {
                 active: Math.sin(time * 1.5) > 0.8,
                 isReal: false
             },
-            /* proximity: {
+            proximity: {
                 active: Math.sin(time * 0.6) > 0.8,
                 isReal: false
-            }, */
+            },
             bmp280: {
                 pressure: parseFloat((1013.25 + Math.sin(time * 0.01) * 2 + (Math.random() * 0.05 - 0.025)).toFixed(2)),
                 temp: parseFloat((24.5 + Math.random() * 0.1).toFixed(1)),

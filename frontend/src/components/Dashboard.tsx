@@ -21,7 +21,6 @@ import {
     Server,
     BarChart3,
     Cpu,
-    RefreshCw,
     Mic,
     Magnet,
     Move,
@@ -40,7 +39,7 @@ interface DataPoint {
 const MAX_DATA_POINTS = 30;
 
 export const Dashboard = () => {
-    const { isConnected, data } = useSocket();
+    const { isConnected, data, error } = useSocket();
     // History states for charts
     const [tempHistory, setTempHistory] = useState<DataPoint[]>([]);
     const [soundHistory, setSoundHistory] = useState<DataPoint[]>([]);
@@ -75,6 +74,7 @@ export const Dashboard = () => {
                 </div>
                 <h2 className="text-xl font-semibold text-white mb-2">Connecting to Hardware</h2>
                 <p className="text-slate-500 text-sm">Establishing WebSocket connection...</p>
+                {error && <p className="text-red-400 text-sm mt-2">{error}</p>}
             </div>
         );
     }
@@ -102,7 +102,7 @@ export const Dashboard = () => {
                     <p className="text-slate-500 text-sm mt-1">Monitor 17 connected IoT sensors in real-time</p>
                 </div>
                 <Badge variant="success" pulse size="md">
-                    <RefreshCw className="h-3 w-3 mr-1" />
+                    <Zap className="h-3 w-3 mr-1" />
                     Live Updates
                 </Badge>
             </div>
@@ -147,7 +147,7 @@ export const Dashboard = () => {
                             </div>
                             <div>
                                 <p className="text-[10px] font-medium text-slate-500 uppercase tracking-wider">Sensors</p>
-                                <p className="text-sm font-semibold text-white">16 Active</p>
+                                <p className="text-sm font-semibold text-white">17 Active</p>
                             </div>
                         </div>
 
@@ -171,7 +171,18 @@ export const Dashboard = () => {
                     Live Readings
                 </h2>
                 <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-                    {/* 1. DHT11 Temp */}
+                    {/* 1. Ultraviolet/Distance */}
+                    <MetricCard
+                        title="Distance"
+                        value={(() => { const d = s.ultrasonic?.distance_cm ?? 0; return d < 0 ? "N/A" : d; })()}
+                        unit="cm"
+                        icon={<Radar className="h-5 w-5" />}
+                        iconColor="text-purple-400"
+                        status={s.ultrasonic?.isReal ? "success" : "ok"}
+                        subtitle={s.ultrasonic?.isReal ? "REAL HARDWARE" : "HC-SR04 (Mock)"}
+                    />
+                    
+                    {/* 2. DHT11 Temp */}
                     <MetricCard
                         title="Temperature"
                         value={s.dht11?.temp ?? s.dht22?.temperature ?? 0}
@@ -229,7 +240,7 @@ export const Dashboard = () => {
                     <MetricCard
                         title="Sound Level"
                         value={s.sound?.analog ?? s.mic?.level ?? 0}
-                        unit="dB"
+                        unit="raw"
                         icon={<Mic className="h-5 w-5" />}
                         iconColor="text-pink-400"
                         status={s.sound?.isReal ? "success" : "ok"}
@@ -257,7 +268,17 @@ export const Dashboard = () => {
                         subtitle={s.flame?.isReal ? "REAL HARDWARE" : "Flame (Mock)"}
                     />
                     
-                    {/* 10. Pressure */}
+                    {/* 10. Proximity */}
+                    <MetricCard
+                        title="Proximity"
+                        value={s.proximity?.active ? "NEAR" : "Far"}
+                        icon={<Radar className="h-5 w-5" />}
+                        iconColor="text-teal-400"
+                        status={s.proximity?.isReal ? "success" : s.proximity?.active ? "warning" : "ok"}
+                        subtitle={s.proximity?.isReal ? "REAL HARDWARE" : "Mock Only (No HW)"}
+                    />
+                    
+                    {/* 11. Pressure */}
                     <MetricCard
                         title="Pressure"
                         value={Math.round(s.bmp280?.pressure ?? s.bmp180?.pressure ?? 0)}
@@ -324,7 +345,7 @@ export const Dashboard = () => {
                     {/* 17. Joystick */}
                     <MetricCard
                         title="Joystick"
-                        value={`X:${s.joystick?.x} Y:${s.joystick?.y}`}
+                        value={`X:${s.joystick?.x ?? 0} Y:${s.joystick?.y ?? 0}`}
                         icon={<Gamepad2 className="h-5 w-5" />}
                         iconColor="text-green-400"
                         status={s.joystick?.isReal ? "success" : (s.joystick?.button_pressed || s.joystick?.btn) ? "info" : "ok"}
@@ -384,7 +405,7 @@ export const Dashboard = () => {
                                 data={soundHistory}
                                 color="#ec4899"
                                 gradientId="soundGrad"
-                                unit="dB"
+                                unit="raw"
                                 height={180}
                                 minDomain={0}
                                 maxDomain={500}
