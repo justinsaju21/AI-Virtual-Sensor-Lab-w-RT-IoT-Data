@@ -26,10 +26,12 @@ export interface SensorData {
         };
         mq3: {
             value: number;
+            raw?: number;
             isReal?: boolean;
         };
         mq2: {
             value: number;
+            raw?: number;
             raw_value?: number;
             isReal?: boolean;
         };
@@ -37,23 +39,36 @@ export interface SensorData {
             active: boolean;
             isReal?: boolean;
         };
-        mic: {
+        sound: {
+            analog: number;
+            digital: boolean;
+            isReal?: boolean;
+        };
+        mic?: {
             level: number;
             isReal?: boolean;
         };
         ir: {
-            detected: boolean;
+            detected?: boolean;
+            active: boolean;
             isReal?: boolean;
         };
         flame: {
             value: number;
+            analog?: number;
+            digital?: boolean;
             isReal?: boolean;
         };
         proximity: {
             active: boolean;
             isReal?: boolean;
         };
-        bmp180: {
+        bmp280: {
+            pressure: number;
+            temp: number;
+            isReal?: boolean;
+        };
+        bmp180?: {
             pressure: number;
             altitude: number;
             temp: number;
@@ -65,6 +80,7 @@ export interface SensorData {
         };
         ldr: {
             value: number;
+            raw?: number;
             light_level?: number;
             isReal?: boolean;
         };
@@ -72,14 +88,24 @@ export interface SensorData {
             active: boolean;
             isReal?: boolean;
         };
-        heartbeat: {
+        max30102: {
+            bpm: number;
+            ir: number;
+            isReal?: boolean;
+        };
+        heartbeat?: {
             value: number;
+            isReal?: boolean;
+        };
+        thermistor: {
+            temp: number;
             isReal?: boolean;
         };
         joystick: {
             x: number;
             y: number;
-            btn: boolean;
+            btn?: boolean;
+            button_pressed: boolean;
             isReal?: boolean;
         };
     };

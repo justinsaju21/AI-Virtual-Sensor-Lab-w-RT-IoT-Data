@@ -61,10 +61,10 @@ export const Dashboard = () => {
             // Handle legacy DHT22 or new DHT11
             const temp = data.sensors.dht11?.temp ?? data.sensors.dht22?.temperature ?? 0;
             const humidity = data.sensors.dht11?.humidity ?? data.sensors.dht22?.humidity ?? 0;
-            const gas = data.sensors.mq2?.value ?? data.sensors.mq2?.raw_value ?? 0;
-            const light = data.sensors.ldr?.value ?? data.sensors.ldr?.light_level ?? 0;
-            const sound = data.sensors.mic?.level ?? 0;
-            const pressure = data.sensors.bmp180?.pressure ?? 0;
+            const gas = data.sensors.mq2?.raw ?? data.sensors.mq2?.value ?? 0;
+            const light = data.sensors.ldr?.raw ?? data.sensors.ldr?.value ?? 0;
+            const sound = data.sensors.sound?.analog ?? data.sensors.mic?.level ?? 0;
+            const pressure = data.sensors.bmp280?.pressure ?? data.sensors.bmp180?.pressure ?? 0;
 
             setTempHistory((prev) => [...prev, { time: timeLabel, value: temp }].slice(-MAX_DATA_POINTS));
             setHumidityHistory((prev) => [...prev, { time: timeLabel, value: humidity }].slice(-MAX_DATA_POINTS));
@@ -111,7 +111,7 @@ export const Dashboard = () => {
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                 <div>
                     <h1 className="text-2xl font-bold text-white">Sensor Dashboard</h1>
-                    <p className="text-slate-500 text-sm mt-1">Monitor 15 connected IoT sensors in real-time</p>
+                    <p className="text-slate-500 text-sm mt-1">Monitor 17 connected IoT sensors in real-time</p>
                 </div>
                 <Badge variant="success" pulse size="md">
                     <RefreshCw className="h-3 w-3 mr-1" />
@@ -159,7 +159,7 @@ export const Dashboard = () => {
                             </div>
                             <div>
                                 <p className="text-[10px] font-medium text-slate-500 uppercase tracking-wider">Sensors</p>
-                                <p className="text-sm font-semibold text-white">15 Active</p>
+                                <p className="text-sm font-semibold text-white">17 Active</p>
                             </div>
                         </div>
 
@@ -219,22 +219,22 @@ export const Dashboard = () => {
                     {/* 4. MQ-3 Alcohol */}
                     <MetricCard
                         title="Alcohol Level"
-                        value={s.mq3?.value ?? 0}
+                        value={s.mq3?.raw ?? s.mq3?.value ?? 0}
                         unit="raw"
                         icon={<Activity className="h-5 w-5" />}
                         iconColor="text-emerald-400"
-                        status={s.mq3?.isReal ? "success" : (s.mq3?.value ?? 0) > 400 ? "warning" : "ok"}
+                        status={s.mq3?.isReal ? "success" : (s.mq3?.raw ?? 0) > 400 ? "warning" : "ok"}
                         subtitle={s.mq3?.isReal ? "REAL HARDWARE" : "MQ3 (Mock)"}
                     />
                     
                     {/* 5. MQ-2 Gas */}
                     <MetricCard
                         title="Gas/Smoke"
-                        value={s.mq2?.value ?? 0}
+                        value={s.mq2?.raw ?? s.mq2?.value ?? 0}
                         unit="ppm"
                         icon={<Flame className="h-5 w-5" />}
                         iconColor="text-red-400"
-                        status={s.mq2?.isReal ? "success" : (s.mq2?.value ?? 0) > 300 ? "warning" : "ok"}
+                        status={s.mq2?.isReal ? "success" : (s.mq2?.raw ?? 0) > 300 ? "warning" : "ok"}
                         subtitle={s.mq2?.isReal ? "REAL HARDWARE" : "MQ2 (Mock)"}
                     />
                     
@@ -251,32 +251,32 @@ export const Dashboard = () => {
                     {/* 7. Mic/Sound */}
                     <MetricCard
                         title="Sound Level"
-                        value={s.mic?.level ?? 0}
+                        value={s.sound?.analog ?? s.mic?.level ?? 0}
                         unit="dB"
                         icon={<Mic className="h-5 w-5" />}
                         iconColor="text-pink-400"
-                        status={s.mic?.isReal ? "success" : "ok"}
-                        subtitle={s.mic?.isReal ? "REAL HARDWARE" : "Mic (Mock)"}
+                        status={s.sound?.isReal ? "success" : "ok"}
+                        subtitle={s.sound?.isReal ? "REAL HARDWARE" : "Sound (Mock)"}
                     />
                     
                     {/* 8. IR Object */}
                     <MetricCard
                         title="IR Obstacle"
-                        value={s.ir?.detected ? "DETECTED" : "Clear"}
+                        value={(s.ir?.active || s.ir?.detected) ? "DETECTED" : "Clear"}
                         icon={<Eye className="h-5 w-5" />}
                         iconColor="text-cyan-400"
-                        status={s.ir?.isReal ? "success" : s.ir?.detected ? "warning" : "ok"}
+                        status={s.ir?.isReal ? "success" : (s.ir?.active || s.ir?.detected) ? "warning" : "ok"}
                         subtitle={s.ir?.isReal ? "REAL HARDWARE" : "IR (Mock)"}
                     />
                     
                     {/* 9. Flame */}
                     <MetricCard
                         title="Flame Detect"
-                        value={s.flame?.value ?? 0}
+                        value={s.flame?.analog ?? s.flame?.value ?? 0}
                         unit="val"
                         icon={<Flame className="h-5 w-5" />}
                         iconColor="text-orange-500"
-                        status={s.flame?.isReal ? "success" : (s.flame?.value ?? 1023) < 500 ? "error" : "ok"}
+                        status={s.flame?.isReal ? "success" : (s.flame?.analog ?? 1023) < 500 ? "error" : "ok"}
                         subtitle={s.flame?.isReal ? "REAL HARDWARE" : "Flame (Mock)"}
                     />
                     
@@ -293,12 +293,12 @@ export const Dashboard = () => {
                     {/* 11. Pressure */}
                     <MetricCard
                         title="Pressure"
-                        value={Math.round(s.bmp180?.pressure ?? 0)}
-                        unit="Pa"
+                        value={Math.round(s.bmp280?.pressure ?? s.bmp180?.pressure ?? 0)}
+                        unit="hPa"
                         icon={<Gauge className="h-5 w-5" />}
                         iconColor="text-sky-400"
-                        status={s.bmp180?.isReal ? "success" : "ok"}
-                        subtitle={s.bmp180?.isReal ? "REAL HARDWARE" : "BMP180 (Mock)"}
+                        status={s.bmp280?.isReal ? "success" : "ok"}
+                        subtitle={s.bmp280?.isReal ? "REAL HARDWARE" : "BMP280 (Mock)"}
                     />
                     
                     {/* 12. Touch */}
@@ -314,8 +314,8 @@ export const Dashboard = () => {
                     {/* 13. LDR */}
                     <MetricCard
                         title="Light Level"
-                        value={s.ldr?.value ?? 0}
-                        unit="lux"
+                        value={s.ldr?.raw ?? s.ldr?.value ?? 0}
+                        unit="raw"
                         icon={<Sun className="h-5 w-5" />}
                         iconColor="text-yellow-400"
                         status={s.ldr?.isReal ? "success" : "ok"}
@@ -332,15 +332,26 @@ export const Dashboard = () => {
                         subtitle={s.tilt?.isReal ? "REAL HARDWARE" : "Tilt (Mock)"}
                     />
                     
-                    {/* 15. Heartbeat */}
+                    {/* 15. Pulse/Heart */}
                     <MetricCard
                         title="Pulse/Heart"
-                        value={s.heartbeat?.value ?? 0}
+                        value={s.max30102?.bpm ?? s.heartbeat?.value ?? 0}
                         unit="bpm"
                         icon={<Heart className="h-5 w-5" />}
                         iconColor="text-red-500"
-                        status={s.heartbeat?.isReal ? "success" : "ok"}
-                        subtitle={s.heartbeat?.isReal ? "REAL HARDWARE" : "MAX30102 (Mock)"}
+                        status={s.max30102?.isReal ? "success" : "ok"}
+                        subtitle={s.max30102?.isReal ? "REAL HARDWARE" : "MAX30102 (Mock)"}
+                    />
+
+                    {/* 16. Body Temp (Thermistor) */}
+                    <MetricCard
+                        title="Body Temp"
+                        value={s.thermistor?.temp ?? 0}
+                        unit="°C"
+                        icon={<Thermometer className="h-5 w-5" />}
+                        iconColor="text-orange-300"
+                        status={s.thermistor?.isReal ? "success" : "ok"}
+                        subtitle={s.thermistor?.isReal ? "NTC Probe" : "NTC (Mock)"}
                     />
                     
                     {/* 16. Joystick */}
@@ -349,7 +360,7 @@ export const Dashboard = () => {
                         value={`X:${s.joystick?.x} Y:${s.joystick?.y}`}
                         icon={<Gamepad2 className="h-5 w-5" />}
                         iconColor="text-green-400"
-                        status={s.joystick?.isReal ? "success" : s.joystick?.btn ? "info" : "ok"}
+                        status={s.joystick?.isReal ? "success" : (s.joystick?.button_pressed || s.joystick?.btn) ? "info" : "ok"}
                         subtitle={s.joystick?.isReal ? "REAL HARDWARE" : "Joystick (Mock)"}
                     />
                 </div>
