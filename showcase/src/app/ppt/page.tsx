@@ -5,10 +5,10 @@ import { motion, AnimatePresence } from "framer-motion";
 import {
     ChevronRight, ChevronLeft, Home, Cpu, Target, AlertTriangle, Lightbulb, Layers,
     HardDrive, Code2, GitBranch, Brain, Users, Play, CheckCircle2, Rocket, BookOpen, Award, FileText, List, Calendar, Layout, Search, User,
-    X, Wifi, Activity, Zap, ThumbsUp, Database, Sun, Moon
+    X, Wifi, Activity, Zap, ThumbsUp, Database, Sun, Moon,
+    Thermometer, Shield, Move, Fingerprint
 } from "lucide-react";
 import Link from "next/link";
-import { tokens } from "@/components/Styles";
 
 interface Slide {
     id: string;
@@ -94,6 +94,7 @@ const getSlides = (isDark: boolean): Slide[] => [
                     "Project Objectives",
                     "System Architecture (4-Layer Modular Design)",
                     "Hardware Implementation (17-Sensor Suite)",
+                    "Hardware Categories & Capabilities",
                     "Methodology: Digital Twin & AI",
                     "Results & Interactive Dashboard",
                     "Future Scope & Conclusion",
@@ -175,13 +176,15 @@ const getSlides = (isDark: boolean): Slide[] => [
                         ["DT Smart Space (2024)", "4-Layer MCNP Model", "Formal IEEE 4-Layer Reference Framework", "Smart Building focus; No Lab Education"],
                         ["DT in STEM (2024)", "Conceptual Survey", "Viable pathway for 33% schools lacking labs", "Conceptual framework; No concrete IoT Link"],
                         ["AI-Enhanced Labs (2025)", "AIVL vs SVL vs TPL", "17-20% Score Gain; 35% Faster Lab Speed", "Pure Simulation; No Real Hard-in-Loop"]
-                    ].flat().map((cell, i) => (
-                        <div key={i} style={{ background: isDark ? "rgba(15,23,42,0.8)" : "#fff", padding: "8px 10px", fontSize: 11, color: isDark ? "#cbd5e1" : "#334155", border: `0.5px solid ${isDark ? "rgba(255,255,255,0.05)" : "rgba(0,0,0,0.05)"}` }}>{cell}</div>
+                    ].map((row, rowIdx) => (
+                        row.map((cell, colIdx) => (
+                            <div key={`${rowIdx}-${colIdx}`} style={{ background: isDark ? "rgba(15,23,42,0.8)" : "#fff", padding: "8px 10px", fontSize: 11, color: isDark ? "#cbd5e1" : "#334155", border: `0.5px solid ${isDark ? "rgba(255,255,255,0.05)" : "rgba(0,0,0,0.05)"}` }}>{cell}</div>
+                        ))
                     ))}
                 </div>
                 <div style={{ padding: "12px 20px", background: "rgba(16,185,129,0.05)", borderLeft: "4px solid #10b981", borderRadius: 4 }}>
                     <p style={{ fontSize: 13, color: "#10b981", fontWeight: 700, marginBottom: 5 }}>The Research Gap:</p>
-                    <p style={{ fontSize: 12, color: isDark ? "#94a3b8" : "#475569" }}>Existing systems leave gaps in **Hardware-in-the-Loop** verification, **AI-driven mistake detection**, and high-density arrays. Our platform is the first to satisfy all four pillars simultaneously.</p>
+                    <p style={{ fontSize: 12, color: isDark ? "#94a3b8" : "#475569" }}>Existing systems leave gaps in <strong>Hardware-in-the-Loop</strong> verification, <strong>AI-driven mistake detection</strong>, and high-density arrays. Our platform is the first to satisfy all four pillars simultaneously.</p>
                 </div>
             </div>
         )
@@ -413,7 +416,33 @@ const getSlides = (isDark: boolean): Slide[] => [
             </div>
         )
     },
-    // 8. Methodology
+    // 8. Hardware Suite (New Slide)
+    {
+        id: "hardwaresuite",
+        icon: <HardDrive size={28} />,
+        badge: "HARDWARE DEPLOYMENT",
+        badgeColor: "#f59e0b",
+        title: "17-Sensor Suite: Categories",
+        content: (
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
+                {[
+                    { category: "Environmental & Light", icon: <Sun size={18} color="#f59e0b" />, sensors: "DHT11, BMP280, Thermistor, LDR" },
+                    { category: "Gas & Safety", icon: <Shield size={18} color="#ef4444" />, sensors: "MQ-2, MQ-3, Flame Detector" },
+                    { category: "Motion & Control", icon: <Move size={18} color="#3b82f6" />, sensors: "Joystick, Ultrasonic, PIR, Tilt, Touch, Hall, IR" },
+                    { category: "Biometric & Signal", icon: <Fingerprint size={18} color="#a855f7" />, sensors: "MAX30102, Sound Sensor, Inductive" }
+                ].map((cat, i) => (
+                    <div key={i} style={{ padding: 20, background: isDark ? "rgba(255,255,255,0.03)" : "rgba(0,0,0,0.03)", borderRadius: 12, border: "1px solid rgba(255,255,255,0.08)" }}>
+                        <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 10 }}>
+                            {cat.icon}
+                            <h4 style={{ color: isDark ? "#fff" : "#0f172a", fontWeight: 700, fontSize: 16 }}>{cat.category}</h4>
+                        </div>
+                        <p style={{ color: isDark ? "#94a3b8" : "#475569", fontSize: 14 }}>{cat.sensors}</p>
+                    </div>
+                ))}
+            </div>
+        )
+    },
+    // 9. Methodology (Shifted)
     {
         id: "methodology",
         icon: <GitBranch size={28} />,
@@ -514,7 +543,7 @@ const getSlides = (isDark: boolean): Slide[] => [
                         <h4 style={{ color: (isDark ? "#fff" : "#0f172a"), fontWeight: 700 }}>Pedagogical Gains</h4>
                     </div>
                     <p style={{ color: (isDark ? "#94a3b8" : "#475569"), fontSize: 14 }}>
-                        AIVL implementation demonstrates **17.5% to 20% higher exam scores** compared to traditional labs. Lab completion time is reduced by **35%**.
+                        AIVL implementation demonstrates <strong>17.5% to 20% higher exam scores</strong> compared to traditional labs. Lab completion time is reduced by <strong>35%</strong>.
                     </p>
                 </div>
 
@@ -525,7 +554,7 @@ const getSlides = (isDark: boolean): Slide[] => [
                         <h4 style={{ color: (isDark ? "#fff" : "#0f172a"), fontWeight: 700 }}>Operational Performance</h4>
                     </div>
                     <p style={{ color: (isDark ? "#94a3b8" : "#475569"), fontSize: 14 }}>
-                        Digital Twin anomaly detection achieving **latency of 142 ms** and providing a **70-85% reduction** in attack/error success rates.
+                        Digital Twin anomaly detection achieving <strong>latency of 142 ms</strong> and providing a <strong>70-85% reduction</strong> in attack/error success rates.
                     </p>
                 </div>
 
@@ -536,7 +565,7 @@ const getSlides = (isDark: boolean): Slide[] => [
                         <h4 style={{ color: (isDark ? "#fff" : "#0f172a"), fontWeight: 700 }}>User Satisfaction</h4>
                     </div>
                     <p style={{ color: (isDark ? "#94a3b8" : "#475569"), fontSize: 14 }}>
-                        Validated student satisfaction reaches **89.1%**, while addressing laboratory accessibility for the **33.3% of schools** lacking physical infra.
+                        Validated student satisfaction reaches <strong>89.1%</strong>, while addressing laboratory accessibility for the <strong>33.3% of schools</strong> lacking physical infra.
                     </p>
                 </div>
 
@@ -717,21 +746,23 @@ export default function PresentationPage() {
                 <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
                     <Cpu size={16} color="#00f2fe" />
                     <span style={{ color: (isDark ? "#fff" : "#0f172a"), fontWeight: 700, fontSize: 15 }}>VirtSensorLab</span>
-
                 </div>
-                <button
-                    onClick={() => setIsDark(!isDark)}
-                    style={{
-                        background: "transparent", border: "1px solid " + (isDark ? "rgba(255,255,255,0.2)" : "rgba(0,0,0,0.2)"),
-                        borderRadius: "50%", width: 36, height: 36, display: "flex", alignItems: "center", justifyContent: "center",
-                        color: isDark ? "#facc15" : "#334155", cursor: "pointer", marginLeft: "16px"
-                    }}
-                >
-                    {isDark ? <Sun size={18} /> : <Moon size={18} />}
-                </button>
-                <span style={{ color: (isDark ? "#475569" : "#94a3b8"), fontSize: 13, fontFamily: "monospace" }}>
-                    {String(current + 1).padStart(2, "0")} / {String(total).padStart(2, "0")}
-                </span>
+
+                <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
+                    <button
+                        onClick={() => setIsDark(!isDark)}
+                        style={{
+                            background: "transparent", border: "1px solid " + (isDark ? "rgba(255,255,255,0.2)" : "rgba(0,0,0,0.2)"),
+                            borderRadius: "50%", width: 36, height: 36, display: "flex", alignItems: "center", justifyContent: "center",
+                            color: isDark ? "#facc15" : "#334155", cursor: "pointer"
+                        }}
+                    >
+                        {isDark ? <Sun size={18} /> : <Moon size={18} />}
+                    </button>
+                    <span style={{ color: (isDark ? "#475569" : "#94a3b8"), fontSize: 13, fontFamily: "monospace" }}>
+                        {String(current + 1).padStart(2, "0")} / {String(total).padStart(2, "0")}
+                    </span>
+                </div>
             </div>
 
             {/* Progress Bar */}
