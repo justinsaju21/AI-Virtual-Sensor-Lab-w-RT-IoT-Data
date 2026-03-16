@@ -47,7 +47,7 @@
 #define PIN_PIR      10
 #define PIN_PROX     11
 #define PIN_TILT     12
-#define PIN_IR       13
+#define PIN_IR       14  // Moved from 13 to 14 to avoid Pin 13 LED conflict
 
 // ==========================================
 // SENSOR CONFIGURATIONS
@@ -68,6 +68,16 @@ bool dhtOk = false;
 // BPM calculation
 unsigned long lastBeatTime = 0;
 const unsigned long BPM_TIMEOUT = 5000; // Reset BPM after 5s with no beat
+
+// ==========================================
+// CONFIGURATION SWITCHES
+// ==========================================
+// Set to true if Thermistor is connected to VCC (Standard: between GND and ADC)
+#define THERMISTOR_VCC_SIDE false 
+
+// Ultrasonic State Machine
+bool sonicWaitState = false;
+unsigned long sonicPingMicros = 0;
 
 // ==========================================
 // GLOBALS & TIMERS
@@ -116,6 +126,9 @@ struct SensorData {
 } sysData;
 
 void setup() {
+  // Zero-initialize the persistent data structure to prevent garbage data on boot
+  memset(&sysData, 0, sizeof(sysData));
+
   // Bridge Serial (Internal connection to ESP8266 or via USB for debugging)
   Serial.begin(115200);
 
@@ -128,18 +141,24 @@ void setup() {
   pinMode(PIN_PIR, INPUT);
   // pinMode(PIN_PROX, INPUT_PULLUP); // No proximity sensor connected
   pinMode(PIN_TILT, INPUT_PULLUP);
-  pinMode(PIN_IR, INPUT);
-
   // HC-SR04
   pinMode(PIN_TRIG, OUTPUT);
+  digitalWrite(PIN_TRIG, LOW); // Setup initial state to prevent floating pulses
   pinMode(PIN_ECHO, INPUT);
+
+  pinMode(PIN_IR, INPUT);
 
   // Init I2C & Smart Sensors
   Wire.begin();
 
   dht.begin();
 
+  // Try both common BMP280 addresses (0x76 and 0x77)
   bmpOk = bmp.begin(0x76);
+  if (!bmpOk) {
+    bmpOk = bmp.begin(0x77);
+  }
+
   if (!bmpOk) {
     // BMP280 not found - reads will be skipped
   } else {
@@ -159,7 +178,7 @@ void setup() {
     particleSensor.setPulseAmplitudeGreen(0);
   }
 
-  Serial.println("System Ready. Beginning main loop...");
+  // Serial.println("System Ready. Beginning main loop..."); // Commented to prevent ESP8266 first-read JSON parse error
 }
 
 void loop() {
@@ -231,7 +250,16 @@ void loop() {
     } else {
       // Assuming 10k NTC thermistor with a 10k series resistor
       float Vout = (rawTherm * 5.0) / 1023.0;
-      float R_therm = (10000.0 * Vout) / (5.0 - Vout);
+      float R_therm;
+
+#if THERMISTOR_VCC_SIDE
+      // Wired: VCC -> Thermistor -> ADC Pin -> Resistor -> GND
+      R_therm = (10000.0 * (5.0 - Vout)) / Vout;
+#else
+      // Wired: VCC -> Resistor -> ADC Pin -> Thermistor -> GND (Default)
+      R_therm = (10000.0 * Vout) / (5.0 - Vout);
+#endif
+
       float logR = log(R_therm);
       // Steinhart-Hart approximation
       float tempK = 1.0 / (0.001129148 + (0.000234125 * logR) + (0.0000000876741 * logR * logR * logR));
@@ -240,25 +268,31 @@ void loop() {
   }
 
   // ---------------------------------------------------------
-  // ULTRASONIC POLLING (60ms)
-  // Must be separate because pulseIn() blocks for up to 25ms!
+  // NON-BLOCKING ULTRASONIC POLLING
+  // Trigger every 60ms, but don't hang for the echo return in a blocking way
   // ---------------------------------------------------------
-  if (currentMillis - lastSonicUpdate >= 60) {
+  if (!sonicWaitState && currentMillis - lastSonicUpdate >= 60) {
     lastSonicUpdate = currentMillis;
-
     digitalWrite(PIN_TRIG, LOW);
     delayMicroseconds(2);
     digitalWrite(PIN_TRIG, HIGH);
     delayMicroseconds(10);
     digitalWrite(PIN_TRIG, LOW);
+    
+    sonicWaitState = true;
+    sonicPingMicros = micros();
+  }
 
-    // Timeout set to 23200us (~4 meters). Anything longer returns 0.
-    long duration = pulseIn(PIN_ECHO, HIGH, 23200);
-    if (duration == 0) {
-      sysData.sonic_dist = 0.0; // No echo: report 0
-    } else {
+  // If waiting for echo (State Machine logic)
+  // We wait at least 150us after trigger before reading to ensure the burst is sent
+  if (sonicWaitState && (micros() - sonicPingMicros >= 150)) {
+    // PulseIn with a reduced 15ms timeout (~2.5m range)
+    // This provides a safety net: it avoids blocking for the full 23ms
+    long duration = pulseIn(PIN_ECHO, HIGH, 15000); 
+    if (duration > 0) {
       sysData.sonic_dist = (duration * 0.0343) / 2.0;
     }
+    sonicWaitState = false; // Reset for next cycle
   }
 
   // ---------------------------------------------------------
@@ -308,11 +342,10 @@ void transmitData() {
   s["dht11"]["humidity"] = sysData.ext_hum;
   s["dht11"]["stale"] = !dhtOk;
 
-  // 2. BMP280 (only if initialized)
-  if (bmpOk) {
-    s["bmp280"]["temp"] = sysData.bmp_temp;
-    s["bmp280"]["pressure"] = sysData.bmp_press;
-  }
+  // 2. BMP280
+  s["bmp280"]["temp"] = sysData.bmp_temp;
+  s["bmp280"]["pressure"] = sysData.bmp_press;
+  s["bmp280"]["connected"] = bmpOk;
 
   // 3. Gases
   s["mq2"]["raw"] = sysData.mq2_raw;
