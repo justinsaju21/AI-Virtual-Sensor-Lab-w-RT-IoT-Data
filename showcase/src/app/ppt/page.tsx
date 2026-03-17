@@ -308,8 +308,8 @@ const getSlides = (isDark: boolean): Slide[] => [
                     {/* COL 2: PROCESSING */}
                     <div style={{ display: "flex", flexDirection: "column", gap: 7, padding: "12px 14px", background: "rgba(168,85,247,0.04)", borderRadius: 14, border: "1px solid rgba(168,85,247,0.2)" }}>
                         <div style={{ textAlign: "center" }}>
-                            <h3 style={{ color: (isDark ? "#fff" : "#0f172a"), fontWeight: 800, fontSize: 14, marginBottom: 1 }}>5. 4-LAYER M.C.N.P. MODEL</h3>
-                            <span style={{ color: "#a855f7", fontSize: 10 }}>Digital Twin Reference Framework</span>
+                            <h3 style={{ color: (isDark ? "#fff" : "#0f172a"), fontWeight: 800, fontSize: 14, marginBottom: 1 }}>4. CLOUD PROCESSING ENGINE</h3>
+                            <span style={{ color: "#a855f7", fontSize: 10 }}>M.C.N.P. Computing Layer</span>
                         </div>
 
                         <div style={{ display: "flex", gap: 7 }}>
@@ -370,7 +370,10 @@ const getSlides = (isDark: boolean): Slide[] => [
                         <div style={{ flex: 1, padding: "12px 14px", background: "linear-gradient(135deg, rgba(6,182,212,0.08), rgba(6,182,212,0.02))", border: "1px solid rgba(6,182,212,0.25)", borderRadius: 12 }}>
                             <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 8 }}>
                                 <Layout size={14} color="#22d3ee" />
-                                <h4 style={{ color: "#22d3ee", fontSize: 12, fontWeight: 800 }}>6. WEB DASHBOARD</h4>
+                                <div style={{ display: "flex", flexDirection: "column" }}>
+                                    <h4 style={{ color: "#22d3ee", fontSize: 12, fontWeight: 800, margin: 0 }}>5. WEB DASHBOARD</h4>
+                                    <span style={{ color: (isDark ? "#475569" : "#94a3b8"), fontSize: 9, fontWeight: 700 }}>M.C.N.P. Presentation Layer</span>
+                                </div>
                             </div>
                             {[
                                 { label: "Live Sensor Graphs", sub: "Raw vs Filtered", color: "#a5f3fc", bg: "rgba(6,182,212,0.06)" },
@@ -388,8 +391,8 @@ const getSlides = (isDark: boolean): Slide[] => [
 
                         <div style={{ padding: "8px 12px", background: "rgba(234,179,8,0.06)", border: "1px dashed rgba(234,179,8,0.25)", borderRadius: 10, textAlign: "center" }}>
                             <Zap size={12} color="#eab308" style={{ marginBottom: 2 }} />
-                            <h4 style={{ color: "#eab308", fontSize: 10, fontWeight: 700 }}>7. POWER SUPPLY</h4>
-                            <div style={{ color: "#fde68a", fontSize: 9 }}>5V Regulator → Arduino + ESP</div>
+                            <h4 style={{ color: "#eab308", fontSize: 10, fontWeight: 700 }}>6. POWER INFRASTRUCTURE</h4>
+                            <div style={{ color: "#fde68a", fontSize: 9 }}>5V Regulator → Arduino + ESP Bridge</div>
                         </div>
                     </div>
                 </div>
