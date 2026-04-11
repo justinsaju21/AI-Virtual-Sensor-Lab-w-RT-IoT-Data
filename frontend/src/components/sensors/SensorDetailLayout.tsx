@@ -1,10 +1,57 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useAI } from "@/contexts/AIContext";
 import { useStudentNotes } from "@/hooks/useStudentNotes";
-import { Activity, BookOpen, Code2, FlaskConical, AlertTriangle, FileText, Check, Save, Settings } from "lucide-react";
+import { Activity, BookOpen, Code2, FlaskConical, AlertTriangle, FileText, Check, Save, Settings, Download } from "lucide-react";
 import ReactMarkdown from 'react-markdown';
+import remarkMath from 'remark-math';
+import rehypeKatex from 'rehype-katex';
+import Script from 'next/script';
+
+// Dedicated Mermaid diagram component — uses mermaid.render() (imperative API)
+// wrapped in React.memo to prevent flickering during high-frequency parent re-renders.
+const MermaidDiagram: React.FC<{ chart: string }> = React.memo(({ chart }) => {
+    const divRef = useRef<HTMLDivElement>(null);
+    const idRef = useRef(`mermaid-${Math.random().toString(36).substr(2, 9)}`);
+
+    useEffect(() => {
+        let cancelled = false;
+        const render = async () => {
+            // Poll until mermaid CDN script has finished loading
+            let attempts = 0;
+            while (typeof window !== 'undefined' && !(window as any).mermaid && attempts < 30) {
+                await new Promise(r => setTimeout(r, 150));
+                attempts++;
+            }
+            if (cancelled || !(window as any).mermaid || !divRef.current) return;
+            try {
+                const { svg } = await (window as any).mermaid.render(idRef.current, chart.trim());
+                if (!cancelled && divRef.current) {
+                    divRef.current.innerHTML = svg;
+                    divRef.current.style.opacity = '1';
+                }
+            } catch (e) {
+                console.warn('[Mermaid render error]', e);
+                // Fallback: show raw code block
+                if (!cancelled && divRef.current) {
+                    divRef.current.innerHTML = `<pre style="color:#94a3b8;font-size:13px;white-space:pre-wrap">${chart}</pre>`;
+                    divRef.current.style.opacity = '1';
+                }
+            }
+        };
+        render();
+        return () => { cancelled = true; };
+    }, [chart]);
+
+    return (
+        <div
+            ref={divRef}
+            style={{ opacity: 0, transition: 'opacity 0.3s ease-in-out' }}
+            className="flex justify-center my-6 bg-white/5 p-4 rounded-xl border border-white/10 overflow-x-auto min-h-[80px]"
+        />
+    );
+});
 
 interface TheoryContent {
     physics: string;
@@ -68,7 +115,7 @@ export const SensorDetailLayout: React.FC<SensorDetailLayoutProps> = ({
 
     useEffect(() => {
         updateContext({ page: "sensor-detail", sensor: title, dataSnippet });
-    }, [title, dataSnippet]);
+    }, [title, JSON.stringify(dataSnippet)]);
 
     useEffect(() => {
         // Fetch dynamic Markdown documentation
@@ -79,6 +126,12 @@ export const SensorDetailLayout: React.FC<SensorDetailLayoutProps> = ({
                     const data = await res.json();
                     if (data.success) {
                         setDynamicDocs(data);
+                        // Only auto-select physics if the current selected tab has NO content in the new data
+                        // This prevents "glitching" back to physics if the user already clicked a tab while loading.
+                        const currentHasContent = data.theory?.[activeTheoryTab] || theory?.[activeTheoryTab];
+                        if (!currentHasContent) {
+                            setActiveTheoryTab('physics');
+                        }
                     }
                 }
             } catch (err) {
@@ -88,35 +141,65 @@ export const SensorDetailLayout: React.FC<SensorDetailLayoutProps> = ({
         fetchDocs();
     }, [sensorId]);
 
-    const activeTheory = dynamicDocs ? dynamicDocs.theory : theory;
-    const activeCode = dynamicDocs ? dynamicDocs.arduinoCode : arduinoCode;
+    // Merge: static theory is the base, dynamic docs from MD override specific keys.
+    // This preserves the 'math' tab (static-only) even after dynamic docs load.
+    const activeTheory = {
+        ...theory,
+        ...(dynamicDocs?.theory || {}),
+        // Only override a key if the dynamic value is non-empty
+        physics: (dynamicDocs?.theory?.physics) || theory?.physics,
+        math: theory?.math, // math is always from the static page props
+        circuit: (dynamicDocs?.theory?.circuit) || theory?.circuit,
+        protocol: (dynamicDocs?.theory?.protocol) || theory?.protocol,
+    };
+    // Fall back to static arduinoCode if dynamic parsing returned null
+    const activeCode = dynamicDocs?.arduinoCode || arduinoCode;
 
-    const renderMarkdown = (content: string) => (
-        <ReactMarkdown
-            components={{
-                h1: ({ node, ...props }) => <h1 className="text-2xl font-bold mt-6 mb-4 text-white" {...props} />,
-                h2: ({ node, ...props }) => <h2 className="text-xl font-bold mt-5 mb-3 text-cyan-400" {...props} />,
-                h3: ({ node, ...props }) => <h3 className="text-lg font-semibold mt-4 mb-2 text-indigo-300" {...props} />,
-                p: ({ node, ...props }) => <p className="text-slate-300 mb-4 leading-relaxed" {...props} />,
-                ul: ({ node, ...props }) => <ul className="list-disc pl-5 mb-4 space-y-2 text-slate-300" {...props} />,
-                ol: ({ node, ...props }) => <ol className="list-decimal pl-5 mb-4 space-y-2 text-slate-300" {...props} />,
-                li: ({ node, ...props }) => <li className="text-slate-300" {...props} />,
-                strong: ({ node, ...props }) => <strong className="font-bold text-white" {...props} />,
-                em: ({ node, ...props }) => <em className="italic text-slate-400" {...props} />,
-                code: ({ node, inline, ...props }: any) =>
-                    inline
-                        ? <code className="bg-slate-800 text-cyan-300 px-1 py-0.5 rounded text-sm font-mono" {...props} />
-                        : <pre className="bg-slate-900 p-4 rounded-xl border border-white/10 overflow-x-auto my-4 text-sm font-mono leading-relaxed"><code className="text-slate-300" {...props} /></pre>,
-                blockquote: ({ node, ...props }) => <blockquote className="border-l-4 border-cyan-500/50 pl-4 py-1 my-4 bg-cyan-500/5 rounded-r" {...props} />,
-                table: ({ node, ...props }) => <table className="w-full text-left border-collapse my-4 text-sm text-slate-300 border border-white/10 rounded-lg overflow-hidden" {...props} />,
-                thead: ({ node, ...props }) => <thead className="bg-white/5 border-b border-white/10 text-white font-medium" {...props} />,
-                th: ({ node, ...props }) => <th className="p-3 font-semibold" {...props} />,
-                td: ({ node, ...props }) => <td className="p-3 border-b border-white/5 last:border-0" {...props} />,
-            }}
-        >
-            {content}
-        </ReactMarkdown>
-    );
+    const renderMarkdown = (content: string | null | undefined) => {
+        if (!content) return <p className="text-slate-500 italic">No content available.</p>;
+        return (
+            <div className="mermaid-container animate-in fade-in duration-500">
+                <ReactMarkdown
+                    remarkPlugins={[remarkMath]}
+                    rehypePlugins={[rehypeKatex]}
+                    components={{
+                        h1: ({ node, ...props }) => <h1 className="text-2xl font-bold mt-6 mb-4 text-white" {...props} />,
+                        h2: ({ node, ...props }) => <h2 className="text-xl font-bold mt-5 mb-3 text-cyan-400" {...props} />,
+                        h3: ({ node, ...props }) => <h3 className="text-lg font-semibold mt-4 mb-2 text-indigo-300" {...props} />,
+                        h4: ({ node, ...props }) => <h4 className="text-md font-semibold mt-3 mb-1 text-slate-200" {...props} />,
+                        h5: ({ node, ...props }) => <h5 className="text-sm font-semibold mt-2 mb-1 text-slate-300" {...props} />,
+                        p: ({ node, ...props }) => <div className="text-slate-300 mb-4 leading-relaxed" {...props} />,
+                        ul: ({ node, ...props }) => <ul className="list-disc pl-5 mb-4 space-y-2 text-slate-300" {...props} />,
+                        ol: ({ node, ...props }) => <ol className="list-decimal pl-5 mb-4 space-y-2 text-slate-300" {...props} />,
+                        li: ({ node, ...props }) => <li className="text-slate-300" {...props} />,
+                        strong: ({ node, ...props }) => <strong className="font-bold text-white" {...props} />,
+                        em: ({ node, ...props }) => <em className="italic text-slate-400" {...props} />,
+                        code: ({ node, inline, className, children, ...props }: any) => {
+                            const match = /language-(\w+)/.exec(className || '');
+                            const isMermaid = match && match[1] === 'mermaid';
+                            
+                            if (isMermaid) {
+                                return <MermaidDiagram chart={String(children)} />;
+                            }
+                            
+                            return inline
+                                ? <code className="bg-slate-800 text-cyan-300 px-1 py-0.5 rounded text-sm font-mono" {...props}>{children}</code>
+                                : <pre className="bg-slate-900 p-4 rounded-xl border border-white/10 overflow-x-auto my-4 text-sm font-mono leading-relaxed"><code className="text-slate-300" {...props}>{children}</code></pre>
+                        },
+                        blockquote: ({ node, ...props }) => <blockquote className="border-l-4 border-cyan-500/50 pl-4 py-1 my-4 bg-cyan-500/5 rounded-r" {...props} />,
+                        table: ({ node, ...props }) => <table className="w-full text-left border-collapse my-4 text-sm text-slate-300 border border-white/10 rounded-lg overflow-hidden" {...props} />,
+                        thead: ({ node, ...props }) => <thead className="bg-white/5 border-b border-white/10 text-white font-medium" {...props} />,
+                        th: ({ node, ...props }) => <th className="p-3 font-semibold" {...props} />,
+                        td: ({ node, ...props }) => <td className="p-3 border-b border-white/5 last:border-0" {...props} />,
+                    }}
+                >
+                    {content}
+                </ReactMarkdown>
+            </div>
+        );
+    };
+
+    // MermaidDiagram components handle their own rendering imperatively — no global re-scan needed.
 
     const tabs = [
         { id: "live" as TabType, label: "Live Data", icon: <Activity size={16} /> },
@@ -133,46 +216,182 @@ export const SensorDetailLayout: React.FC<SensorDetailLayoutProps> = ({
         { id: "protocol", label: "Protocol", content: activeTheory?.protocol },
     ].filter(t => t.content);
 
+    // Optimized: Only re-render markdown content when theory changes, 
+    // NOT when live dataSnippet updates (which happens at 5Hz).
+    const memoizedTheoryContent = React.useMemo(() => {
+        const tab = theoryTabs.find(t => t.id === activeTheoryTab);
+        return renderMarkdown(tab?.content || "");
+    }, [activeTheoryTab, JSON.stringify(activeTheory), dynamicDocs]);
+
+    const memoizedExperimentContent = React.useMemo(() => {
+        if (dynamicDocs?.experimentsRaw) return renderMarkdown(dynamicDocs.experimentsRaw);
+        return null;
+    }, [dynamicDocs?.experimentsRaw]);
+
+    const memoizedMistakesContent = React.useMemo(() => {
+        if (dynamicDocs?.mistakesRaw) return renderMarkdown(dynamicDocs.mistakesRaw);
+        return null;
+    }, [dynamicDocs?.mistakesRaw]);
+
     const escapeHtml = (str: string): string => {
+        if (!str) return "";
         const div = document.createElement('div');
         div.appendChild(document.createTextNode(str));
         return div.innerHTML;
     };
 
+    /**
+     * Simple regex-based markdown-to-HTML converter specifically for the print report.
+     * Ensures characters like **bold** and *italics* render correctly in the PDF.
+     */
+    const renderMarkdownForPrint = (text: string): string => {
+        if (!text) return "";
+        let html = text
+            .replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;");
+
+        // Headers (up to h3) - convert to bold colored text since they are inside theory-box
+        html = html.replace(/^### (.*$)/gm, '<br/><b style="color:#0284c7;font-size:1.1em;">$1</b><br/>');
+        html = html.replace(/^## (.*$)/gm, '<br/><b style="color:#0f172a;font-size:1.2em;border-bottom:1px solid #ddd;">$1</b><br/>');
+
+        // Bold & Italics
+        html = html.replace(/\*\*(.*?)\*\*/g, '<b>$1</b>');
+        html = html.replace(/__(.*?)__/g, '<b>$1</b>');
+        html = html.replace(/\*(.*?)\*/g, '<i>$1</i>');
+        html = html.replace(/_(.*?)_/g, '<i>$1</i>');
+
+        // Inline Code
+        html = html.replace(/`(.*?)`/g, '<code style="background:#f1f5f9;padding:2px 4px;border-radius:3px;font-family:monospace;font-size:0.9em;">$1</code>');
+
+        // Bullet points (handle multi-line blocks)
+        html = html.replace(/^\s*[-*]\s+(.*)/gm, '<div style="margin-left:20px;display:list-item;list-style-type:disc;">$1</div>');
+
+        // Newlines/Paragraphs
+        html = html.replace(/\n\n/g, '</p><p style="margin-top:10px;">');
+        html = html.replace(/\n/g, '<br/>');
+
+        return `<div style="word-wrap:break-word;">${html}</div>`;
+    };
+
     const exportPDF = () => {
         const safeTitle = escapeHtml(title);
         const safeSensorId = escapeHtml(sensorId);
-        const safeDescription = escapeHtml(description);
-        const safePhysics = escapeHtml(theory.physics);
+        const safeDescription = escapeHtml(description || dynamicDocs?.description || "");
         const safeNotes = escapeHtml(notes || "(No notes recorded)");
         const safeData = escapeHtml(JSON.stringify(dataSnippet, null, 2));
 
+        // 1. Gather All Text Content
+        const theorySections = theoryTabs.map(t => 
+            `<h3>${escapeHtml(t.label)}</h3><div class="theory-box">${renderMarkdownForPrint(t.content || "")}</div>`
+        ).join('');
+
+        const codeSection = activeCode ? 
+            `<div class="code-box"><pre><code>${escapeHtml(activeCode)}</code></pre></div>` : 
+            `<p class="meta">No code available.</p>`;
+
+        const experimentsHtml = (experiments && experiments.length > 0) ? experiments.map((step, i) => `
+            <div class="list-item">
+                <strong>Step ${i + 1}: ${escapeHtml(step.title)}</strong><br/>
+                <em>Instruction:</em> ${renderMarkdownForPrint(step.instruction)}<br/>
+                ${step.observation ? `<em>Observe:</em> ${renderMarkdownForPrint(step.observation)}<br/>` : ''}
+                ${step.expected ? `<em>Expected:</em> <span style="color:#059669">${renderMarkdownForPrint(step.expected)}</span>` : ''}
+            </div>
+        `).join('') : '<p class="meta">No experiments available.</p>';
+
+        const mistakesHtml = (commonMistakes && commonMistakes.length > 0) ? commonMistakes.map(m => `
+            <div class="list-item">
+                <strong style="color:#d97706;">${escapeHtml(m.title)}</strong><br/>
+                <em>Symptom:</em> ${renderMarkdownForPrint(m.symptom)}<br/>
+                <em>Cause:</em> ${renderMarkdownForPrint(m.cause)}<br/>
+                <em>Fix:</em> <span style="color:#059669">${renderMarkdownForPrint(m.fix)}</span>
+            </div>
+        `).join('') : '<p class="meta">No recorded common mistakes.</p>';
+
+        // 2. Extract Visible Graphs & AI Text
+        const svgs = Array.from(document.querySelectorAll('.recharts-wrapper')).map(el => el.outerHTML).join('<br/><hr/><br/>');
+        const aiExplainer = document.querySelector('.prose')?.innerHTML || '';
+
         const printContent = `
+            <!DOCTYPE html>
             <html>
             <head>
-                <title>${safeTitle} - Lab Report</title>
+                <title>${safeTitle} - Comprehensive Lab Report</title>
                 <style>
-                    body { font-family: Arial, sans-serif; padding: 40px; color: #333; }
-                    h1 { border-bottom: 2px solid #0ea5e9; padding-bottom: 10px; }
-                    h2 { color: #0ea5e9; margin-top: 30px; }
-                    .meta { color: #666; font-size: 14px; }
-                    .notes { background: #f5f5f5; padding: 15px; border-radius: 8px; white-space: pre-wrap; }
-                    .theory { background: #f0f9ff; padding: 15px; border-radius: 8px; white-space: pre-wrap; }
+                    @page { margin: 2cm; size: A4; }
+                    body { font-family: 'Segoe UI', Arial, sans-serif; padding: 0px; color: #222; width: 100%; margin: 0 auto; line-height: 1.6; }
+                    h1 { border-bottom: 3px solid #0ea5e9; padding-bottom: 10px; margin-bottom: 5px; color: #0f172a; font-size: 24pt; }
+                    h2 { border-bottom: 2px solid #cbd5e1; color: #0284c7; margin-top: 30px; padding-bottom: 5px; font-size: 18pt; page-break-after: avoid; }
+                    h3 { color: #334155; margin-top: 20px; font-size: 14pt; }
+                    .meta { color: #64748b; font-size: 10pt; font-style: italic; margin-bottom: 20px; }
+                    .theory-box { background: #f8fafc; padding: 15px; border-left: 4px solid #0ea5e9; border-radius: 4px; font-size: 11pt; margin-bottom: 15px; page-break-inside: auto; }
+                    .code-box { background: #0f172a; color: #e2e8f0; padding: 15px; border-radius: 8px; white-space: pre-wrap; font-size: 10pt; font-family: 'Consolas', 'Courier New', monospace; overflow: hidden; page-break-inside: avoid; }
+                    .notes-box { background: #fefce8; padding: 15px; border: 1px solid #fef08a; border-radius: 8px; font-size: 11pt; margin: 20px 0; page-break-inside: avoid; }
+                    .list-item { background: #f1f5f9; padding: 12px; margin-bottom: 10px; border-radius: 6px; font-size: 11pt; border-left: 3px solid #94a3b8; page-break-inside: avoid; }
+                    .graph-container { background: #fff; padding: 10px; border: 1px solid #e2e8f0; border-radius: 8px; margin-top: 15px; text-align: center; page-break-inside: avoid; }
+                    .ai-box { background: #f5f3ff; border: 1px solid #ddd6fe; border-left: 4px solid #8b5cf6; padding: 15px; border-radius: 8px; margin-top: 20px; font-size: 11pt; page-break-inside: avoid; }
+                    .recharts-wrapper { background: #0f172a; padding: 10px; border-radius: 8px; max-width: 100% !important; height: auto !important; display: block; margin: auto; }
+                    .recharts-text, .recharts-cartesian-axis-tick-value { fill: #fff !important; font-size: 10px; }
+                    svg { max-width: 100% !important; height: auto !important; }
+                    
+                    /* Page Break Management */
+                    .page-break { page-break-before: always; }
+                    
+                    @media print {
+                        body { width: 100%; border:0; margin:0; padding:0; }
+                        .recharts-wrapper { background: #fff; border: 1px solid #ccc; }
+                        .recharts-text, .recharts-cartesian-axis-tick-value { fill: #000 !important; }
+                        button { display: none; }
+                    }
                 </style>
             </head>
             <body>
                 <h1>${safeTitle}</h1>
-                <p class="meta">Sensor ID: ${safeSensorId} | Generated: ${new Date().toLocaleString()}</p>
-                <p>${safeDescription}</p>
+                <p class="meta">Sensor ID: <strong>${safeSensorId}</strong> | Report Generated: ${new Date().toLocaleString()}</p>
+                <p style="font-size: 16px;">${safeDescription}</p>
                 
-                <h2>Theory: Physics</h2>
-                <div class="theory">${safePhysics}</div>
-                
-                <h2>My Observations</h2>
-                <div class="notes">${safeNotes}</div>
-                
-                <h2>Current Reading</h2>
-                <pre>${safeData}</pre>
+                <div class="notes-box">
+                    <strong>Student Observations:</strong><br/><br/>
+                    ${safeNotes}
+                </div>
+
+                ${aiExplainer ? `
+                <div class="ai-box">
+                    <strong style="color: #6d28d9;">✨ AI Context / Analysis:</strong><br/><br/>
+                    ${aiExplainer}
+                </div>
+                ` : ''}
+
+                <h2>1. Live Sensor Data Capture</h2>
+                <div class="active-data" style="background:#f1f5f9; padding: 10px; border-radius: 6px;">
+                    <pre style="margin:0; font-weight:bold; font-size:14px; color:#0f172a;">${safeData}</pre>
+                </div>
+
+                ${svgs ? `
+                <h3>Real-Time Signal Graphs</h3>
+                <div class="graph-container">
+                    ${svgs}
+                </div>
+                ` : '<p class="meta">No live charts active in view.</p>'}
+
+                <div class="page-break"></div>
+
+                <h2>2. Theoretical Foundation</h2>
+                ${theorySections}
+
+                <div class="page-break"></div>
+
+                <h2>3. Guided Experiments</h2>
+                ${experimentsHtml}
+
+                <h2>4. Common Pitfalls & Troubleshooting</h2>
+                ${mistakesHtml}
+
+                <div class="page-break"></div>
+
+                <h2>5. Reference Arduino Implementation</h2>
+                ${codeSection}
+
             </body>
             </html>
         `;
@@ -180,12 +399,64 @@ export const SensorDetailLayout: React.FC<SensorDetailLayoutProps> = ({
         if (printWindow) {
             printWindow.document.write(printContent);
             printWindow.document.close();
-            printWindow.print();
+            // Allow SVG rendering time
+            setTimeout(() => {
+                printWindow.print();
+            }, 500);
         }
+    };
+
+    const exportCSV = () => {
+        // Build CSV from dataSnippet keys
+        const rows: string[][] = [];
+        rows.push(["Field", "Value", "ExportedAt"]);
+        const ts = new Date().toISOString();
+        const flatten = (obj: any, prefix = "") => {
+            Object.entries(obj || {}).forEach(([k, v]) => {
+                if (typeof v === "object" && v !== null) flatten(v, prefix ? `${prefix}.${k}` : k);
+                else rows.push([prefix ? `${prefix}.${k}` : k, String(v), ts]);
+            });
+        };
+        flatten(dataSnippet);
+        const csv = rows.map(r => r.map(c => `"${c.replace(/"/g, '""')}"`).join(",")).join("\n");
+        const blob = new Blob([csv], { type: "text/csv" });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = `${sensorId}_data_${new Date().toISOString().slice(0,19).replace(/:/g,"-")}.csv`;
+        a.click();
+        URL.revokeObjectURL(url);
     };
 
     return (
         <div className="space-y-6 animate-in fade-in duration-500">
+            <link
+                rel="stylesheet"
+                href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css"
+                integrity="sha384-G79zG0V+4YORJWmSDws9S9qx9ASvgH6t6v34qD+M/fG5/RUp867tS6/5zj5S9j9J"
+                crossOrigin="anonymous"
+            />
+            <Script
+                src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"
+                strategy="afterInteractive"
+                onLoad={() => {
+                    if (typeof window !== 'undefined' && (window as any).mermaid) {
+                        (window as any).mermaid.initialize({
+                            startOnLoad: false, // We use imperative rendering via MermaidDiagram component
+                            theme: 'dark',
+                            themeVariables: {
+                                darkMode: true,
+                                primaryColor: '#0ea5e9',
+                                primaryTextColor: '#fff',
+                                primaryBorderColor: '#0ea5e9',
+                                lineColor: '#38bdf8',
+                                secondaryColor: '#1e293b',
+                                tertiaryColor: '#0f172a'
+                            }
+                        });
+                    }
+                }}
+            />
             {/* Header */}
             <div className="flex flex-col gap-2 border-b border-white/5 pb-4">
                 <div className="flex items-center justify-between">
@@ -202,10 +473,16 @@ export const SensorDetailLayout: React.FC<SensorDetailLayoutProps> = ({
                             </button>
                         )}
                     </div>
-                    <button onClick={exportPDF} className="flex items-center gap-2 px-3 py-1.5 text-sm bg-cyan-500/10 text-cyan-400 border border-cyan-500/30 rounded-lg hover:bg-cyan-500/20 transition">
-                        <FileText size={14} />
-                        Export Report
-                    </button>
+                    <div className="flex items-center gap-2">
+                        <button onClick={exportCSV} className="flex items-center gap-2 px-3 py-1.5 text-sm bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 rounded-lg hover:bg-emerald-500/20 transition">
+                            <Download size={14} />
+                            CSV
+                        </button>
+                        <button onClick={exportPDF} className="flex items-center gap-2 px-3 py-1.5 text-sm bg-cyan-500/10 text-cyan-400 border border-cyan-500/30 rounded-lg hover:bg-cyan-500/20 transition">
+                            <FileText size={14} />
+                            Export Report
+                        </button>
+                    </div>
                 </div>
                 <p className="text-slate-400 text-sm max-w-2xl">{dynamicDocs?.description || description}</p>
             </div>
@@ -281,11 +558,7 @@ export const SensorDetailLayout: React.FC<SensorDetailLayoutProps> = ({
                             ))}
                         </div>
                         <div className="p-6 rounded-2xl bg-white/5 border border-white/5">
-                            {dynamicDocs ? renderMarkdown(theoryTabs.find(t => t.id === activeTheoryTab)?.content || "") : (
-                                <pre className="text-sm text-slate-300 leading-relaxed whitespace-pre-wrap font-sans">
-                                    {theoryTabs.find(t => t.id === activeTheoryTab)?.content}
-                                </pre>
-                            )}
+                            {memoizedTheoryContent}
                         </div>
                     </div>
                 )}
@@ -316,9 +589,9 @@ export const SensorDetailLayout: React.FC<SensorDetailLayoutProps> = ({
                             <FlaskConical className="text-emerald-400" size={20} />
                             Guided Experiment
                         </h3>
-                        {dynamicDocs?.experimentsRaw ? (
+                        {memoizedExperimentContent ? (
                             <div className="p-6 rounded-xl bg-white/5 border border-white/5">
-                                {renderMarkdown(dynamicDocs.experimentsRaw)}
+                                {memoizedExperimentContent}
                             </div>
                         ) : experiments && experiments.length > 0 ? (
                             <div className="space-y-4">
@@ -361,9 +634,9 @@ export const SensorDetailLayout: React.FC<SensorDetailLayoutProps> = ({
                             <AlertTriangle className="text-amber-400" size={20} />
                             Common Mistakes & Troubleshooting
                         </h3>
-                        {dynamicDocs?.mistakesRaw ? (
+                        {memoizedMistakesContent ? (
                             <div className="p-6 rounded-xl bg-amber-500/5 border border-amber-500/20">
-                                {renderMarkdown(dynamicDocs.mistakesRaw)}
+                                {memoizedMistakesContent}
                             </div>
                         ) : commonMistakes && commonMistakes.length > 0 ? (
                             <div className="space-y-4">

@@ -3,6 +3,7 @@
 import React from "react";
 
 interface CardProps {
+    onClick?: () => void;
     children: React.ReactNode;
     className?: string;
     variant?: "default" | "gradient" | "glass";

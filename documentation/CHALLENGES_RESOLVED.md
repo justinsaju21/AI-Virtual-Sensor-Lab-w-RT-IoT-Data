@@ -27,5 +27,12 @@ This document summarizes the major technical hurdles encountered during the Sess
 - **Challenge:** 9600 baud was too slow for high-frequency data packets, causing a buildup in the serial buffer. 
 - **Solution:** Standardized the entire project on **115200 baud**. This provides enough bandwidth for the large 2048-byte JSON payloads without delay.
 
+## 🔴 7. The 5Hz Goal vs. Hardware Blocking
+- **Challenge:** The system had a 2-4 second latency floor. Any attempt to speed it up caused serial buffer overflows or corrupted data because the DHT11 (2s read limit) was blocking the main loop.
+- **Solution:** 
+    1. **Decoupling**: Decoupled the physical sensor read (2s) from the reporting transmission (200ms).
+    2. **Handshake**: Implemented a "Stop-and-Wait" ACK protocol between Mega and ESP8266 to perfectly sync high-speed bursts.
+    3. **Thermal Management**: Identified thermal regulator sag on the hybrid board at 5Hz and implemented external 5V power routing for high-draw gas sensors.
+
 ---
-**Status:** All these challenges are now **Resolved** in the current `main` branch.
+**Status:** All these challenges are now **Resolved** in the current stable release.

@@ -22,7 +22,9 @@ import {
     Heart,
     Gauge,
     Gamepad2,
+    Thermometer,
 } from "lucide-react";
+import { sensorGroups } from "@/config/sensorGroups";
 
 interface SidebarProps {
     collapsed: boolean;
@@ -36,25 +38,38 @@ export const Sidebar: React.FC<SidebarProps> = ({ collapsed, onToggle }) => {
         { icon: <LayoutDashboard size={20} />, label: "Dashboard", href: "/" },
     ];
 
-    const sensors = [
-        { icon: <ThermometerIcon />, label: "Temperature", href: "/sensors/temperature" },
-        { icon: <Droplets size={18} />, label: "Humidity", href: "/sensors/humidity" },
-        { icon: <Flame size={18} />, label: "Gas Sensor", href: "/sensors/gas" },
-        { icon: <Activity size={18} />, label: "Alcohol (MQ3)", href: "/sensors/mq3" },
-        { icon: <Sun size={18} />, label: "Light Sensor", href: "/sensors/light" },
-        { icon: <Radar size={18} />, label: "Ultrasonic", href: "/sensors/ultrasonic" },
-        { icon: <Move size={18} />, label: "Motion", href: "/sensors/motion" }, // PIR kept for existing page ref
-        { icon: <Magnet size={18} />, label: "Hall Effect", href: "/sensors/hall" },
-        { icon: <Mic size={18} />, label: "Sound", href: "/sensors/sound" },
-        { icon: <Eye size={18} />, label: "IR Obstacle", href: "/sensors/ir" },
-        { icon: <Flame size={18} />, label: "Flame", href: "/sensors/flame" },
-        { icon: <Radar size={18} />, label: "Proximity", href: "/sensors/proximity" },
-        { icon: <Gauge size={18} />, label: "Pressure", href: "/sensors/pressure" },
-        { icon: <Hand size={18} />, label: "Touch", href: "/sensors/touch" },
-        { icon: <Move size={18} />, label: "Tilt", href: "/sensors/tilt" },
-        { icon: <Heart size={18} />, label: "Heartbeat", href: "/sensors/heartbeat" },
-        { icon: <Gamepad2 size={18} />, label: "Joystick", href: "/sensors/joystick" },
-    ];
+    // Map sensor IDs to their routes (using kebab-case for URLs)
+    const sensorRouteMap: Record<string, string> = {
+        dht11: "/sensors/dht11",
+        bmp280: "/sensors/bmp280",
+        mq2: "/sensors/mq2",
+        mq3: "/sensors/mq3",
+        ultrasonic: "/sensors/ultrasonic",
+        sound: "/sensors/sound",
+        flame: "/sensors/flame",
+        ldr: "/sensors/ldr",
+        ir: "/sensors/ir",
+        pir: "/sensors/pir",
+        proximity: "/sensors/proximity",
+        hall: "/sensors/hall",
+        touch: "/sensors/touch",
+        max30102: "/sensors/max30102",
+        thermistor: "/sensors/thermistor",
+        tilt: "/sensors/tilt",
+        joystick: "/sensors/joystick",
+    };
+
+    // Generate sensors from sensorGroups with proper routing
+    const sensors = sensorGroups.map((sensor) => {
+        // Get the icon component from sensorGroups
+        const IconComponent = sensor.icon;
+        return {
+            icon: <IconComponent size={18} />,
+            label: sensor.name,
+            href: sensorRouteMap[sensor.id] || `/sensors/${sensor.id}`,
+            sensorId: sensor.id,
+        };
+    });
 
     return (
         <aside

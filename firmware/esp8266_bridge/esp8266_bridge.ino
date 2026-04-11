@@ -31,6 +31,8 @@ HTTPClient http;
 String inputBuffer = "";
 unsigned long lastWifiCheck = 0;
 bool wifiReconnecting = false;
+unsigned long lastHTTPRequest = 0;
+const unsigned long HTTP_REQUEST_INTERVAL = 200; // Limit HTTP requests to 5Hz (200ms)
 
 void setup() {
   Serial.begin(115200);
@@ -58,8 +60,8 @@ void setup() {
     Serial.println("\nWiFi Failed. Will retry non-blocking in loop...");
   }
 
-  // Set HTTP timeout to reduce blocking during POST
-  http.setTimeout(3000);
+  // Set HTTP timeout to reduce blocking during POST (reduced from 3000ms to 2000ms)
+  http.setTimeout(2000);
 }
 
 void sendToServer(String jsonData) {
@@ -99,6 +101,9 @@ void sendToServer(String jsonData) {
     Serial.printf("HTTP Error: %d\n", code);
   }
   http.end();
+  
+  // Handshake ACK: Tell Mega we are ready for next packet
+  Serial.println("ACK");
 }
 
 void loop() {
@@ -125,7 +130,11 @@ void loop() {
     char c = Serial.read();
     if (c == '\n') {
       if (inputBuffer.length() > 0) {
-        sendToServer(inputBuffer);
+        // Queue for sending if enough time has passed since last request
+        if (millis() - lastHTTPRequest >= HTTP_REQUEST_INTERVAL) {
+          sendToServer(inputBuffer);
+          lastHTTPRequest = millis();
+        }
         inputBuffer = "";
       }
     } else if (c != '\r') {

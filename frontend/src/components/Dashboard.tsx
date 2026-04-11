@@ -1,34 +1,34 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useSocket } from "../hooks/useSocket";
-import { MetricCard } from "./MetricCard";
+import { SensorGroupCard } from "./SensorGroupCard";
+import { SensorDetailModal } from "./sensors/SensorDetailModal";
 import { Card, CardHeader, CardTitle, CardContent } from "./ui/Card";
 import { Badge } from "./ui/Badge";
 import { LiveChart } from "./charts/LiveChart";
+import { useAI } from "@/contexts/AIContext";
 import {
-    Thermometer,
-    Droplets,
-    Flame,
-    Sun,
-    Activity,
-    Radar,
-    Wifi,
-    WifiOff,
-    Clock,
-    Zap,
-    TrendingUp,
-    Server,
-    BarChart3,
-    Cpu,
-    Mic,
-    Magnet,
-    Move,
-    Hand,
-    Heart,
-    Eye,
-    Gauge,
-    Gamepad2,
+  sensorGroups,
+  sensorCategories,
+  SensorCategory,
+  getCategoryLabel,
+} from "@/config/sensorGroups";
+import {
+  Thermometer,
+  Droplets,
+  Flame,
+  Sun,
+  Activity,
+  Radar,
+  Wifi,
+  WifiOff,
+  Clock,
+  Zap,
+  TrendingUp,
+  Server,
+  BarChart3,
+  Cpu,
 } from "lucide-react";
 
 interface DataPoint {
@@ -40,9 +40,18 @@ const MAX_DATA_POINTS = 30;
 
 export const Dashboard = () => {
     const { isConnected, data, error } = useSocket();
+    const { updateContext } = useAI();
     // History states for charts
     const [tempHistory, setTempHistory] = useState<DataPoint[]>([]);
     const [soundHistory, setSoundHistory] = useState<DataPoint[]>([]);
+    // Modal state for sensor detail view
+    const [detailModalOpen, setDetailModalOpen] = useState(false);
+    const [selectedSensorId, setSelectedSensorId] = useState<string | null>(null);
+    // Category filter
+    const [activeCategory, setActiveCategory] = useState<SensorCategory | "ALL">("ALL");
+    // Live update rate counter
+    const [updateRate, setUpdateRate] = useState<number>(0);
+    const tickTimestamps = useRef<number[]>([]);
 
     useEffect(() => {
         if (data) {
@@ -59,8 +68,40 @@ export const Dashboard = () => {
 
             setTempHistory((prev) => [...prev, { time: timeLabel, value: temp }].slice(-MAX_DATA_POINTS));
             setSoundHistory((prev) => [...prev, { time: timeLabel, value: sound }].slice(-MAX_DATA_POINTS));
+
+            // Measure actual update rate
+            const now = Date.now();
+            tickTimestamps.current = [...tickTimestamps.current, now].filter(t => now - t < 5000);
+            const count = tickTimestamps.current.length;
+            setUpdateRate(parseFloat((count / 5).toFixed(1)));
         }
     }, [data]);
+
+    // Handle sensor group click - updates AI context and opens detail modal
+    const handleSensorClick = (sensorId: string, sensorName: string, sensorData: any) => {
+        updateContext({
+            page: "dashboard",
+            sensor: sensorName,
+            dataSnippet: sensorData,
+        });
+        setSelectedSensorId(sensorId);
+        setDetailModalOpen(true);
+    };
+
+    // Handle sensor navigation in modal
+    const handleSensorNavigation = (direction: 'prev' | 'next') => {
+        const allSensorIds = sensorGroups.map(g => g.id);
+        const currentIndex = allSensorIds.indexOf(selectedSensorId || '');
+        let nextIndex = currentIndex;
+        
+        if (direction === 'next') {
+            nextIndex = (currentIndex + 1) % allSensorIds.length;
+        } else {
+            nextIndex = (currentIndex - 1 + allSensorIds.length) % allSensorIds.length;
+        }
+        
+        setSelectedSensorId(allSensorIds[nextIndex]);
+    };
 
     // Loading state
     if (!isConnected) {
@@ -90,9 +131,6 @@ export const Dashboard = () => {
         return `${minutes}m ${seconds}s`;
     };
 
-    // Sensor Values with safe defaults
-    const s = data.sensors;
-
     return (
         <div className="space-y-6">
             {/* Page Header */}
@@ -101,10 +139,15 @@ export const Dashboard = () => {
                     <h1 className="text-2xl font-bold text-white">Sensor Dashboard</h1>
                     <p className="text-slate-500 text-sm mt-1">Monitor 17 connected IoT sensors in real-time</p>
                 </div>
-                <Badge variant="success" pulse size="md">
-                    <Zap className="h-3 w-3 mr-1" />
-                    Live Updates
-                </Badge>
+                <div className="flex items-center gap-2">
+                    <span className="text-xs font-mono px-2 py-1 rounded-full bg-cyan-500/10 border border-cyan-500/20 text-cyan-400">
+                        {updateRate > 0 ? `${updateRate} Hz` : "--"}
+                    </span>
+                    <Badge variant="success" pulse size="md">
+                        <Zap className="h-3 w-3 mr-1" />
+                        Live Updates
+                    </Badge>
+                </div>
             </div>
 
             {/* System Overview */}
@@ -164,204 +207,71 @@ export const Dashboard = () => {
                 </div>
             </Card>
 
-            {/* Sensor Cards Grid */}
+            {/* Sensor Groups Grid */}
             <div>
-                <h2 className="text-sm font-medium text-slate-400 mb-4 flex items-center gap-2">
-                    <BarChart3 className="h-4 w-4" />
-                    Live Readings
-                </h2>
-                <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-                    {/* 1. Ultraviolet/Distance */}
-                    <MetricCard
-                        title="Distance"
-                        value={(() => { const d = s.ultrasonic?.distance_cm ?? 0; return d < 0 ? "N/A" : d; })()}
-                        unit="cm"
-                        icon={<Radar className="h-5 w-5" />}
-                        iconColor="text-purple-400"
-                        status={s.ultrasonic?.isReal ? "success" : "ok"}
-                        subtitle={s.ultrasonic?.isReal ? "REAL HARDWARE" : "HC-SR04 (Mock)"}
-                    />
-                    
-                    {/* 2. DHT11 Temp */}
-                    <MetricCard
-                        title="Temperature"
-                        value={s.dht11?.temp ?? s.dht22?.temperature ?? 0}
-                        unit="°C"
-                        icon={<Thermometer className="h-5 w-5" />}
-                        iconColor="text-orange-400"
-                        status={s.dht11?.isReal ? "success" : "ok"}
-                        subtitle={s.dht11?.isReal ? "REAL HARDWARE" : "DHT11 (Mock)"}
-                    />
-                    
-                    {/* 3. DHT11 Humidity */}
-                    <MetricCard
-                        title="Humidity"
-                        value={s.dht11?.humidity ?? s.dht22?.humidity ?? 0}
-                        unit="%"
-                        icon={<Droplets className="h-5 w-5" />}
-                        iconColor="text-blue-400"
-                        status={s.dht11?.isReal ? "success" : "ok"}
-                        subtitle={s.dht11?.isReal ? "REAL HARDWARE" : "DHT11 (Mock)"}
-                    />
-                    
-                    {/* 4. MQ-3 Alcohol */}
-                    <MetricCard
-                        title="Alcohol Level"
-                        value={s.mq3?.raw ?? s.mq3?.value ?? 0}
-                        unit="raw"
-                        icon={<Activity className="h-5 w-5" />}
-                        iconColor="text-emerald-400"
-                        status={s.mq3?.isReal ? "success" : (s.mq3?.raw ?? 0) > 400 ? "warning" : "ok"}
-                        subtitle={s.mq3?.isReal ? "REAL HARDWARE" : "MQ3 (Mock)"}
-                    />
-                    
-                    {/* 5. MQ-2 Gas */}
-                    <MetricCard
-                        title="Gas/Smoke"
-                        value={s.mq2?.raw ?? s.mq2?.value ?? 0}
-                        unit="ppm"
-                        icon={<Flame className="h-5 w-5" />}
-                        iconColor="text-red-400"
-                        status={s.mq2?.isReal ? "success" : (s.mq2?.raw ?? 0) > 300 ? "warning" : "ok"}
-                        subtitle={s.mq2?.isReal ? "REAL HARDWARE" : "MQ2 (Mock)"}
-                    />
-                    
-                    {/* 6. Hall Effect */}
-                    <MetricCard
-                        title="Magnetic Field"
-                        value={s.hall?.active ? "DETECTED" : "Clear"}
-                        icon={<Magnet className="h-5 w-5" />}
-                        iconColor="text-indigo-400"
-                        status={s.hall?.isReal ? "success" : s.hall?.active ? "warning" : "ok"}
-                        subtitle={s.hall?.isReal ? "REAL HARDWARE" : "Hall (Mock)"}
-                    />
-                    
-                    {/* 7. Mic/Sound */}
-                    <MetricCard
-                        title="Sound Level"
-                        value={s.sound?.analog ?? s.mic?.level ?? 0}
-                        unit="raw"
-                        icon={<Mic className="h-5 w-5" />}
-                        iconColor="text-pink-400"
-                        status={s.sound?.isReal ? "success" : "ok"}
-                        subtitle={s.sound?.isReal ? "REAL HARDWARE" : "Sound (Mock)"}
-                    />
-                    
-                    {/* 8. IR Object */}
-                    <MetricCard
-                        title="IR Obstacle"
-                        value={(s.ir?.active || s.ir?.detected) ? "DETECTED" : "Clear"}
-                        icon={<Eye className="h-5 w-5" />}
-                        iconColor="text-cyan-400"
-                        status={s.ir?.isReal ? "success" : (s.ir?.active || s.ir?.detected) ? "warning" : "ok"}
-                        subtitle={s.ir?.isReal ? "REAL HARDWARE" : "IR (Mock)"}
-                    />
-                    
-                    {/* 9. Flame */}
-                    <MetricCard
-                        title="Flame Detect"
-                        value={s.flame?.analog ?? s.flame?.value ?? 0}
-                        unit="val"
-                        icon={<Flame className="h-5 w-5" />}
-                        iconColor="text-orange-500"
-                        status={s.flame?.isReal ? "success" : (s.flame?.analog ?? 1023) < 500 ? "error" : "ok"}
-                        subtitle={s.flame?.isReal ? "REAL HARDWARE" : "Flame (Mock)"}
-                    />
-                    
-                    {/* 10. Proximity */}
-                    <MetricCard
-                        title="Proximity"
-                        value={s.proximity?.active ? "NEAR" : "Far"}
-                        icon={<Radar className="h-5 w-5" />}
-                        iconColor="text-teal-400"
-                        status={s.proximity?.isReal ? "success" : s.proximity?.active ? "warning" : "ok"}
-                        subtitle={s.proximity?.isReal ? "REAL HARDWARE" : "Mock Only (No HW)"}
-                    />
-                    
-                    {/* 11. Pressure */}
-                    <MetricCard
-                        title="Pressure"
-                        value={Math.round(s.bmp280?.pressure ?? s.bmp180?.pressure ?? 0)}
-                        unit="hPa"
-                        icon={<Gauge className="h-5 w-5" />}
-                        iconColor="text-sky-400"
-                        status={s.bmp280?.isReal ? "success" : "ok"}
-                        subtitle={s.bmp280?.isReal ? "REAL HARDWARE" : "BMP280 (Mock)"}
-                    />
-                    
-                    {/* 12. Touch */}
-                    <MetricCard
-                        title="Touch Input"
-                        value={s.touch?.active ? "TOUCHED" : "Released"}
-                        icon={<Hand className="h-5 w-5" />}
-                        iconColor="text-violet-400"
-                        status={s.touch?.isReal ? "success" : s.touch?.active ? "info" : "ok"}
-                        subtitle={s.touch?.isReal ? "REAL HARDWARE" : "Touch (Mock)"}
-                    />
-                    
-                    {/* 13. LDR */}
-                    <MetricCard
-                        title="Light Level"
-                        value={s.ldr?.raw ?? s.ldr?.value ?? 0}
-                        unit="raw"
-                        icon={<Sun className="h-5 w-5" />}
-                        iconColor="text-yellow-400"
-                        status={s.ldr?.isReal ? "success" : "ok"}
-                        subtitle={s.ldr?.isReal ? "REAL HARDWARE" : "LDR (Mock)"}
-                    />
-                    
-                    {/* 14. Tilt */}
-                    <MetricCard
-                        title="Tilt Status"
-                        value={s.tilt?.active ? "TILTED" : "Level"}
-                        icon={<Move className="h-5 w-5" />}
-                        iconColor="text-rose-400"
-                        status={s.tilt?.isReal ? "success" : s.tilt?.active ? "warning" : "ok"}
-                        subtitle={s.tilt?.isReal ? "REAL HARDWARE" : "Tilt (Mock)"}
-                    />
-                    
-                    {/* 15. Pulse/Heart */}
-                    <MetricCard
-                        title="Pulse/Heart"
-                        value={s.max30102?.bpm ?? s.heartbeat?.value ?? 0}
-                        unit="bpm"
-                        icon={<Heart className="h-5 w-5" />}
-                        iconColor="text-red-500"
-                        status={s.max30102?.isReal ? "success" : "ok"}
-                        subtitle={s.max30102?.isReal ? "REAL HARDWARE" : "MAX30102 (Mock)"}
-                    />
-
-                    {/* 16. Body Temp (Thermistor) */}
-                    <MetricCard
-                        title="Body Temp"
-                        value={s.thermistor?.temp ?? 0}
-                        unit="°C"
-                        icon={<Thermometer className="h-5 w-5" />}
-                        iconColor="text-orange-300"
-                        status={s.thermistor?.isReal ? "success" : "ok"}
-                        subtitle={s.thermistor?.isReal ? "NTC Probe" : "NTC (Mock)"}
-                    />
-
-                    {/* 17. Joystick */}
-                    <MetricCard
-                        title="Joystick"
-                        value={`X:${s.joystick?.x ?? 0} Y:${s.joystick?.y ?? 0}`}
-                        icon={<Gamepad2 className="h-5 w-5" />}
-                        iconColor="text-green-400"
-                        status={s.joystick?.isReal ? "success" : (s.joystick?.button_pressed || s.joystick?.btn) ? "info" : "ok"}
-                        subtitle={s.joystick?.isReal ? "REAL HARDWARE" : "Joystick (Mock)"}
-                    />
-
-                    {/* 18. PIR Motion */}
-                    <MetricCard
-                        title="Motion (PIR)"
-                        value={s.pir?.active ? "DETECTED" : "Clear"}
-                        icon={<Move className="h-5 w-5" />}
-                        iconColor="text-lime-400"
-                        status={s.pir?.isReal ? "success" : s.pir?.active ? "warning" : "ok"}
-                        subtitle={s.pir?.isReal ? "REAL HARDWARE" : "PIR (Mock)"}
-                    />
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
+                    <h2 className="text-sm font-medium text-slate-400 flex items-center gap-2">
+                        <BarChart3 className="h-4 w-4" />
+                        Live Sensor Readings
+                    </h2>
+                    {/* Category Filter Tabs */}
+                    <div className="flex gap-1 p-1 bg-white/5 rounded-xl flex-wrap">
+                        <button
+                            onClick={() => setActiveCategory("ALL")}
+                            className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
+                                activeCategory === "ALL"
+                                    ? "bg-cyan-500/20 text-cyan-400 border border-cyan-500/30"
+                                    : "text-slate-400 hover:text-white hover:bg-white/5"
+                            }`}
+                        >
+                            All
+                        </button>
+                        {Object.values(SensorCategory).map((cat) => (
+                            <button
+                                key={cat}
+                                onClick={() => setActiveCategory(cat)}
+                                className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
+                                    activeCategory === cat
+                                        ? "bg-cyan-500/20 text-cyan-400 border border-cyan-500/30"
+                                        : "text-slate-400 hover:text-white hover:bg-white/5"
+                                }`}
+                            >
+                                {getCategoryLabel(cat)}
+                            </button>
+                        ))}
+                    </div>
                 </div>
+
+                {/* Render sensors by category */}
+                {Object.values(SensorCategory).map((category) => {
+                    if (activeCategory !== "ALL" && activeCategory !== category) return null;
+
+                    const sensorsInCategory = sensorCategories[category];
+                    const visibleGroups = sensorGroups.filter(
+                        (group) => sensorsInCategory.includes(group.id)
+                    );
+
+                    if (visibleGroups.length === 0) return null;
+
+                    return (
+                        <div key={category} className="mb-8">
+                            <h3 className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-3 px-1">
+                                {getCategoryLabel(category)}
+                            </h3>
+                            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+                                {visibleGroups.map((group) => (
+                                    <SensorGroupCard
+                                        key={group.id}
+                                        group={group}
+                                        sensorData={data.sensors}
+                                        onClickSensor={handleSensorClick}
+                                        isClickable={true}
+                                    />
+                                ))}
+                            </div>
+                        </div>
+                    );
+                })}
             </div>
 
             {/* Charts Grid */}
@@ -427,6 +337,16 @@ export const Dashboard = () => {
                     <span>Arduino Mega 2560 + ESP8266</span>
                 </div>
             </div>
+
+            {/* Sensor Detail Modal */}
+            <SensorDetailModal
+                isOpen={detailModalOpen}
+                onClose={() => setDetailModalOpen(false)}
+                sensorId={selectedSensorId}
+                sensorData={data.sensors}
+                onNext={() => handleSensorNavigation('next')}
+                onPrev={() => handleSensorNavigation('prev')}
+            />
         </div>
     );
 };

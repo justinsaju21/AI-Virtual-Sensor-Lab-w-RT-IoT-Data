@@ -85,12 +85,20 @@ unsigned long sonicPingMicros = 0;
 // Standard polling intervals (in ms)
 const unsigned long INTERVAL_FAST = 50;    // Joystick, Touch, Tilt
 const unsigned long INTERVAL_MED  = 200;   // Gases, LDR, Flame, Sound
-const unsigned long INTERVAL_SLOW = 2000;  // DHT11, Serial TX
+const unsigned long INTERVAL_DHT  = 2000;  // DHT11 minimum read interval (2 sec)
+const unsigned long INTERVAL_TX   = 200;   // Transmit ALL data every 200ms (5Hz update)
 
 unsigned long lastFastUpdate = 0;
 unsigned long lastMedUpdate  = 0;
-unsigned long lastSlowUpdate = 0;
+unsigned long lastDHTUpdate  = 0;
+unsigned long lastTXUpdateRecord = 0; // Renamed to avoid confusion
 unsigned long lastSonicUpdate = 0;
+
+// Handshake State
+bool waitingForAck = false;
+unsigned long lastTXAttempt = 0;
+const unsigned long TX_TIMEOUT = 5000; // 5s safety timeout to reset handshake
+
 
 // Data structure holding all current readings
 struct SensorData {
@@ -131,6 +139,9 @@ void setup() {
 
   // Bridge Serial (Internal connection to ESP8266 or via USB for debugging)
   Serial.begin(115200);
+  
+  // Give ESP8266 time to boot and start listening
+  delay(500);
 
   // Setup Digital Inputs
   pinMode(PIN_TOUCH, INPUT);
@@ -162,11 +173,12 @@ void setup() {
   if (!bmpOk) {
     // BMP280 not found - reads will be skipped
   } else {
+    // Reduced sampling and faster standby to minimize latency (was STANDBY_MS_500)
     bmp.setSampling(Adafruit_BMP280::MODE_NORMAL,
-                    Adafruit_BMP280::SAMPLING_X2,
-                    Adafruit_BMP280::SAMPLING_X16,
-                    Adafruit_BMP280::FILTER_X16,
-                    Adafruit_BMP280::STANDBY_MS_500);
+                    Adafruit_BMP280::SAMPLING_X1,  // Reduced from X2 for speed
+                    Adafruit_BMP280::SAMPLING_X2,  // Reduced from X16 for speed
+                    Adafruit_BMP280::FILTER_OFF,   // Disabled for faster response
+                    Adafruit_BMP280::STANDBY_MS_1); // Changed from 500ms to 1ms
   }
 
   maxOk = particleSensor.begin(Wire, I2C_SPEED_FAST);
@@ -183,6 +195,18 @@ void setup() {
 
 void loop() {
   unsigned long currentMillis = millis();
+
+  // ---------------------------------------------------------
+  // HANDSHAKE LISTENER
+  // Listen for 'ACK' from ESP8266 to signal it's ready for next packet
+  // ---------------------------------------------------------
+  while (Serial.available()) {
+    String resp = Serial.readStringUntil('\n');
+    resp.trim();
+    if (resp == "ACK") {
+      waitingForAck = false;
+    }
+  }
 
   // ---------------------------------------------------------
   // FAST POLLING LOOP (50ms ~ 20Hz)
@@ -296,11 +320,11 @@ void loop() {
   }
 
   // ---------------------------------------------------------
-  // SLOW POLLING LOOP (2000ms ~ 0.5Hz)
-  // DHT11 requires 2 sec between reads. Also sends JSON.
+  // DHT POLLING LOOP (2000ms minimum interval)
+  // DHT11 requires 2 sec minimum between reads
   // ---------------------------------------------------------
-  if (currentMillis - lastSlowUpdate >= INTERVAL_SLOW) {
-    lastSlowUpdate = currentMillis;
+  if (currentMillis - lastDHTUpdate >= INTERVAL_DHT) {
+    lastDHTUpdate = currentMillis;
 
     // Read DHT
     float h = dht.readHumidity();
@@ -318,9 +342,20 @@ void loop() {
       sysData.bmp_temp = bmp.readTemperature();
       sysData.bmp_press = bmp.readPressure() / 100.0F; // hPa
     }
+  }
 
-    // --- TRANSMIT JSON PAYLOAD ---
-    transmitData();
+  // ---------------------------------------------------------
+  // TRANSMISSION LOOP (500ms ~ 2Hz)
+  // Send collected data frequently without waiting for DHT
+  // Uses the most recent DHT reading even if it's older than 500ms
+  // HANDSHAKE: Only send if not waiting for ACK, or if ACK timeout (5s) hit
+  // ---------------------------------------------------------
+  if (currentMillis - lastTXUpdateRecord >= INTERVAL_TX) {
+    if (!waitingForAck || (currentMillis - lastTXAttempt >= TX_TIMEOUT)) {
+      lastTXUpdateRecord = currentMillis;
+      lastTXAttempt = currentMillis;
+      transmitData();
+    }
   }
 }
 
@@ -328,6 +363,7 @@ void loop() {
 // JSON SERIALIZATION
 // ==========================================
 void transmitData() {
+  waitingForAck = true; // Set flag - wait for ESP to finish cloud post
   StaticJsonDocument<2048> doc;
 
   // Construct structured payload

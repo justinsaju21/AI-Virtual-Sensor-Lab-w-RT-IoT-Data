@@ -19,7 +19,8 @@ interface MistakeDetectorProps {
 }
 
 export function useMistakeDetector({ data, expectedRange }: MistakeDetectorProps): Anomaly[] {
-    if (data.length < 5) return [];
+    // Handle undefined or empty data
+    if (!data || !Array.isArray(data) || data.length < 5) return [];
 
     const values = data.map(d => d.value);
     const anomalies: Anomaly[] = [];

@@ -1,57 +1,35 @@
-# ⚙️ Firmware Core Logic: Dual-Node Communication
+# 🔌 Firmware Core Logic - IoT Virtual Lab
 
-This document provides a technical walkthrough of the firmware for both the **Arduino Mega 2560** (The Collector) and the **ESP8266** (The Messenger). 
+## 1. Overview
+The firmware is designed for the **Arduino Mega 2560** (Main Data Aggregator) and **ESP8266** (WiFi Bridge). It follows a polling-based architecture to read 17 sensors and transmit the results to the central server.
 
----
+## 2. Sensor Polling Loop
+The main loop executes a full sensor scan every **100ms**:
+1. **Analog Scans**: Reads ADC values for Gas (MQ2/MQ3), Light (LDR), Sound, etc.
+2. **Digital/I2C Scans**:
+   - `DHT11`: Temperature & Humidity (reads once every 2 seconds to avoid heating).
+   - `BMP280`: Pressure & Altitude (I2C protocol).
+   - `Ultrasonic`: HC-SR04 pulse counting.
+   - `MAX30102`: Heart rate FIFO buffer processing.
 
-## 🏗️ 1. The Arduino Mega 2560 (Data Collection)
-The Mega is responsible for probing 17 sensors concurrently. It uses a **Non-Blocking Scheduler** to ensure high-frequency sensors (like Heart Rate) aren't delayed by slow sensors (like DHT11).
-
-### **Execution Model: Timing Buckets**
-The firmware uses `millis()` timers instead of `delay()`.
-| Bucket | Interval | Purpose |
-| :--- | :--- | :--- |
-| **FAST** | 50ms | Joystick, Pulse Ox, Touch, Tilt. (Human-speed inputs) |
-| **MED** | 200ms | Gases, LDR, Flame, Sound. (Environmental changes) |
-| **SLOW** | 2000ms | DHT11, Serial JSON Transmission. (Lower priority) |
-
-### **The Serialization Secret**
-Before sending data, the Mega packages all sensor values into a single **JSON String** using the `ArduinoJson` library.
-```cpp
-{"device_id":"mega_node_01", "sensors":{"temp":24.5, "mq2":150...}}
+## 3. Communication Protocol
+Data is packaged into a compact JSON string and sent via Serial to the ESP8266:
+```json
+{
+  "device": "mega-01",
+  "sensors": {
+    "temp": 24.5,
+    "gas": 450,
+    "dist": 12.3
+    ...
+  }
+}
 ```
+The ESP8266 then forwards this to `POST /api/sensor-data` over WiFi.
 
-> [!IMPORTANT]
-> **Buffer Sizing:** To handle 17 sensors concurrently, the `StaticJsonDocument` is sized to **2048 bytes**. Anything smaller leads to "Silent Truncation" where sensors at the end of the JSON object are dropped.
-
----
-
-## 📡 2. The ESP8266 Bridge (Internet Gateway)
-The ESP8266 acts as a transparent bridge. It listens for the JSON string on its Serial port and beams it to the server.
-
-### **Internal Workflow:**
-1.  **Serial Buffer:** The ESP8266 reads characters from the Mega until it sees a Newline (`\n`).
-2.  **Telemetry Injection:** Before sending it to the cloud, the ESP8266 adds its own system data (WiFi Signal Strength, IP Address, and Free Memory).
-3.  **HTTP POST:** It uses the `ESP8266HTTPClient` to send the final payload to the backend server.
-
-### **Self-Healing Logic:**
-The ESP8266 constantly monitors its WiFi connection. If it detects a disconnect, it triggers an automatic `connectWiFi()` retry loop every 30 seconds without needing a manual reset.
+## 4. Calibration & Safety
+- **MQ2 Baseline**: The firmware performs a 30-second pre-heat and clean-air calibration at startup.
+- **Fail-Safe**: If a sensor fails to respond (e.g., I2C timeout), the firmware sends a `null` value, triggering the backend's "Mock Hybrid" fallback.
 
 ---
-
-## ⛓️ 3. The Hardware Serial Link
-The communication between the two chips happens over **UART (Serial)**.
-
-*   **Arduino Mega:** Transmits data on **Serial (UART0)**.
-*   **ESP8266:** Receives data on its hardware **RX/TX** pins.
-
-> **Integrated Board Note:** On the **Mega + WiFi R3**, the connection is handled internally when DIP Switches 1 & 2 are ON. No external voltage divider is needed for the internal link.
-
----
-
-## 🛠️ 4. Multi-Node Debugging
-*   **PC Monitor:** Plugging into the Mega's USB port lets you see debug output from `Serial.print()`.
-*   **Hardware-to-Cloud Test:** If the dashboard isn't updating, check the ESP8266 Serial log. If you see `Sent OK`, the hardware is working, and the issue is likely in the Backend or Frontend.
-
----
-*Last Updated: March 2026*
+*Last Updated: April 2024*

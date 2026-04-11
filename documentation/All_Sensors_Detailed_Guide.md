@@ -73,297 +73,58 @@ This map ensures zero conflicts when building the final prototype.
 
 ---
 
-## 1. GY-BMP280-3.3
-### High-Precision Altimeter & Atmospheric Pressure Sensor
+## 1. Environment & Gas Sensors
+Detailed physics, schematics, and experiments for atmospheric sensing.
 
-| Interface | Arduino Pin(s) | Output Type | Library Required |
-| :--- | :--- | :--- | :--- |
-| I²C / SPI | Pin 20 (SDA), Pin 21 (SCL) | Digital (I²C) | Adafruit BMP280 |
-
-### 1. Description
-The GY-BMP280-3.3 is a high-precision, low-power environmental sensor module based on the Bosch Sensortec BMP280 chip. It measures both barometric pressure and temperature. Due to its exceptional precision, it also functions as an altimeter, capable of detecting altitude changes as small as 1 meter. It operates on 3.3V logic and communicates via I²C or SPI.
-
-### 2. Theory & Physics
-The BMP280 uses a piezoresistive pressure sensor. Inside the chip is a tiny sealed vacuum reference cavity covered by a thin silicon diaphragm. As external atmospheric pressure changes, this diaphragm deflects microscopically.
-Embedded in the diaphragm are piezoresistors — materials whose electrical resistance changes when they undergo mechanical stress. A Wheatstone bridge circuit precisely measures these resistance changes, which are digitized by an onboard 20-bit ADC.
-
-**Altimeter Formula (International Barometric Formula):**
-`H = 44330 × [1 − (P / P0)^(1/5.255)]`
-Where H = Altitude in meters, P = Measured pressure in hPa, P0 = Sea-level reference pressure.
-
-### 4. Hardware Wiring (Arduino Mega)
-| BMP280 Pin | Arduino Mega Pin | Notes |
+| Sensor | Key Wavelength / Metric | Deep Dive Link |
 | :--- | :--- | :--- |
-| **VCC** | 3.3V | **CRITICAL: Do NOT use 5V** |
-| **GND** | GND | Common Ground |
-| **SCL** | Pin 21 (SCL) | I²C Clock Line |
-| **SDA** | Pin 20 (SDA) | I²C Data Line |
-
-### 5. Arduino Implementation Code
-```cpp
-#include <Wire.h>
-#include <Adafruit_Sensor.h>
-#include <Adafruit_BMP280.h>
- 
-Adafruit_BMP280 bmp; 
- 
-void setup() {
-  Serial.begin(115200);
-  if (!bmp.begin(0x76)) {
-    Serial.println("BMP280 not found! Check wiring.");
-    while (1);
-  }
-}
- 
-void loop() {
-  Serial.print("Pres: "); Serial.print(bmp.readPressure() / 100.0F); Serial.println(" hPa");
-  delay(2000);
-}
-```
+| **GY-BMP280** | Pressure (Piezoresistive) | [View Detailed Guide](sensors/BMP280.md) |
+| **DHT11** | Humidity (Capacitive) | [View Detailed Guide](sensors/DHT11.md) |
+| **MQ-2** | Smoke/Gas (Chemisorption) | [View Detailed Guide](sensors/MQ2.md) |
+| **MQ-3** | Alcohol (Redox Reaction) | [View Detailed Guide](sensors/MQ3.md) |
+| **LM35** | Temperature (Bandgap) | [View Detailed Guide](sensors/Temperature.md) |
+| **NTC-10k** | Thermal (Resistance Curve) | [View Detailed Guide](sensors/Thermistor.md) |
 
 ---
 
-## 2. DHT11
-### Basic Temperature & Humidity Sensor
+## 2. Optical & Proximity Sensors
+Detecting presence, distance, and fire using light and sound.
 
-| Interface | Arduino Pin(s) | Output Type | Library Required |
-| :--- | :--- | :--- | :--- |
-| Single-Wire | Any Digital Pin (D2) | Digital (40-bit) | DHT sensor library |
-
-### 1. Description
-The DHT11 is a basic, ultra-low-cost digital temperature and humidity sensor combining a capacitive humidity element and a thermistor. It outputs a pre-digitized single-wire data stream. Its main limitation is a maximum polling rate of once every 2 seconds.
-
-### 2. Theory & Physics
-*   **Humidity Sensing (Capacitive):** Uses a moisture-holding substrate between electrodes. Capacitance changes as it absorbs water vapor.
-*   **Temperature Sensing (Thermistor):** NTC thermistor changes resistance as temperature varies.
-
-### 5. Arduino Implementation Code
-```cpp
-#include "DHT.h"
-#define DHTPIN 2
-#define DHTTYPE DHT11
-DHT dht(DHTPIN, DHTTYPE);
- 
-void setup() {
-  Serial.begin(115200);
-  dht.begin();
-}
- 
-void loop() {
-  delay(2000); 
-  Serial.print("Humidity: "); Serial.print(dht.readHumidity());
-  Serial.print(" %  Temp: "); Serial.print(dht.readTemperature()); Serial.println(" C");
-}
-```
-
----
-
-## 3. Flame Detector Sensor
-### Infrared Fire Detection via Optical Photodiode
-
-| Interface | Arduino Pin(s) | Output Type | Library Required |
-| :--- | :--- | :--- | :--- |
-| Analog + Digital | A5 (AO), D8 (DO) | Dual Output | None |
-
-### 1. Description
-The Flame Sensor detects specific infrared radiation emitted by a live flame, peaking at 700nm–1000nm. It can "see" a fire before a temperature sensor registers a change.
-
-### 2. Theory & Physics
-Uses an IR Photodiode with a black epoxy lens (Daylight Blocking Filter). The filter blocks visible light but allows 760nm–1100nm IR through.
-
-### 4. Hardware Wiring (Arduino Mega)
-| Flame Pin | Arduino Mega Pin | Notes |
+| Sensor | Physics Principle | Deep Dive Link |
 | :--- | :--- | :--- |
-| **AO** | Analog Pin A5 | Continuous flame intensity (0–1023) |
-| **DO** | Digital Pin D8 | Binary alarm: LOW = fire detected |
+| **HC-SR04** | Ultrasonic (Time-of-Flight) | [View Detailed Guide](sensors/HC-SR04.md) |
+| **Flame** | Infrared (Phototransistor) | [View Detailed Guide](sensors/Flame.md) |
+| **IR Obstacle** | Reflection (Albedo) | [View Detailed Guide](sensors/IR.md) |
+| **LDR** | Photoconductivity (CdS) | [View Detailed Guide](sensors/LDR.md) |
+| **PIR** | Thermal (Pyroelectric) | [View Detailed Guide](sensors/PIR.md) |
+| **Inductive** | Magnetism (Eddy Currents) | [View Detailed Guide](sensors/Proximity.md) |
 
 ---
 
-## 4. HC-SR04
-### Ultrasonic Distance Sensor (Time-of-Flight)
+## 3. Human Interface & Health
+Sensors designed for direct human interaction.
 
-| Interface | Arduino Pin(s) | Output Type | Library Required |
-| :--- | :--- | :--- | :--- |
-| Pulse Width | D3 (TRIG), D4 (ECHO) | Digital Pulse | None |
-
-### 1. Description
-Uses ultrasonic sound waves to measure distance from 2cm to 400cm. Functions like bat echolocation.
-
-### 2. Theory & Physics
-**Distance Formula:**
-`Distance (cm) = (Echo_Pulse_Duration_µs × 0.034) / 2`
-
-### 4. Hardware Wiring (Arduino Mega)
-| HC-SR04 Pin | Arduino Mega Pin | Notes |
+| Sensor | Mechanism | Deep Dive Link |
 | :--- | :--- | :--- |
-| **TRIG** | D3 | Trigger pulse |
-| **ECHO** | D4 | Echo return pulse |
+| **MAX30102** | Pulse (Reflective PPG) | [View Detailed Guide](sensors/MAX30102.md) |
+| **Joystick** | Position (Voltage Divider) | [View Detailed Guide](sensors/Joystick.md) |
+| **TTP223** | Touch (Parasitic Capacitance)| [View Detailed Guide](sensors/Touch.md) |
+| **Sound** | Acoustic (Electret Mic) | [View Detailed Guide](sensors/Sound.md) |
 
 ---
 
-## 5. IR Obstacle Avoidance Sensor
-### Active Infrared Proximity & Reflectivity Detector
+## 4. Mechanical & Magnetic
+Basic physical switches and field detectors.
 
-| Interface | Arduino Pin(s) | Output Type | Library Required |
-| :--- | :--- | :--- | :--- |
-| Digital GPIO | D13 (OUT) | Digital (LOW = Obstacle) | None |
-
-### 1. Description
-Active proximity sensor that emits its own IR light (940nm) and measures the reflection. Common in robotics for obstacle avoidance.
-
----
-
-## 6. Joystick Module
-### Dual-Axis Analog Input with Push-Button
-
-| Interface | Arduino Pin(s) | Output Type | Library Required |
-| :--- | :--- | :--- | :--- |
-| Analog + Digital | A2 (VRx), A3 (VRy), D7 (SW) | Dual Analog + Digital | None |
-
-### 4. Hardware Wiring (Arduino Mega)
-| Joystick Pin | Arduino Mega Pin | Notes |
+| Sensor | Physics Principle | Deep Dive Link |
 | :--- | :--- | :--- |
-| **VRx** | Analog Pin A2 | X-Axis continuous voltage |
-| **VRy** | Analog Pin A3 | Y-Axis continuous voltage |
-| **SW** | Digital Pin D7 | Click button — **REQUIRES INPUT_PULLUP** |
+| **Hall Effect** | Magnetism (Lorentz Force) | [View Detailed Guide](sensors/Hall.md) |
+| **SW-520D** | Gravity (Conductive Ball) | [View Detailed Guide](sensors/Tilt.md) |
 
 ---
 
-## 7. LDR (Light Dependent Resistor)
-### 3-Pin Photoresistor Module
-
-| Interface | Arduino Pin(s) | Output Type | Library Required |
-| :--- | :--- | :--- | :--- |
-| Analog + Digital | A4 (AO) | Analog + Digital | None |
-
-### 1. Description
-Cadmium Sulfide (CdS) photoresistor whose resistance decreases as light intensity increases.
-
----
-
-## 8. MAX30102
-### Pulse Oximeter & Heart-Rate Sensor
-
-| Interface | Arduino Pin(s) | Output Type | Library Required |
-| :--- | :--- | :--- | :--- |
-| I²C | Pin 20 (SDA), Pin 21 (SCL) | Digital (I²C) | SparkFun MAX3010x |
-
-### 1. Description
-Integrated pulse oximeter that uses Red (660nm) and IR (880nm) LEDs to measure heart rate and blood oxygen (SpO₂).
-
----
-
-## 9. MQ-2 Gas & Smoke Sensor
-
-| Interface | Arduino Pin(s) | Output Type | Library Required |
-| :--- | :--- | :--- | :--- |
-| Analog + Digital | A0 (AO) | Analog Voltage | None |
-
-### 1. Description
-Chemiresistive sensor for LPG, Smoke, and Combustible gases. Requires an internal heating element.
-
----
-
-## 10. MQ-3 Alcohol Vapor Sensor
-
-| Interface | Arduino Pin(s) | Output Type | Library Required |
-| :--- | :--- | :--- | :--- |
-| Analog + Digital | A1 (AO) | Analog Voltage | None |
-
----
-
-## 11. PIR Motion Sensor (HC-SR501)
-### Passive Infrared Human Body Detection
-
-| Interface | Arduino Pin(s) | Output Type | Library Required |
-| :--- | :--- | :--- | :--- |
-| Digital GPIO | D10 (OUT) | Digital (HIGH = Motion) | None |
-
----
-
-## 12. Proximity Sensor (Inductive / Optical)
-### Industrial Non-Contact Object & Metal Detection
-
-| Interface | Arduino Pin(s) | Output Type | Library Required |
-| :--- | :--- | :--- | :--- |
-| Digital GPIO | D11 (OUT) | Digital (LOW = Detected) | None |
-
----
-
-## 13. Sound Sensor Module (Microphone)
-
-| Interface | Arduino Pin(s) | Output Type | Library Required |
-| :--- | :--- | :--- | :--- |
-| Analog + Digital | A6 (AO), D9 (DO) | Dual Output | None |
-
----
-
-## 14. SW-520D Tilt Sensor
-
-| Interface | Arduino Pin(s) | Output Type | Library Required |
-| :--- | :--- | :--- | :--- |
-| Digital GPIO | D12 (OUT) | Digital Switch | None |
-
----
-
-## 15. Capacitive Touch Sensor (TTP223)
-
-| Interface | Arduino Pin(s) | Output Type | Library Required |
-| :--- | :--- | :--- | :--- |
-| Digital GPIO | D5 (SIG) | Digital (HIGH = Touched) | None |
-
----
-
-## 16. Hall Effect Magnetic Sensor (4-Pin)
-### Lorentz Force-Based Magnetic Field Detection
-
-| Interface | Arduino Pin(s) | Output Type | Library Required |
-| :--- | :--- | :--- | :--- |
-| Digital + Analog | D6 (DO), A8 (AO) | Dual Output | None |
-
-### 4. Hardware Wiring (Arduino Mega)
-| Hall Pin | Arduino Mega Pin | Notes |
-| :--- | :--- | :--- |
-| **DO** | Digital Pin D6 | LOW when magnetic field detected |
-| **AO** | Analog Pin A8 | Linear field strength (Unassigned in basic firmware) |
-
----
-
-## 17. NTC Thermistor Temperature Sensor
-### Continuous Analog Thermal Measurement
-
-| Interface | Arduino Pin(s) | Output Type | Library Required |
-| :--- | :--- | :--- | :--- |
-| Analog + Digital | A7 (AO) | Analog Voltage | math.h (built-in) |
-
-### 5. Arduino Implementation Code
-```cpp
-#include <math.h>
-#define THERM_AO A7
- 
-void setup() { Serial.begin(115200); }
- 
-void loop() {
-  int rawADC = analogRead(THERM_AO);
-  if (rawADC > 0) {
-    // 10k series resistor with 10k NTC
-    float Vout = (rawADC * 5.0) / 1023.0;
-    float R_therm = (10000.0 * Vout) / (5.0 - Vout);
-    float logR = log(R_therm);
-    
-    // Steinhart-Hart Coefficients for common 10k NTC
-    float tempK = 1.0 / (0.001129148 + (0.000234125 * logR) + (0.0000000876741 * logR * logR * logR));
-    float tempC = tempK - 273.15;
-    
-    Serial.print("Temperature: ");
-    Serial.print(tempC);
-    Serial.println(" C");
-  }
-  delay(1000);
-}
-```
-
----
+> [!TIP]
+> Each "Deep Dive" link above contains a full section on **Physical Mechanisms**, **Mathematical Models**, **Mermaid Flowcharts**, and **Arduino Source Code** specific to that sensor.
 
 > [!NOTE]
 > This guide is optimized for the SEM6 Project Hardware Kit and Arduino Mega 2560 Firmware.

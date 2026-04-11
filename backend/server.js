@@ -12,7 +12,7 @@ const { GoogleGenerativeAI } = require('@google/generative-ai');
 let model = null;
 if (process.env.GEMINI_API_KEY) {
   const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
-  model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
+  model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
   console.log('[AI] Gemini 2.5 Flash initialized successfully.');
 } else {
   console.warn('[AI] WARNING: GEMINI_API_KEY not set. AI endpoints will return fallback responses.');
@@ -306,8 +306,9 @@ app.post("/api/ai-explain", async (req, res) => {
 
 
 // ============ MOCK DATA LOOP ============
+// Runs at 200ms (5Hz) to match firmware TX_INTERVAL = 200ms
+// This syncs backend emission with hardware push rate for ~200ms end-to-end latency
 
-// Generate mock data and merge with hardware readings
 setInterval(() => {
   try {
   const now = Date.now();
@@ -329,13 +330,10 @@ setInterval(() => {
 
   io.emit('data_stream', latestReading);
 
-  if (useRealData) {
-    console.log('[HYBRID] Emitted merged payload (Real + Mock)');
-  }
   } catch (err) {
     console.error('[CRITICAL] Error in data loop:', err);
   }
-}, 2000);
+}, 200); // 200ms = 5Hz — matches firmware TX_INTERVAL
 
 // ============ SOCKET.IO ============
 

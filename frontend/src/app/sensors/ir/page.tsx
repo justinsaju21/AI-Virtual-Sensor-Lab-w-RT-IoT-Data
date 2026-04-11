@@ -4,6 +4,7 @@ import React, { useState, useEffect } from "react";
 import { useSocket } from "@/hooks/useSocket";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
+import { LiveChart } from "@/components/charts/LiveChart";
 import { SensorDetailLayout } from "@/components/sensors/SensorDetailLayout";
 import { Cpu, Info, Eye, Brain } from "lucide-react";
 import { useMistakeDetector, MistakeAlert } from "@/components/ai/MistakeDetector";
@@ -111,7 +112,7 @@ export default function IRPage() {
                             <Badge variant={isConnected ? "success" : "default"} size="sm" className="mt-4">{isConnected ? "Active" : "Offline"}</Badge>
                         </CardContent>
                     </Card>
-                    <Card variant="default" className="md:col-span-2"><CardHeader><CardTitle>Status</CardTitle></CardHeader><CardContent><div className="h-[200px] flex items-center justify-center border border-dashed border-white/10 rounded-lg"><p className="text-slate-500">Binary detection shown by indicator.</p></div></CardContent></Card>
+                    <Card variant="default" className="md:col-span-2"><CardHeader><CardTitle>Status</CardTitle></CardHeader><CardContent><div className="mt-4"><LiveChart data={history} color="#ef4444" gradientId="irGrad" unit="" height={220} minDomain={-0.1} maxDomain={1.1} type="stepAfter" /></div></CardContent></Card>
                 </div>
                 <div className="flex justify-center mt-4 mb-4">
                     <button onClick={() => setShowQuiz(true)} className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-red-500/20 to-orange-500/20 border border-red-500/30 rounded-xl text-white font-medium hover:from-red-500/30 hover:to-orange-500/30 transition">

@@ -3,6 +3,7 @@
 import React, { useState, useRef, useEffect } from "react";
 import { Bot, Send, Sparkles, Minimize2 } from "lucide-react";
 import { useAI } from "@/contexts/AIContext";
+import ReactMarkdown from "react-markdown";
 
 interface Message {
     id: string;
@@ -145,12 +146,57 @@ export const AITutorWidget = () => {
                             </div>
                         )}
                         <div
-                            className={`max-w-[80%] rounded-2xl px-4 py-2.5 text-sm leading-relaxed ${msg.role === "user"
+                            className={`max-w-xs md:max-w-sm rounded-2xl px-4 py-2.5 text-sm leading-relaxed break-words ${msg.role === "user"
                                     ? "bg-blue-600 text-white rounded-br-none"
                                     : "bg-white/5 border border-white/5 text-slate-200 rounded-bl-none"
                                 }`}
                         >
-                            {msg.text}
+                            {msg.role === "assistant" ? (
+                                <div className="chat-markdown">
+                                    <ReactMarkdown
+                                        components={{
+                                            p: ({ children }) => <p className="mb-2 last:mb-0">{children}</p>,
+                                            strong: ({ children }) => <strong className="font-bold">{children}</strong>,
+                                            em: ({ children }) => <em className="italic">{children}</em>,
+                                            code: ({ children }) => (
+                                                <code className="bg-slate-800/50 px-1.5 py-0.5 rounded text-xs font-mono">
+                                                    {children}
+                                                </code>
+                                            ),
+                                            pre: ({ children }) => (
+                                                <pre className="bg-slate-800/50 p-2 rounded text-xs font-mono overflow-x-auto my-2">
+                                                    {children}
+                                                </pre>
+                                            ),
+                                            h1: ({ children }) => <h1 className="text-lg font-bold mb-2">{children}</h1>,
+                                            h2: ({ children }) => <h2 className="text-base font-bold mb-1.5">{children}</h2>,
+                                            h3: ({ children }) => <h3 className="text-sm font-bold mb-1">{children}</h3>,
+                                            ul: ({ children }) => <ul className="list-disc list-inside mb-2 space-y-1">{children}</ul>,
+                                            ol: ({ children }) => <ol className="list-decimal list-inside mb-2 space-y-1">{children}</ol>,
+                                            li: ({ children }) => <li className="text-sm">{children}</li>,
+                                            a: ({ href, children }) => (
+                                                <a
+                                                    href={href}
+                                                    className="text-cyan-400 hover:text-cyan-300 underline"
+                                                    target="_blank"
+                                                    rel="noopener noreferrer"
+                                                >
+                                                    {children}
+                                                </a>
+                                            ),
+                                            blockquote: ({ children }) => (
+                                                <blockquote className="border-l-2 border-cyan-500 pl-3 italic my-2">
+                                                    {children}
+                                                </blockquote>
+                                            ),
+                                        }}
+                                    >
+                                        {msg.text}
+                                    </ReactMarkdown>
+                                </div>
+                            ) : (
+                                <span>{msg.text}</span>
+                            )}
                         </div>
                     </div>
                 ))}
