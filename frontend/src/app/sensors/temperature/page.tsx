@@ -258,9 +258,7 @@ export default function TemperaturePage() {
                 {/* AI Quiz Button */}
                 <div className="flex justify-center">
                     <button onClick={() => setShowQuiz(true)} className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-cyan-500/20 to-purple-500/20 border border-cyan-500/30 rounded-xl text-white font-medium hover:from-cyan-500/30 hover:to-purple-500/30 transition">
-                        <Brain className="h-5 w-5 text-cyan-400" />
-                        Take AI Quiz on Temperature Sensors
-                    </button>
+                        <Brain className="h-5 w-5 text-cyan-400" /> Test Knowledge</button>
                 </div>
 
                 {/* Specs & Wiring */}

@@ -7,6 +7,7 @@ import { Activity, BookOpen, Code2, FlaskConical, AlertTriangle, FileText, Check
 import ReactMarkdown from 'react-markdown';
 import remarkMath from 'remark-math';
 import rehypeKatex from 'rehype-katex';
+import remarkGfm from 'remark-gfm';
 import Script from 'next/script';
 
 // Dedicated Mermaid diagram component — uses mermaid.render() (imperative API)
@@ -160,7 +161,7 @@ export const SensorDetailLayout: React.FC<SensorDetailLayoutProps> = ({
         return (
             <div className="mermaid-container animate-in fade-in duration-500">
                 <ReactMarkdown
-                    remarkPlugins={[remarkMath]}
+                    remarkPlugins={[remarkMath, remarkGfm]}
                     rehypePlugins={[rehypeKatex]}
                     components={{
                         h1: ({ node, ...props }) => <h1 className="text-2xl font-bold mt-6 mb-4 text-white" {...props} />,
@@ -244,16 +245,67 @@ export const SensorDetailLayout: React.FC<SensorDetailLayoutProps> = ({
      * Simple regex-based markdown-to-HTML converter specifically for the print report.
      * Ensures characters like **bold** and *italics* render correctly in the PDF.
      */
-    const renderMarkdownForPrint = (text: string): string => {
+    const renderMarkdownForPrint = (text: string, domSvgs?: string[]): string => {
         if (!text) return "";
-        let html = text
-            .replace(/&/g, "&amp;")
-            .replace(/</g, "&lt;")
-            .replace(/>/g, "&gt;");
 
-        // Headers (up to h3) - convert to bold colored text since they are inside theory-box
+        // Normalize line endings
+        let raw = text.replace(/\r\n/g, '\n');
+
+        // === STEP 0: Extract mermaid blocks BEFORE any HTML escaping ===
+        // Mermaid syntax (-->, [text], etc.) must not be HTML-escaped.
+        // We replace each mermaid block with a unique placeholder and resolve later.
+        const mermaidPlaceholders: string[] = [];
+        raw = raw.replace(/```mermaid\s*([\s\S]*?)```/g, (_match: string, diagram: string) => {
+            const ph = `@@@MERMAIDPH:${mermaidPlaceholders.length}@@@`;
+            mermaidPlaceholders.push(diagram.trim());
+            return ph + '\n';
+        });
+
+        // === STEP 1: HTML-escape the remaining text ===
+        let html = raw
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;');
+
+        // === STEP 2: Extract markdown tables and replace with placeholders ===
+        const tablePlaceholders: string[] = [];
+        html = html.replace(/((?:\|.+\|[ \t]*\n)+)/g, (tableBlock) => {
+            const lines = tableBlock.trim().split('\n').map((l: string) => l.trim()).filter(Boolean);
+            const dataLines = lines.filter((l: string) => !/^\|[\s:\-|]+\|$/.test(l));
+            if (dataLines.length === 0) return tableBlock;
+
+            const [headerLine, ...bodyLines] = dataLines;
+
+            const parseRow = (line: string, isHeader: boolean) => {
+                const cells = line.replace(/^\||\|$/g, '').split('|').map((c: string) => c.trim());
+                const cellTag = isHeader ? 'th' : 'td';
+                const cellStyle = isHeader
+                    ? 'border:1px solid #94a3b8;padding:8px 12px;background:#e2e8f0;font-weight:bold;text-align:left;color:#1e293b;'
+                    : 'border:1px solid #cbd5e1;padding:8px 12px;background:#fff;text-align:left;color:#334155;';
+                return `<tr>${cells.map((c: string) => `<${cellTag} style="${cellStyle}">${c}</${cellTag}>`).join('')}</tr>`;
+            };
+
+            const thead = `<thead>${parseRow(headerLine, true)}</thead>`;
+            const tbody = bodyLines.length > 0
+                ? `<tbody>${bodyLines.map((l: string) => parseRow(l, false)).join('')}</tbody>`
+                : '';
+            const tableHtml = `<table style="width:100%;border-collapse:collapse;margin:16px 0;font-size:11pt;">${thead}${tbody}</table>`;
+            const placeholder = `<!--TBLPH:${tablePlaceholders.length}-->`;
+            tablePlaceholders.push(tableHtml);
+            return placeholder + '\n';
+        });
+
+        // === STEP 3: Apply remaining markdown formatting ===
+        // Headers
+        html = html.replace(/^#### (.*$)/gm, '<br/><b style="color:#0369a1;font-size:1em;font-style:italic;">$1</b><br/>');
         html = html.replace(/^### (.*$)/gm, '<br/><b style="color:#0284c7;font-size:1.1em;">$1</b><br/>');
         html = html.replace(/^## (.*$)/gm, '<br/><b style="color:#0f172a;font-size:1.2em;border-bottom:1px solid #ddd;">$1</b><br/>');
+
+        // Generic code blocks (non-mermaid)
+        html = html.replace(/```[\w]*\s*([\s\S]*?)```/g, '<pre style="background:#f1f5f9;border:1px solid #cbd5e1;border-radius:6px;padding:12px;font-family:monospace;font-size:10pt;white-space:pre-wrap;">$1</pre>');
+
+        // Horizontal rule
+        html = html.replace(/^---$/gm, '<hr style="border:none;border-top:1px solid #e2e8f0;margin:16px 0;"/>');
 
         // Bold & Italics
         html = html.replace(/\*\*(.*?)\*\*/g, '<b>$1</b>');
@@ -264,12 +316,25 @@ export const SensorDetailLayout: React.FC<SensorDetailLayoutProps> = ({
         // Inline Code
         html = html.replace(/`(.*?)`/g, '<code style="background:#f1f5f9;padding:2px 4px;border-radius:3px;font-family:monospace;font-size:0.9em;">$1</code>');
 
-        // Bullet points (handle multi-line blocks)
+        // Bullet points
         html = html.replace(/^\s*[-*]\s+(.*)/gm, '<div style="margin-left:20px;display:list-item;list-style-type:disc;">$1</div>');
 
-        // Newlines/Paragraphs
+        // Newlines (AFTER tables and mermaid have been extracted)
         html = html.replace(/\n\n/g, '</p><p style="margin-top:10px;">');
         html = html.replace(/\n/g, '<br/>');
+
+        // === STEP 4: Restore table placeholders ===
+        tablePlaceholders.forEach((tableHtml: string, i: number) => {
+            html = html.replace(`<!--TBLPH:${i}-->`, tableHtml);
+        });
+
+        // === STEP 5: Restore mermaid placeholders ===
+        // We inject the unescaped raw mermaid code directly into a placeholder div
+        // The embedded Mermaid.js script in the print HTML will dynamically render these.
+        mermaidPlaceholders.forEach((diagram: string, i: number) => {
+            const svgHtml = `<div class="mermaid" style="text-align:center;margin:16px 0;padding:12px;display:flex;justify-content:center;">\n${diagram}\n</div>`;
+            html = html.replace(`@@@MERMAIDPH:${i}@@@`, svgHtml);
+        });
 
         return `<div style="word-wrap:break-word;">${html}</div>`;
     };
@@ -308,7 +373,6 @@ export const SensorDetailLayout: React.FC<SensorDetailLayoutProps> = ({
             </div>
         `).join('') : '<p class="meta">No recorded common mistakes.</p>';
 
-        // 2. Extract Visible Graphs & AI Text
         const svgs = Array.from(document.querySelectorAll('.recharts-wrapper')).map(el => el.outerHTML).join('<br/><hr/><br/>');
         const aiExplainer = document.querySelector('.prose')?.innerHTML || '';
 
@@ -317,7 +381,10 @@ export const SensorDetailLayout: React.FC<SensorDetailLayoutProps> = ({
             <html>
             <head>
                 <title>${safeTitle} - Comprehensive Lab Report</title>
+                <script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"><\/script>
+                <script>document.addEventListener('DOMContentLoaded', function() { if(window.mermaid) { window.mermaid.initialize({ startOnLoad: true, theme: 'default' }); window.mermaid.run(); } });<\/script>
                 <style>
+
                     @page { margin: 2cm; size: A4; }
                     body { font-family: 'Segoe UI', Arial, sans-serif; padding: 0px; color: #222; width: 100%; margin: 0 auto; line-height: 1.6; }
                     h1 { border-bottom: 3px solid #0ea5e9; padding-bottom: 10px; margin-bottom: 5px; color: #0f172a; font-size: 24pt; }
@@ -484,7 +551,18 @@ export const SensorDetailLayout: React.FC<SensorDetailLayoutProps> = ({
                         </button>
                     </div>
                 </div>
-                <p className="text-slate-400 text-sm max-w-2xl">{dynamicDocs?.description || description}</p>
+                <div className="text-slate-400 text-sm max-w-2xl">
+                    <ReactMarkdown 
+                        remarkPlugins={[remarkGfm]}
+                        components={{
+                            p: ({ node, ...props }) => <p className="mb-2 last:mb-0" {...props} />,
+                            strong: ({ node, ...props }) => <strong className="font-semibold text-slate-200" {...props} />,
+                            hr: ({ node, ...props }) => <hr className="border-t border-white/10 my-3" {...props} />
+                        }}
+                    >
+                        {dynamicDocs?.description || description || ""}
+                    </ReactMarkdown>
+                </div>
             </div>
 
             {/* Top-Level Tabs */}

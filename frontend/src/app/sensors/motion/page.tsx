@@ -134,8 +134,7 @@ export default function MotionPage() {
                 </div>
                 <div className="flex justify-center mt-4 mb-4">
                     <button onClick={() => setShowQuiz(true)} className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-green-500/20 to-teal-500/20 border border-green-500/30 rounded-xl text-white font-medium hover:from-green-500/30 hover:to-teal-500/30 transition">
-                        <Brain className="h-5 w-5 text-green-400" /> Quiz: Pyroelectric Effect
-                    </button>
+                        <Brain className="h-5 w-5 text-green-400" /> Test Knowledge</button>
                 </div>
                 <div className="grid gap-6 md:grid-cols-2">
                     <Card variant="default"><CardHeader><CardTitle className="flex items-center gap-2"><Cpu className="h-4 w-4 text-cyan-400" />Specs</CardTitle></CardHeader><CardContent className="space-y-2 text-sm"><SpecRow label="Range" value="~7 meters" /><SpecRow label="FOV" value="~120°" /><SpecRow label="Delay" value="1-300s adjustable" /></CardContent></Card>

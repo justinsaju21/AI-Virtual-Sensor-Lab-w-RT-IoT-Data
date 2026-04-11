@@ -129,8 +129,7 @@ export default function FlamePage() {
                 </div>
                 <div className="flex justify-center mt-4 mb-4">
                     <button onClick={() => setShowQuiz(true)} className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-orange-500/20 to-red-500/20 border border-orange-500/30 rounded-xl text-white font-medium hover:from-orange-500/30 hover:to-red-500/30 transition">
-                        <Brain className="h-5 w-5 text-orange-400" /> Quiz: IR & Fire
-                    </button>
+                        <Brain className="h-5 w-5 text-orange-400" /> Test Knowledge</button>
                 </div>
                 <div className="grid gap-6 md:grid-cols-2">
                     <Card variant="default"><CardHeader><CardTitle className="flex items-center gap-2"><Cpu className="h-4 w-4 text-cyan-400" />Specs</CardTitle></CardHeader><CardContent className="space-y-2 text-sm"><SpecRow label="Range" value="~100cm" /><SpecRow label="Wavelength" value="760-1100nm" /><SpecRow label="Angle" value="~60°" /></CardContent></Card>

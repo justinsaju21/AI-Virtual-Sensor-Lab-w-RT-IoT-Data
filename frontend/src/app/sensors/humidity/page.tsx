@@ -222,8 +222,7 @@ export default function HumidityPage() {
 
                 <div className="flex justify-center mt-4 mb-4">
                     <button onClick={() => setShowQuiz(true)} className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-cyan-500/20 to-purple-500/20 border border-cyan-500/30 rounded-xl text-white font-medium hover:from-cyan-500/30 hover:to-purple-500/30 transition">
-                        <Brain className="h-5 w-5 text-cyan-400" /> Take AI Quiz on Humidity Sensors
-                    </button>
+                        <Brain className="h-5 w-5 text-cyan-400" /> Test Knowledge</button>
                 </div>
 
                 <div className="grid gap-6 md:grid-cols-2">

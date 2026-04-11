@@ -162,8 +162,7 @@ export default function UltrasonicPage() {
                 </div>
                 <div className="flex justify-center mt-4 mb-4">
                     <button onClick={() => setShowQuiz(true)} className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-purple-500/20 to-pink-500/20 border border-purple-500/30 rounded-xl text-white font-medium hover:from-purple-500/30 hover:to-pink-500/30 transition">
-                        <Brain className="h-5 w-5 text-purple-400" /> Quiz: Ultrasonic Physics
-                    </button>
+                        <Brain className="h-5 w-5 text-purple-400" /> Test Knowledge</button>
                 </div>
                 <div className="grid gap-6 md:grid-cols-2">
                     <Card variant="default"><CardHeader><CardTitle className="flex items-center gap-2"><Cpu className="h-4 w-4 text-cyan-400" />Specs</CardTitle></CardHeader><CardContent className="space-y-2 text-sm"><SpecRow label="Range" value="2 - 400 cm" /><SpecRow label="Accuracy" value="±3mm" /><SpecRow label="Frequency" value="40 kHz" /></CardContent></Card>
