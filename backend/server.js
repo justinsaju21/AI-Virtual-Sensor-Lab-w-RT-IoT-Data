@@ -2,7 +2,6 @@ require('dotenv').config();
 const express = require('express');
 const http = require('http');
 const { Server } = require('socket.io');
-const WebSocket = require('ws');
 const cors = require('cors');
 const fs = require('fs');
 const path = require('path');
@@ -63,48 +62,6 @@ let latestReading = null;
 let useRealData = false;
 let lastRealDataTime = 0;
 const REAL_DATA_TIMEOUT = 30000; // 30 seconds stale timeout
-
-// ============ HARDWARE WebSocket SERVER ============
-// Separate WebSocket server for ESP8266 hardware on path /hardware.
-// This runs alongside Socket.IO (browsers) — no conflict.
-// When hardware sends JSON, we IMMEDIATELY push to all browser clients.
-const hardwareWss = new WebSocket.Server({ server, path: '/hardware' });
-
-hardwareWss.on('connection', (ws, req) => {
-  console.log('[HW-WS] Hardware connected via WebSocket');
-  useRealData = true;
-
-  ws.on('message', (rawMessage) => {
-    try {
-      const data = JSON.parse(rawMessage.toString());
-      if (!data || !data.sensors) return;
-
-      // Update hardware state
-      lastHardwareSensors = data.sensors;
-      lastRealDataTime = Date.now();
-
-      // IMMEDIATE broadcast — no setInterval wait
-      const mock = generateMockData();
-      const merged = mergeHardwareWithMock(mock, lastHardwareSensors);
-      merged.timestamp = new Date().toISOString();
-      merged.is_hybrid = true;
-      latestReading = merged;
-      io.emit('data_stream', merged);
-
-      // Acknowledge back to ESP8266
-      if (ws.readyState === WebSocket.OPEN) ws.send('ACK');
-    } catch (e) { /* Silently ignore bad JSON */ }
-  });
-
-  ws.on('close', () => {
-    console.log('[HW-WS] Hardware disconnected');
-    // Only stop real data if no recent data
-    if (Date.now() - lastRealDataTime > 5000) useRealData = false;
-  });
-
-  ws.on('error', (err) => console.error('[HW-WS] Error:', err.message));
-});
-
 
 // Health check
 app.get('/', (req, res) => {

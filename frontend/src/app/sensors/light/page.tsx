@@ -116,7 +116,7 @@ export default function LightPage() {
             <SensorDetailLayout
                 title="Light Sensor (LDR)"
                 description="Photoresistor that decreases resistance with increasing light intensity."
-                sensorId="LDR / CdS Cell"
+                sensorId="LDR / CdS Cell" isReal={!!data?.sensors?.ldr?.isReal}
                 dataSnippet={{ value: displayValue, unit: "raw", type: "Analog", pin: "A4" }}
                 theory={THEORY}
                 arduinoCode={ARDUINO_CODE}
@@ -136,7 +136,6 @@ export default function LightPage() {
                                 <span className="text-xl text-slate-500 font-medium">{showRaw ? "" : "%"}</span>
                             </div>
                             {fault.type !== 'none' && <Badge variant="warning" size="sm" className="mt-2 animate-pulse">⚠ Fault: {fault.type}</Badge>}
-                            <Badge variant={isConnected ? "success" : "default"} size="sm" className="mt-3">{isConnected ? "Live" : "Offline"}</Badge>
                             <button onClick={() => setShowRaw(!showRaw)} className="mt-4 text-xs px-3 py-1 rounded-full bg-white/5 border border-white/10 text-slate-400 hover:bg-white/10">{showRaw ? "Show %" : "Show Raw"}</button>
                         </CardContent>
                     </Card>

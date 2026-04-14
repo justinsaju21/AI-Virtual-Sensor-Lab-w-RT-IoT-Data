@@ -165,7 +165,7 @@ export default function TemperaturePage() {
             <SensorDetailLayout
                 title="Temperature Sensor"
                 description="The DHT22 uses an NTC thermistor whose resistance decreases as temperature increases."
-                sensorId="DHT11"
+                sensorId="DHT11" isReal={!!data?.sensors?.dht11?.isReal}
                 dataSnippet={{ value: displayValue, unit: "°C", type: "Digital", pin: "D2" }}
                 theory={THEORY}
                 arduinoCode={ARDUINO_CODE}

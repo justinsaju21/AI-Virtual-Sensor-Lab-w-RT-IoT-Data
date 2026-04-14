@@ -125,7 +125,7 @@ export default function UltrasonicPage() {
             <SensorDetailLayout
                 title="Ultrasonic Distance Sensor"
                 description="Measures distance using 40kHz ultrasonic pulses and time-of-flight calculation."
-                sensorId="HC-SR04"
+                sensorId="HC-SR04" isReal={!!data?.sensors?.ultrasonic?.isReal}
                 dataSnippet={{ value: displayValue, unit: "cm", trigPin: "D3", echoPin: "D4" }}
                 theory={THEORY}
                 arduinoCode={ARDUINO_CODE}
@@ -146,8 +146,7 @@ export default function UltrasonicPage() {
                             </div>
                             {fault.type !== 'none' && <Badge variant="warning" size="sm" className="mt-2 animate-pulse">⚠ Fault: {fault.type}</Badge>}
                             {calibrationOffset !== 0 && <span className="text-xs text-indigo-400 mt-1">Offset: {calibrationOffset > 0 ? '+' : ''}{calibrationOffset}cm</span>}
-                            <Badge variant={isConnected ? "success" : "default"} size="sm" className="mt-3">{isConnected ? "Live" : "Offline"}</Badge>
-                        </CardContent>
+                            </CardContent>
                     </Card>
                     <Card variant="default" className="md:col-span-2">
                         <CardHeader className="flex flex-row items-center justify-between">

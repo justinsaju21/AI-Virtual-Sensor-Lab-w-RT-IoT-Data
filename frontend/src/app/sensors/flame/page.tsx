@@ -101,7 +101,7 @@ export default function FlamePage() {
             <SensorDetailLayout
                 title="Flame Sensor"
                 description="Detects fire via IR radiation from flames."
-                sensorId="KY-026"
+                sensorId="KY-026" isReal={!!data?.sensors?.flame?.isReal}
                 dataSnippet={{ value: injectedValue, pin: "A5" }}
                 theory={THEORY}
                 arduinoCode={ARDUINO_CODE}

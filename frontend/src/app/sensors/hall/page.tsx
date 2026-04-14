@@ -103,7 +103,7 @@ export default function HallPage() {
             <SensorDetailLayout
                 title="Hall Effect Sensor"
                 description="Detects magnetic fields via Lorentz force on charge carriers."
-                sensorId="A3144 / KY-003"
+                sensorId="A3144 / KY-003" isReal={!!data?.sensors?.hall?.isReal}
                 dataSnippet={{ value: isDetected, pin: "D6" }}
                 theory={THEORY}
                 arduinoCode={ARDUINO_CODE}

@@ -93,7 +93,7 @@ export default function ProximityPage() {
             <SensorDetailLayout
                 title="Proximity Sensor"
                 description="Non-contact object detection (Mock/Demo mode - no physical sensor connected)."
-                sensorId="E18-D80NK"
+                sensorId="E18-D80NK" isReal={!!data?.sensors?.ir?.isReal}
                 dataSnippet={{ value: isDetected, pin: "D11" }}
                 theory={THEORY}
                 arduinoCode={ARDUINO_CODE}

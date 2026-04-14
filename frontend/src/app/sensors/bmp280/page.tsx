@@ -199,7 +199,7 @@ export default function BMP280Page() {
         <SensorDetailLayout
             title="BMP280"
             description="Barometric Pressure & Temperature Sensor"
-            sensorId="bmp280"
+            sensorId="bmp280" isReal={!!data?.sensors?.bmp280?.isReal}
             dataSnippet={{ temp: currentTemp, pressure: currentPressure }}
             theory={THEORY as any}
             arduinoCode={ARDUINO_CODE}

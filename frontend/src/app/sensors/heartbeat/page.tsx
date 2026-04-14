@@ -125,7 +125,7 @@ export default function HeartbeatPage() {
             <SensorDetailLayout
                 title="Heartbeat Sensor"
                 description="Detects heart rate via photoplethysmography."
-                sensorId="MAX30102"
+                sensorId="MAX30102" isReal={!!data?.sensors?.max30102?.isReal}
                 dataSnippet={{ value: displayValue, interface: "I2C (SDA/SCL)" }}
                 theory={THEORY}
                 arduinoCode={ARDUINO_CODE}
@@ -142,8 +142,7 @@ export default function HeartbeatPage() {
                             <span className="text-xs text-slate-500 uppercase mb-1">PPG Signal</span>
                             <span className={`text-5xl font-bold ${fault.type !== 'none' ? 'text-amber-300' : 'text-white'}`}>{displayValue}</span>
                             {fault.type !== 'none' && <Badge variant="warning" size="sm" className="mt-2 animate-pulse">⚠ Fault: {fault.type}</Badge>}
-                            <Badge variant={isConnected ? "success" : "default"} size="sm" className="mt-3">{isConnected ? "Live" : "Offline"}</Badge>
-                        </CardContent>
+                            </CardContent>
                     </Card>
                     <Card variant="default" className="md:col-span-2">
                         <CardHeader className="flex flex-row items-center justify-between">

@@ -111,7 +111,7 @@ export default function SoundPage() {
             <SensorDetailLayout
                 title="Sound Sensor"
                 description="Electret microphone with LM393 comparator for sound detection."
-                sensorId="KY-038"
+                sensorId="KY-038" isReal={!!data?.sensors?.sound?.isReal}
                 dataSnippet={{ value: displayValue, pin: "A6" }}
                 theory={THEORY}
                 arduinoCode={ARDUINO_CODE}
@@ -128,8 +128,7 @@ export default function SoundPage() {
                             <span className="text-xs font-medium text-slate-500 uppercase mb-1">Sound Level</span>
                             <span className={`text-5xl font-bold ${fault.type !== 'none' ? 'text-amber-300' : 'text-white'}`}>{displayValue}</span>
                             {fault.type !== 'none' && <Badge variant="warning" size="sm" className="mt-2 animate-pulse">⚠ Fault: {fault.type}</Badge>}
-                            <Badge variant={isConnected ? "success" : "default"} size="sm" className="mt-3">{isConnected ? "Live" : "Offline"}</Badge>
-                        </CardContent>
+                            </CardContent>
                     </Card>
                     <Card variant="default" className="md:col-span-2">
                         <CardHeader className="flex flex-row items-center justify-between">

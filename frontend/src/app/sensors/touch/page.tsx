@@ -92,7 +92,7 @@ export default function TouchPage() {
             <SensorDetailLayout
                 title="Touch Sensor"
                 description="Capacitive touch detection via electric field change."
-                sensorId="TTP223"
+                sensorId="TTP223" isReal={!!data?.sensors?.touch?.isReal}
                 dataSnippet={{ value: isTouched, pin: "D5" }}
                 theory={THEORY}
                 arduinoCode={ARDUINO_CODE}

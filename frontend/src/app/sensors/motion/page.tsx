@@ -100,7 +100,7 @@ export default function MotionPage() {
             <SensorDetailLayout
                 title="Motion Sensor (PIR)"
                 description="Detects motion via pyroelectric infrared sensing."
-                sensorId="HC-SR501"
+                sensorId="HC-SR501" isReal={!!data?.sensors?.pir?.isReal}
                 dataSnippet={{ value: rawVal, pin: "D10" }}
                 theory={THEORY}
                 arduinoCode={ARDUINO_CODE}

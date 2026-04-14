@@ -91,7 +91,7 @@ export default function TiltPage() {
             <SensorDetailLayout
                 title="Tilt Sensor"
                 description="Ball switch detects orientation changes via gravity."
-                sensorId="SW-520D"
+                sensorId="SW-520D" isReal={!!data?.sensors?.tilt?.isReal}
                 dataSnippet={{ value: isTilted, pin: "D12" }}
                 theory={THEORY}
                 arduinoCode={ARDUINO_CODE}

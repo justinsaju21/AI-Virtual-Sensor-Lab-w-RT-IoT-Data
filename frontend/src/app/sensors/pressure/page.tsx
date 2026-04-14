@@ -134,7 +134,7 @@ export default function PressurePage() {
             <SensorDetailLayout
                 title="Pressure Sensor"
                 description="Piezoresistive barometric pressure with altitude calculation."
-                sensorId="BMP280"
+                sensorId="BMP280" isReal={!!data?.sensors?.bmp280?.isReal}
                 dataSnippet={{ pressure: displayPressure, altitude: displayAltitude, address: "0x76" }}
                 theory={THEORY}
                 arduinoCode={ARDUINO_CODE}
@@ -153,8 +153,7 @@ export default function PressurePage() {
                             <span className="text-sm text-slate-400 mt-1">Alt: {displayAltitude} m</span>
                             {fault.type !== 'none' && <Badge variant="warning" size="sm" className="mt-2 animate-pulse">⚠ Fault: {fault.type}</Badge>}
                             {calibrationOffset !== 0 && <span className="text-xs text-indigo-400 mt-1">Offset: {calibrationOffset > 0 ? '+' : ''}{calibrationOffset} hPa</span>}
-                            <Badge variant={isConnected ? "success" : "default"} size="sm" className="mt-3">{isConnected ? "Live" : "Offline"}</Badge>
-                        </CardContent>
+                            </CardContent>
                     </Card>
                     <Card variant="default" className="md:col-span-2">
                         <CardHeader className="flex flex-row items-center justify-between">

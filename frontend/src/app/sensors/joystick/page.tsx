@@ -121,7 +121,7 @@ export default function JoystickPage() {
             <SensorDetailLayout
                 title="Joystick"
                 description="Dual-axis analog joystick with potentiometers."
-                sensorId="KY-023"
+                sensorId="KY-023" isReal={!!data?.sensors?.joystick?.isReal}
                 dataSnippet={{ x: displayX, y: displayY, button, pins: ["A2", "A3", "D7"] }}
                 theory={THEORY}
                 arduinoCode={ARDUINO_CODE}

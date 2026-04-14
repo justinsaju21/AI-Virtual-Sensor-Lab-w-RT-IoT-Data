@@ -119,7 +119,7 @@ export default function GasPage() {
             <SensorDetailLayout
                 title="Gas Sensor (Smoke/LPG)"
                 description="Chemiresistor detecting combustible gases via SnO₂ redox reaction."
-                sensorId="MQ2"
+                sensorId="MQ2" isReal={!!data?.sensors?.mq2?.isReal}
                 dataSnippet={{ value: displayValue, pin: "A0" }}
                 theory={THEORY}
                 arduinoCode={ARDUINO_CODE}
@@ -139,8 +139,7 @@ export default function GasPage() {
                             </div>
                             {fault.type !== 'none' && <Badge variant="warning" size="sm" className="mt-2 animate-pulse">⚠ Fault: {fault.type}</Badge>}
                             {calibrationOffset !== 0 && <span className="text-xs text-indigo-400 mt-1">Offset: {calibrationOffset > 0 ? '+' : ''}{calibrationOffset}</span>}
-                            <Badge variant={isConnected ? "success" : "default"} size="sm" className="mt-3">{isConnected ? "Live" : "Offline"}</Badge>
-                        </CardContent>
+                            </CardContent>
                     </Card>
                     <Card variant="default" className="md:col-span-2">
                         <CardHeader className="flex flex-row items-center justify-between">

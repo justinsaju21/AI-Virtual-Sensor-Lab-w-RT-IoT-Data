@@ -167,7 +167,7 @@ export default function HumidityPage() {
             <SensorDetailLayout
                 title="Humidity Sensor"
                 description="Measures relative humidity using a capacitive polymer sensor. Dielectric constant changes with absorbed moisture."
-                sensorId="DHT11"
+                sensorId="DHT11" isReal={!!data?.sensors?.dht11?.isReal}
                 dataSnippet={{ value: displayValue, unit: "%", type: "Digital", pin: "D2" }}
                 theory={THEORY}
                 arduinoCode={ARDUINO_CODE}
@@ -205,8 +205,7 @@ export default function HumidityPage() {
                             </div>
                             {fault.type !== 'none' && <Badge variant="warning" size="sm" className="mt-2 animate-pulse">⚠ Fault: {fault.type}</Badge>}
                             {calibrationOffset !== 0 && <span className="text-xs text-indigo-400 mt-1">Offset: {calibrationOffset > 0 ? '+' : ''}{calibrationOffset}%</span>}
-                            <Badge variant={isConnected ? "success" : "default"} size="sm" className="mt-3">{isConnected ? "Live" : "Offline"}</Badge>
-                        </CardContent>
+                            </CardContent>
                     </Card>
                     <Card variant="default" className="md:col-span-2">
                         <CardHeader className="flex flex-row items-center justify-between">
