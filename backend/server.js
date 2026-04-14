@@ -203,26 +203,51 @@ function parseQuizFromMarkdown(filePath) {
   }
 }
 
-// Map sensor names to markdown filenames
+// Map sensor names/IDs to markdown filenames
 const sensorFileMap = {
+  // Primary IDs (used by frontend sensorId prop)
+  "hc-sr04": "HC-SR04.md",
+  "ultrasonic": "HC-SR04.md",
+  "dht11": "DHT11.md",
+  "bmp280": "BMP280.md",
+  "mq2": "MQ2.md",
+  "mq3": "MQ3.md",
+  "pir": "PIR.md",
+  "motion": "PIR.md",
+  "ldr": "LDR.md",
+  "light": "LDR.md",
+  "hall": "Hall.md",
+  "flame": "Flame.md",
+  "ir": "IR.md",
+  "joystick": "Joystick.md",
+  "max30102": "MAX30102.md",
+  "heartbeat": "MAX30102.md",
+  "thermistor": "Thermistor.md",
+  "tilt": "Tilt.md",
+  "touch": "Touch.md",
+  "sound": "Sound.md",
+  "proximity": "Proximity.md",
+
+  // Human Names (fallback for AI context)
   "Ultrasonic Sensor": "HC-SR04.md",
-  "Temperature Sensor": "DHT11.md", // Or LM35, we'll default to DHT11 for now
+  "Temperature Sensor": "DHT11.md",
   "Pressure Sensor": "BMP280.md",
   "Sound Sensor": "Sound.md",
   "Flame Sensor": "Flame.md",
   "IR Sensor": "IR.md",
-  "Proximity Sensor": "Proximity.md", // or IR for E18-D80NK, but Proximity.md has inductive
+  "Proximity Sensor": "Proximity.md",
   "LDR Sensor": "LDR.md",
-  "Light Sensor": "LDR.md",
   "Touch Sensor": "Touch.md",
   "Tilt Sensor": "Tilt.md",
   "Motion Sensor": "PIR.md",
   "PIR Sensor": "PIR.md",
   "Hall Sensor": "Hall.md",
   "Magnetic Sensor": "Hall.md",
-  "Joystick": "Joystick.md",
   "Gas Sensor (MQ-2)": "MQ2.md",
+  "Gas Sensor": "MQ2.md",
   "Alcohol Sensor": "MQ3.md",
+  "Thermistor": "Thermistor.md",
+  "Temperature": "Temperature.md",
   "Heart Rate Sensor": "MAX30102.md",
   "Pulse Oximeter": "MAX30102.md"
 };
@@ -239,26 +264,50 @@ app.post("/api/ai-quiz", async (req, res) => {
       ] });
     }
 
-    const prompt = `Generate a 3-question multiple choice quiz for an engineering student about the ${sensorName} (ID: ${sensorId}).
-    Return the response ONLY as a JSON object in this exact format:
+    // Solid Technique 1: Provide actual documentation context to prevent hallucinations
+    let docContext = "";
+    const filename = sensorFileMap[sensorName] || `${sensorId}.md`;
+    const filePath = path.join(__dirname, '..', 'documentation', 'sensors', filename);
+    
+    // First, try to just parse the static questions if the user isn't asking for "more"
+    // Since the frontend just hits this endpoint, we'll randomize whether we use static or dynamic
+    // to give them fresh ones when they click "More AI Questions".
+    // Alternatively, always prefer dynamic AI since the endpoint is literally /api/ai-quiz.
+    
+    if (fs.existsSync(filePath)) {
+        docContext = fs.readFileSync(filePath, 'utf8');
+    }
+
+    // Solid Technique 2: Use Native JSON mode responseMimeType to guarantee parsable JSON
+    const prompt = `You are an expert engineering tutor. Generate a 3-question multiple choice quiz for a university student about the ${sensorName} (ID: ${sensorId}).
+    Use the following documentation to ensure your questions are highly accurate and relevant to the curriculum:
+    ---
+    ${docContext.substring(0, 3000)} // trim to avoid token limits just in case
+    ---
+    Return the response ONLY as a JSON object in this exact format, with 4 options per question:
     {
       "questions": [
         {
-          "question": "text",
-          "options": ["opt1", "opt2", "opt3", "opt4"],
+          "question": "Question text here?",
+          "options": ["Option A", "Option B", "Option C", "Option D"],
           "correctIndex": 0,
-          "explanation": "why it's correct"
+          "explanation": "Detailed explanation of why this is correct based on the documentation."
         }
       ]
     }`;
 
-    const result = await model.generateContent(prompt);
+    const result = await model.generateContent({
+        contents: [{ role: "user", parts: [{ text: prompt }] }],
+        generationConfig: {
+            responseMimeType: "application/json"
+        }
+    });
+
     const response = await result.response;
     const text = response.text();
     
-    // Clean potential markdown code blocks from response
-    const jsonStr = text.replace(/```json|```/g, "").trim();
-    const questions = JSON.parse(jsonStr).questions;
+    // No regex cleanup needed due to responseMimeType
+    const questions = JSON.parse(text).questions;
 
     res.json({ questions });
   } catch (error) {

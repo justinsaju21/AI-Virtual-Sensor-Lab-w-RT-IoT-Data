@@ -600,5 +600,150 @@ export const SENSOR_QUIZZES: Record<string, Question[]> = {
             correctIndex: 2,
             explanation: "Soft porous materials physically absorb the kinetic energy of the sound wave rather than reflecting a strong geometric echo back to the receiver."
         }
+    ],
+    "bmp280": [
+        {
+            question: "What physical property does the BMP280 use to measure changes in air pressure?",
+            options: ["Capacitance", "Piezoresistance", "Thermal Conductivity", "Optical Reflection"],
+            correctIndex: 1,
+            explanation: "The BMP280 uses tiny piezoresistors embedded in a silicon diaphragm. Mechanical stress from air pressure changes the electrical resistance."
+        },
+        {
+            question: "How does altitude mathematically relate to atmospheric pressure?",
+            options: [
+                "Pressure increases exponentially with altitude.",
+                "Pressure remains constant regardless of altitude.",
+                "Pressure decreases exponentially as altitude increases.",
+                "Pressure decreases linearly by 1 hPa per meter."
+            ],
+            correctIndex: 2,
+            explanation: "Follows the Barometric Formula: atmospheric pressure drops off exponentially as you go higher because there is less weight of the atmosphere above you."
+        },
+        {
+            question: "Which communication protocol does the BMP280 use according to the hardware wiring?",
+            options: ["SPI", "Analog Volts", "UART (Serial)", "I²C"],
+            correctIndex: 3,
+            explanation: "It uses the I²C bus, which allows multiple sensors to share only two data lines: SDA (Data) and SCL (Clock)."
+        }
+    ],
+    "dht11": [
+        {
+            question: "How does the DHT11 physically measure changes in humidity?",
+            options: [
+                "By measuring air pressure.",
+                "Using a moisture-absorbing substrate where electrical resistance changes with water content.",
+                "By bouncing ultrasonic waves off water molecules.",
+                "Using a tiny internal fan."
+            ],
+            correctIndex: 1,
+            explanation: "A capacitive humidity sensor sandwiches a moisture-retaining layer between two electrodes. As it absorbs water from the air, its electrical capacitance changes."
+        },
+        {
+            question: "What is the maximum polling rate allowed for the DHT11 sensor?",
+            options: [
+                "50 times per second (50Hz)",
+                "10 times per second (10Hz)",
+                "Once every 2 seconds (0.5Hz)",
+                "Once per minute"
+            ],
+            correctIndex: 2,
+            explanation: "The internal 8-bit microcontroller inside the DHT11 requires almost 2 seconds to sample, calculate, and prepare the 40-bit data stream."
+        },
+        {
+            question: "Which communication protocol does the DHT11 use?",
+            options: ["I²C", "SPI", "Analog Voltage", "A proprietary Single-Wire Digital Protocol"],
+            correctIndex: 3,
+            explanation: "It uses a custom time-based digital protocol on a single wire, requiring microsecond-level timing from the Arduino to read properly."
+        }
+    ],
+    "mq2": [
+        {
+            question: "Why does the MQ-2 get physically hot when powered on?",
+            options: [
+                "Too much supply voltage.",
+                "Internal heater required for the chemical SnO₂ reaction to occur rapidly.",
+                "It is short-circuiting.",
+                "To evaporate ambient humidity."
+            ],
+            correctIndex: 1,
+            explanation: "The Tin Dioxide (SnO2) sensing layer must be heated to ~300°C for the gas molecules to physically react with the surface."
+        },
+        {
+            question: "What element changes its electrical property based on gas concentration?",
+            options: [
+                "A Photodiode",
+                "A Piezoelectric crystal",
+                "Tin Dioxide (SnO₂) sensing resistor",
+                "A Hall Effect transistor"
+            ],
+            correctIndex: 2,
+            explanation: "MQ series sensors are chemiresistors dependent on the semiconductor properties of Tin Dioxide."
+        },
+        {
+            question: "Why is an ADC needed for the MQ-2 sensor?",
+            options: [
+                "Because it communicates over I²C.",
+                "Its output is a fluctuating continuous voltage, not a simple 1 or 0.",
+                "Because it requires 5V logic levels.",
+                "To convert digital data to radio frequency."
+            ],
+            correctIndex: 1,
+            explanation: "The sensor provides an analog voltage between 0-5V. An Analog-to-Digital Converter converts this continuously variable voltage into a numeric value (0-1023)."
+        }
+    ],
+    "max30102": [
+        {
+            question: "What medical measurement principle does the MAX30102 rely upon?",
+            options: [
+                "Electrocardiography (ECG)",
+                "Photoplethysmography (PPG)",
+                "Capnography",
+                "Piezoresistance"
+            ],
+            correctIndex: 1,
+            explanation: "Photoplethysmography uses optical light reflection to measure volumetric changes in blood flow."
+        },
+        {
+            question: "Why does the sensor use two different LEDs (Red + Infrared)?",
+            options: [
+                "To look cool in the dark.",
+                "Oxygenated blood absorbs IR differently than deoxygenated blood absorbs Red — enabling SpO₂ calculation.",
+                "Red measures heart rate, IR measures temperature.",
+                "To penetrate bone and muscle."
+            ],
+            correctIndex: 1,
+            explanation: "The ratio of red vs infrared light absorbed by the blood allows the sensor to calculate Blood Oxygen Saturation (SpO2)."
+        },
+        {
+            question: "If BPM values are completely erratic, what is the most likely physical cause?",
+            options: [
+                "Wrong I²C address.",
+                "Pressing too hard on the sensor, cutting off capillary blood flow.",
+                "5V logic instead of 3.3V.",
+                "The person has no pulse."
+            ],
+            correctIndex: 1,
+            explanation: "Applying pressure squeezes the blood out of the capillary bed in the finger, destroying the optical signal."
+        }
+    ],
+    "thermistor": [
+        {
+            question: "What happens to the resistance of an NTC thermistor as the temperature increases?",
+            options: ["It increases proportionally", "It remains constant", "It decreases exponentially", "It fluctuates randomly"],
+            correctIndex: 2,
+            explanation: "In metals, resistance goes UP with heat (PTC). In these semiconductor thermistors, resistance goes DOWN with heat (NTC) due to electrons jumping into the conduction band."
+        },
+        {
+            question: "Which mathematical equation is commonly used to convert thermistor resistance to temperature?",
+            options: ["Ohm's Law", "Steinhart-Hart Equation", "Planck's Law", "Fourier Transform"],
+            correctIndex: 1,
+            explanation: "The Steinhart-Hart equation is an empirical 3rd-order polynomial describing the extreme non-linearity of semiconductor thermistors."
+        },
+        {
+            question: "Why must a thermistor typically be used in a voltage divider circuit with an Arduino?",
+            options: ["To amplify the ambient temperature signal", "To convert resistance changes into measurable voltage changes", "To power the semiconductor lattice directly", "To prevent the sensor from freezing at low temperatures"],
+            correctIndex: 1,
+            explanation: "A standalone resistor by itself cannot generate a changing voltage. It must be paired with a fixed resistor to form a voltage divider to provide a 0-5V signal."
+        }
     ]
 };

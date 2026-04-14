@@ -4,6 +4,7 @@ import React, { useState } from "react";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/Card";
 import { BookOpen, ChevronDown, ChevronUp } from "lucide-react";
 import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 
 interface TheorySection {
     title: string;
@@ -66,6 +67,7 @@ export const TheoryPanel: React.FC<TheoryPanelProps> = ({
                                 <div className="px-4 py-3 border-t border-white/5 bg-slate-900/50 text-sm text-slate-300">
                                     <div className="prose prose-invert max-w-none">
                                         <ReactMarkdown
+                                            remarkPlugins={[remarkGfm]}
                                             components={{
                                                 p: ({ children }) => (
                                                     <p className="text-slate-300 mb-2">{children}</p>

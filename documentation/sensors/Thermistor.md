@@ -102,3 +102,27 @@ graph LR
 ## 7. Common Mistakes & Troubleshooting
 - **Incorrect Calculation:** Using a 5k resistor with a 10k thermistor without updating the formula.
 - **Self-Heating:** If current is too high, the thermistor will heat itself up, causing an "offset" error. Always use at least a 10k fixed resistor to limit current.
+
+---
+
+## AI Assessment Questions (UI Integration)
+*The following questions are designed for the interactive UI quiz module to test student comprehension.*
+
+**Q1: What happens to the resistance of an NTC thermistor as the temperature increases?**
+- A) It increases proportionally
+- B) It remains constant
+- C) It decreases exponentially *(Correct)*
+- D) It fluctuates randomly
+
+**Q2: Which mathematical equation is commonly used to convert thermistor resistance to temperature?**
+- A) Ohm's Law
+- B) Steinhart-Hart Equation *(Correct)*
+- C) Planck's Law
+- D) Fourier Transform
+
+**Q3: Why must a thermistor typically be used in a voltage divider circuit with an Arduino?**
+- A) To amplify the ambient temperature signal
+- B) To convert resistance changes into measurable voltage changes *(Correct)*
+- C) To power the semiconductor lattice directly
+- D) To prevent the sensor from freezing at low temperatures
+
