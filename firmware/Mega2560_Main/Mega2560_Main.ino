@@ -382,10 +382,12 @@ void transmitData() {
   s["dht11"]["humidity"] = sysData.ext_hum;
   s["dht11"]["stale"] = !dhtOk;
 
-  // 2. BMP280
-  s["bmp280"]["temp"] = sysData.bmp_temp;
-  s["bmp280"]["pressure"] = sysData.bmp_press;
-  s["bmp280"]["connected"] = bmpOk;
+  // 2. BMP280 (only transmit if sensor actually detected — prevents zero override of mock data)
+  if (bmpOk) {
+    s["bmp280"]["temp"] = sysData.bmp_temp;
+    s["bmp280"]["pressure"] = sysData.bmp_press;
+    s["bmp280"]["connected"] = true;
+  }
 
   // 3. Gases
   s["mq2"]["raw"] = sysData.mq2_raw;
