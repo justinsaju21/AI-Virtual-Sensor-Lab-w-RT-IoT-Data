@@ -77,7 +77,12 @@ void sendToServer(const String& jsonData) {
 
   DynamicJsonDocument doc(2048);
   DeserializationError error = deserializeJson(doc, jsonData);
-  if (error) return; // Silent fail on bad JSON
+  if (error) {
+    Serial.print("[BRIDGE] JSON Parse Failed: ");
+    Serial.println(error.c_str());
+    Serial.println("[BRIDGE] Raw Input: " + jsonData);
+    return; // Silent fail on bad JSON to backend, but warned locally
+  }
 
   // Inject minimal system metadata
   JsonObject sys = doc.createNestedObject("system");
@@ -90,14 +95,20 @@ void sendToServer(const String& jsonData) {
   serializeJson(doc, payload);
 
   // POST — uses existing TLS connection (no handshake cost after first request)
+  Serial.println("[BRIDGE] Executing HTTP POST to Render...");
   int code = http.POST(payload);
+  
+  Serial.print("[BRIDGE] HTTP Status Code: ");
+  Serial.println(code);
 
   if (code > 0) {
     // CRITICAL: We MUST read the response stream, otherwise the ESP8266HTTPClient 
     // considers the connection dirty and violently closes it, destroying Keep-Alive!
     String response = http.getString(); 
+    Serial.println("[BRIDGE] Render Response: " + response);
   } else {
     // If connection was dropped by server, re-initialize for next call
+    Serial.println("[BRIDGE] Connection Dropped or Failed! Error: " + http.errorToString(code));
     http.end(); // Terminate dead socket properly to prevent TCP socket leak
     httpInitialized = false;
   }
