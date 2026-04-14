@@ -221,6 +221,38 @@ export default function DHT11Page() {
 
     const currentTemp = isFaultyTemp ? "N/A" : data?.sensors?.dht11?.temp?.toFixed(1) ?? "--";
     const currentHumidity = isFaultyHumidity ? "N/A" : data?.sensors?.dht11?.humidity?.toFixed(1) ?? "--";
+    const faultIndicatorHumidity = faultHumidityConfig.type !== "none";
+    const { processedData: processedTempData } = useSignalProcessing(data?.sensors?.dht11?.temp ?? 0); const processedTemp = processedTempData[processedTempData.length-1] ?? 0;
+    const tempMistakes = useMistakeDetector({ sensorName: "Temperature", data: tempHistory, expectedRange: { min: 20, max: 30 } });
+    const humidityMistakes = useMistakeDetector({ sensorName: "Humidity", data: humidityHistory, expectedRange: { min: 30, max: 70 } });
+
+    useEffect(() => {
+        if (!data) return;
+        
+        const timestamp = new Date(data.timestamp);
+        const timeLabel = timestamp.toLocaleTimeString("en-US", {
+            hour12: false,
+            minute: "2-digit",
+            second: "2-digit",
+        });
+
+        const temp = isFaultyTemp ? null : (data?.sensors?.dht11?.temp ?? 0);
+        const humidity = isFaultyHumidity ? null : (data?.sensors?.dht11?.humidity ?? 0);
+
+        if (temp !== null) {
+            setTempHistory((prev) => [...prev, { time: timeLabel, value: temp, processingValue: processedTemp }].slice(-MAX_DATA_POINTS));
+        }
+        if (humidity !== null) {
+            setHumidityHistory((prev) => [...prev, { time: timeLabel, value: humidity }].slice(-MAX_DATA_POINTS));
+        }
+    }, [data, isFaultyTemp, isFaultyHumidity, processedTemp]);
+
+    const [showTestingPanel, setShowTestingPanel] = useState(false);
+
+
+
+    const currentTemp = isFaultyTemp ? "N/A" : data?.sensors?.dht11?.temp?.toFixed(1) ?? "--";
+    const currentHumidity = isFaultyHumidity ? "N/A" : data?.sensors?.dht11?.humidity?.toFixed(1) ?? "--";
 
     // AI context is handled by SensorDetailLayout directly.
 
@@ -236,6 +268,7 @@ export default function DHT11Page() {
             arduinoCode={ARDUINO_CODE}
             experiments={EXPERIMENTS}
             commonMistakes={COMMON_MISTAKES}
+            isReal={!!data?.sensors?.dht11?.isReal}
             testingProps={{
                 showPanel: showTestingPanel,
                 setShowPanel: setShowTestingPanel,

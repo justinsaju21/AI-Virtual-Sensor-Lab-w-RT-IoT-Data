@@ -105,7 +105,22 @@ export default function MQ3Page() {
 
     return (
         <>
-            <SensorDetailLayout title="Alcohol Sensor (MQ3)" description="Chemiresistor optimized for ethanol vapor detection." sensorId="MQ3" dataSnippet={{ value: displayValue, pin: "A1" }} theory={THEORY} arduinoCode={ARDUINO_CODE} experiments={EXPERIMENTS} commonMistakes={COMMON_MISTAKES} testingProps={{ showPanel: showTestingPanel, setShowPanel: setShowTestingPanel, renderPanel: () => <TestingControlPanel faultType={fault.type} setFault={setFault} filterType={filter.type} setFilter={setFilter} calibrationOffset={calibrationOffset} setCalibrationOffset={setCalibrationOffset} /> }}>
+            <SensorDetailLayout 
+                title="Alcohol Sensor (MQ3)" 
+                description="Chemiresistor optimized for ethanol vapor detection." 
+                sensorId="mq3" 
+                dataSnippet={{ value: displayValue, pin: "A1" }} 
+                theory={THEORY} 
+                arduinoCode={ARDUINO_CODE} 
+                experiments={EXPERIMENTS} 
+                commonMistakes={COMMON_MISTAKES} 
+                isReal={!!data?.sensors?.mq3?.isReal}
+                testingProps={{ 
+                    showPanel: showTestingPanel, 
+                    setShowPanel: setShowTestingPanel, 
+                    renderPanel: () => <TestingControlPanel faultType={fault.type} setFault={setFault} filterType={filter.type} setFilter={setFilter} calibrationOffset={calibrationOffset} setCalibrationOffset={setCalibrationOffset} /> 
+                }}
+            >
                 {anomalies.map((anomaly, i) => <MistakeAlert key={i} anomaly={anomaly} onDismiss={() => setDismissedAnomalies([...dismissedAnomalies, i])} />)}
                 <div className="grid gap-6 md:grid-cols-3">
                     <Card variant="gradient" className="md:col-span-1 relative overflow-hidden">
@@ -116,7 +131,6 @@ export default function MQ3Page() {
                             <span className={`text-4xl font-bold ${fault.type !== 'none' ? 'text-amber-300' : 'text-white'}`}>{displayValue}</span>
                             {fault.type !== 'none' && <Badge variant="warning" size="sm" className="mt-2 animate-pulse">⚠ Fault: {fault.type}</Badge>}
                             {calibrationOffset !== 0 && <span className="text-xs text-indigo-400 mt-1">Offset: {calibrationOffset > 0 ? '+' : ''}{calibrationOffset}</span>}
-                            <Badge variant={isConnected ? "success" : "default"} size="sm" className="mt-3">{isConnected ? "Live" : "Offline"}</Badge>
                         </CardContent>
                     </Card>
                     <Card variant="default" className="md:col-span-2">

@@ -3,7 +3,8 @@
 import React, { useEffect, useRef, useState } from "react";
 import { useAI } from "@/contexts/AIContext";
 import { useStudentNotes } from "@/hooks/useStudentNotes";
-import { Activity, BookOpen, Code2, FlaskConical, AlertTriangle, FileText, Check, Save, Settings, Download } from "lucide-react";
+import { Activity, BookOpen, Code2, FlaskConical, AlertTriangle, FileText, Check, Save, Settings, Download, Signal } from "lucide-react";
+import { Badge } from "@/components/ui/Badge";
 import ReactMarkdown from 'react-markdown';
 import remarkMath from 'remark-math';
 import rehypeKatex from 'rehype-katex';
@@ -85,6 +86,7 @@ interface SensorDetailLayoutProps {
     experiments?: ExperimentStep[];
     commonMistakes?: CommonMistake[];
     children: React.ReactNode;
+    isReal?: boolean;
 
     // Testing Props (Optional for now to avoid breaking existing pages)
     testingProps?: {
@@ -106,7 +108,8 @@ export const SensorDetailLayout: React.FC<SensorDetailLayoutProps> = ({
     experiments,
     commonMistakes,
     children,
-    testingProps
+    testingProps,
+    isReal = false
 }) => {
     const { updateContext } = useAI();
     const [activeTab, setActiveTab] = useState<TabType>("live");
@@ -530,6 +533,20 @@ export const SensorDetailLayout: React.FC<SensorDetailLayoutProps> = ({
                     <div className="flex items-center gap-3">
                         <h1 className="text-2xl font-bold text-white tracking-tight">{title}</h1>
                         <span className="px-2 py-0.5 rounded-md bg-white/10 text-xs font-mono text-slate-400 border border-white/5">{sensorId}</span>
+                        
+                        {/* Hardware Status Indicator */}
+                        <div className="flex items-center gap-2 ml-2">
+                            {isReal ? (
+                                <Badge variant="success" pulse size="md" className="bg-emerald-500/10 border-emerald-500/30 text-emerald-400">
+                                    <Signal size={12} className="mr-0.5" />
+                                    LIVE HARDWARE
+                                </Badge>
+                            ) : (
+                                <Badge variant="default" size="md" className="bg-slate-500/5 border-white/10 text-slate-500">
+                                    SIMULATED
+                                </Badge>
+                            )}
+                        </div>
                         {testingProps && (
                             <button
                                 onClick={() => testingProps.setShowPanel(!testingProps.showPanel)}
