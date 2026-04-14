@@ -77,19 +77,22 @@ app.get('/', (req, res) => {
 app.post('/api/sensor-data', (req, res) => {
   try {
     const data = req.body;
+
+    // Guard: reject if body is null/empty (can happen with HTTP Keep-Alive reuse)
+    if (!data || typeof data !== 'object') {
+      return res.status(400).json({ error: 'Empty or invalid request body' });
+    }
+
     console.log(`[DEBUG] Incoming POST /api/sensor-data. Keys: ${Object.keys(data).join(', ')}`);
     
     if (!data.device_id || !data.sensors) {
-      console.warn(`[DEBUG] Validation failed! device_id present: ${!!data.device_id}, sensors present: ${!!data.sensors}`);
+      console.warn(`[DEBUG] Validation failed! device_id: ${!!data.device_id}, sensors: ${!!data.sensors}`);
       return res.status(400).json({ error: 'Invalid data format' });
     }
 
     lastHardwareSensors = data.sensors;
     useRealData = true;
     lastRealDataTime = Date.now();
-
-    // Store hardware data; the setInterval loop handles all emissions
-    // at a consistent 2-second cadence to prevent duplicate/bursty updates
 
     console.log(`[HYBRID] Real data received from ${data.device_id}. Will merge on next tick.`);
     res.json({ success: true, message: 'Data received and queued for merge' });
