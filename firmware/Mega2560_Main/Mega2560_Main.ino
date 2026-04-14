@@ -86,7 +86,7 @@ unsigned long sonicPingMicros = 0;
 const unsigned long INTERVAL_FAST = 50;    // Joystick, Touch, Tilt
 const unsigned long INTERVAL_MED  = 200;   // Gases, LDR, Flame, Sound
 const unsigned long INTERVAL_DHT  = 2000;  // DHT11 minimum read interval (2 sec)
-const unsigned long INTERVAL_TX   = 200;   // Transmit ALL data every 200ms (5Hz update)
+const unsigned long INTERVAL_TX   = 100;   // Transmit every 100ms (10Hz update)
 
 unsigned long lastFastUpdate = 0;
 unsigned long lastMedUpdate  = 0;
@@ -137,10 +137,11 @@ void setup() {
   // Zero-initialize the persistent data structure to prevent garbage data on boot
   memset(&sysData, 0, sizeof(sysData));
 
-  // Bridge Serial (Internal connection to ESP8266 or via USB for debugging)
+  // Bridge Serial — Mega pins 0/1 are hardwired to ESP8266 on combined board
+  // DIP 1 & 2 must be ON for Mega<->ESP8266 communication
   Serial.begin(115200);
   
-  // Give ESP8266 time to boot and start listening
+  // Give ESP8266 time to boot
   delay(500);
 
   // Setup Digital Inputs
@@ -198,7 +199,7 @@ void loop() {
 
   // ---------------------------------------------------------
   // HANDSHAKE LISTENER
-  // Listen for 'ACK' from ESP8266 to signal it's ready for next packet
+  // Listen for 'ACK' from ESP8266 on Serial (pins 0/1)
   // ---------------------------------------------------------
   while (Serial.available()) {
     String resp = Serial.readStringUntil('\n');
@@ -415,7 +416,9 @@ void transmitData() {
     s["max30102"]["bpm"] = sysData.bpm;
   }
 
-  // Serialize to JSON and send to the bridge (Serial)
+  // Serialize JSON and send to ESP8266 via Serial (pins 0/1)
+  // NOTE: Do NOT add any other Serial.print() calls — they corrupt
+  // the ESP8266's JSON parser. Only JSON + newline should be sent.
   serializeJson(doc, Serial);
   Serial.println(); // Terminate with newline
 }

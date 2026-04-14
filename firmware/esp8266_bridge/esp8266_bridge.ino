@@ -1,15 +1,16 @@
 /*
  * IoT Virtual Sensor Lab - ESP8266 WiFi Bridge
  *
- * GENERIC BRIDGE VERSION
- * This code receives ANY JSON data from Arduino Mega via Serial
- * injects WiFi stats, and forwards it to the backend.
+ * HOSTED VERSION — Sends to Render backend (HTTPS Keep-Alive)
  *
- * Hardware Connections:
- * - ESP8266 RX -> Arduino Mega TX0 (Pin 1)
- * - ESP8266 TX -> Arduino Mega RX0 (Pin 0)
- * - GND -> GND
- * - VCC -> 3.3V
+ * KEY OPTIMIZATION: Uses http.setReuse(true) to keep the TLS connection
+ * alive across multiple POST requests. This avoids paying the ~1200ms
+ * TLS handshake cost on every single request, reducing latency from
+ * ~4 seconds to ~500ms.
+ *
+ * Architecture (Combined Mega+ESP8266 board):
+ * - DIP 1, 2 = ON for normal operation (Mega Serial0 -> ESP8266)
+ * - Mega Serial (pins 0/1) -> ESP8266 via internal DIP bridge
  */
 
 #include <ESP8266WiFi.h>
@@ -18,127 +19,114 @@
 #include <ArduinoJson.h>
 
 // ============ CONFIGURATION ============
-// NOTE: Update WIFI_SSID and WIFI_PASSWORD for your network.
-// Do NOT commit real credentials to version control.
-const char* WIFI_SSID = "THE MAN";
+const char* WIFI_SSID     = "THE MAN";
 const char* WIFI_PASSWORD = "Justin3443";
-const char* SERVER_URL = "http://192.168.1.14:5000/api/sensor-data";
-const char* DEVICE_ID = "mega_node_01";
+const char* SERVER_URL    = "https://ai-virtual-sensor-lab-w-rt-iot-data.onrender.com/api/sensor-data";
 // ========================================
 
+// Global persistent HTTP objects — keeps TLS connection alive between requests
 WiFiClientSecure wifiClient;
 HTTPClient http;
-String inputBuffer = "";
-unsigned long lastWifiCheck = 0;
-bool wifiReconnecting = false;
+
+String inputBuffer        = "";
+unsigned long lastWifiCheck   = 0;
 unsigned long lastHTTPRequest = 0;
-const unsigned long HTTP_REQUEST_INTERVAL = 200; // Limit HTTP requests to 5Hz (200ms)
+const unsigned long HTTP_INTERVAL = 500; // Send at most every 500ms
+
+bool httpInitialized = false; // Track if http.begin() has been called
 
 void setup() {
   Serial.begin(115200);
-  delay(100);
-  Serial.println("\n--- IoT Virtual Lab: Cloud Bridge ---");
+  delay(200);
 
-  // Allow HTTPS without certificate validation
-  wifiClient.setInsecure();
+  wifiClient.setInsecure(); // Skip SSL cert check
 
-  // Initial connection (blocking is OK at startup since no serial data yet)
   WiFi.mode(WIFI_STA);
+  WiFi.setSleep(false); // Disable WiFi sleep mode for lower latency
   WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
 
-  int attempts = 0;
-  while (WiFi.status() != WL_CONNECTED && attempts < 20) {
-    delay(500);
-    Serial.print(".");
-    attempts++;
+  unsigned long start = millis();
+  while (WiFi.status() != WL_CONNECTED && millis() - start < 10000) {
+    delay(250);
   }
 
   if (WiFi.status() == WL_CONNECTED) {
-    Serial.println("\nWiFi Connected!");
-    Serial.println(WiFi.localIP());
-  } else {
-    Serial.println("\nWiFi Failed. Will retry non-blocking in loop...");
+    // Pre-initialize the HTTP connection with Keep-Alive
+    // This way the first real POST doesn't pay the full TLS cost
+    http.begin(wifiClient, SERVER_URL);
+    http.addHeader("Content-Type", "application/json");
+    http.setReuse(true);      // Keep-Alive: reuse TCP+TLS connection
+    http.setTimeout(65000);   // 65s for Render cold start
+    httpInitialized = true;
   }
-
-  // Set HTTP timeout to reduce blocking during POST (reduced from 3000ms to 2000ms)
-  http.setTimeout(2000);
 }
 
-void sendToServer(String jsonData) {
+void sendToServer(const String& jsonData) {
   if (WiFi.status() != WL_CONNECTED) return;
 
-  // Dynamic JSON Buffer for 16-sensor payload + system data
-  DynamicJsonDocument doc(4096);
-  DeserializationError error = deserializeJson(doc, jsonData);
-
-  if (error) {
-    Serial.print("JSON Error: ");
-    Serial.println(error.c_str());
-    return;
+  // Re-init if WiFi was lost and reconnected
+  if (!httpInitialized) {
+    http.begin(wifiClient, SERVER_URL);
+    http.addHeader("Content-Type", "application/json");
+    http.setReuse(true);
+    http.setTimeout(65000);
+    httpInitialized = true;
   }
 
-  // Inject System Data
-  JsonObject system = doc.createNestedObject("system");
-  system["wifi_rssi"] = WiFi.RSSI();
-  system["ip"] = WiFi.localIP().toString();
-  system["heap"] = ESP.getFreeHeap();
-  system["version"] = "2.0.0";
-  system["uptime_ms"] = millis();
+  DynamicJsonDocument doc(2048);
+  DeserializationError error = deserializeJson(doc, jsonData);
+  if (error) return; // Silent fail on bad JSON
 
-  // Re-serialize
+  // Inject minimal system metadata
+  JsonObject sys = doc.createNestedObject("system");
+  sys["rssi"]      = WiFi.RSSI();
+  sys["heap"]      = ESP.getFreeHeap();
+  sys["uptime_ms"] = millis();
+
   String payload;
+  payload.reserve(2048);
   serializeJson(doc, payload);
 
-  // Send
-  http.begin(wifiClient, SERVER_URL);
-  http.addHeader("Content-Type", "application/json");
-
+  // POST — uses existing TLS connection (no handshake cost after first request)
   int code = http.POST(payload);
 
-  if (code == HTTP_CODE_OK) {
-    Serial.println("Sent OK");
-  } else {
-    Serial.printf("HTTP Error: %d\n", code);
+  // If connection was dropped by server, re-initialize for next call
+  if (code < 0) {
+    httpInitialized = false;
   }
-  http.end();
-  
-  // Handshake ACK: Tell Mega we are ready for next packet
+
+  // Always ACK the Mega so it doesn't wait for TX_TIMEOUT (5s)
   Serial.println("ACK");
 }
 
 void loop() {
-  // --- Non-blocking WiFi reconnection ---
-  // Check every 30 seconds; use WiFi.begin() once, then let it reconnect
-  // in the background without blocking the serial read loop
-  if (millis() - lastWifiCheck > 30000) {
+  // --- Non-blocking WiFi reconnect ---
+  if (millis() - lastWifiCheck > 15000) {
     lastWifiCheck = millis();
     if (WiFi.status() != WL_CONNECTED) {
-      if (!wifiReconnecting) {
-        Serial.println("WiFi lost. Reconnecting (non-blocking)...");
-        WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
-        wifiReconnecting = true;
-      }
-    } else if (wifiReconnecting) {
-      Serial.println("WiFi reconnected!");
-      Serial.println(WiFi.localIP());
-      wifiReconnecting = false;
+      httpInitialized = false; // Will re-init once WiFi is back
+      WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
     }
   }
 
-  // --- Read Serial (always runs, never blocked by WiFi) ---
+  // --- Read Serial from Mega ---
   while (Serial.available()) {
     char c = Serial.read();
+
     if (c == '\n') {
-      if (inputBuffer.length() > 0) {
-        // Queue for sending if enough time has passed since last request
-        if (millis() - lastHTTPRequest >= HTTP_REQUEST_INTERVAL) {
-          sendToServer(inputBuffer);
+      String trimmed = inputBuffer;
+      trimmed.trim();
+
+      // Only process valid JSON (starts with '{')
+      if (trimmed.length() > 10 && trimmed.startsWith("{")) {
+        if (millis() - lastHTTPRequest >= HTTP_INTERVAL) {
           lastHTTPRequest = millis();
+          sendToServer(trimmed);
         }
-        inputBuffer = "";
       }
+      inputBuffer = "";
     } else if (c != '\r') {
-      if (inputBuffer.length() < 4096) {
+      if (inputBuffer.length() < 2048) {
         inputBuffer += c;
       }
     }
