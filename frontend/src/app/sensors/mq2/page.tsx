@@ -94,7 +94,7 @@ export default function MQ2Page() {
     const [dismissedAnomalies, setDismissedAnomalies] = useState<number[]>([]);
     const [calibrationOffset, setCalibrationOffset] = useState(0);
 
-    const rawValFromSocket = data?.sensors.mq2?.value ?? data?.sensors.mq2?.raw_value ?? 150;
+    const rawValFromSocket = data?.sensors.mq2?.raw ?? 150;
     const { injectedValue, fault, setFault } = useFaultInjector(rawValFromSocket);
     const calibratedValue = (typeof injectedValue === 'number') ? injectedValue + calibrationOffset : injectedValue;
     const { filter, setFilter, processedData } = useSignalProcessing(history.map(d => d.value));

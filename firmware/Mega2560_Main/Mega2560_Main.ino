@@ -141,6 +141,10 @@ void setup() {
   // DIP 1 & 2 must be ON for Mega<->ESP8266 communication
   Serial.begin(115200);
   
+  // Serial timeout: limit readStringUntil blocking to 50ms max
+  // (default 1000ms would freeze the loop for 1 full second on a corrupt partial byte)
+  Serial.setTimeout(50);
+
   // Give ESP8266 time to boot
   delay(500);
 
@@ -346,10 +350,9 @@ void loop() {
   }
 
   // ---------------------------------------------------------
-  // TRANSMISSION LOOP (500ms ~ 2Hz)
-  // Send collected data frequently without waiting for DHT
-  // Uses the most recent DHT reading even if it's older than 500ms
-  // HANDSHAKE: Only send if not waiting for ACK, or if ACK timeout (5s) hit
+  // TRANSMISSION LOOP (100ms ~ 10Hz)
+  // Send collected data at 10Hz; uses most recent DHT reading
+  // HANDSHAKE: Only send if not waiting for ACK, or TX_TIMEOUT hit
   // ---------------------------------------------------------
   if (currentMillis - lastTXUpdateRecord >= INTERVAL_TX) {
     if (!waitingForAck || (currentMillis - lastTXAttempt >= TX_TIMEOUT)) {
