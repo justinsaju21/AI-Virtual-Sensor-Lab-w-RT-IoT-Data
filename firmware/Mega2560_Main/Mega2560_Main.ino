@@ -97,7 +97,7 @@ unsigned long lastSonicUpdate = 0;
 // Handshake State
 bool waitingForAck = false;
 unsigned long lastTXAttempt = 0;
-const unsigned long TX_TIMEOUT = 5000; // 5s safety timeout to reset handshake
+const unsigned long TX_TIMEOUT = 500; // 500ms safety timeout to recover from dropped packets (was 5000)
 
 
 // Data structure holding all current readings
@@ -294,9 +294,9 @@ void loop() {
 
   // ---------------------------------------------------------
   // NON-BLOCKING ULTRASONIC POLLING
-  // Trigger every 60ms, but don't hang for the echo return in a blocking way
+  // Trigger every 200ms, but don't hang for the echo return in a blocking way
   // ---------------------------------------------------------
-  if (!sonicWaitState && currentMillis - lastSonicUpdate >= 60) {
+  if (!sonicWaitState && currentMillis - lastSonicUpdate >= 200) {
     lastSonicUpdate = currentMillis;
     digitalWrite(PIN_TRIG, LOW);
     delayMicroseconds(2);
@@ -311,9 +311,9 @@ void loop() {
   // If waiting for echo (State Machine logic)
   // We wait at least 150us after trigger before reading to ensure the burst is sent
   if (sonicWaitState && (micros() - sonicPingMicros >= 150)) {
-    // PulseIn with a reduced 15ms timeout (~2.5m range)
-    // This provides a safety net: it avoids blocking for the full 23ms
-    long duration = pulseIn(PIN_ECHO, HIGH, 15000); 
+    // PulseIn with a reduced 10ms timeout (~1.7m range)
+    // This provides a safety net: it avoids blocking for the full 23ms and eating CPU cycle that could be used for Serial
+    long duration = pulseIn(PIN_ECHO, HIGH, 10000); 
     if (duration > 0) {
       sysData.sonic_dist = (duration * 0.0343) / 2.0;
     }

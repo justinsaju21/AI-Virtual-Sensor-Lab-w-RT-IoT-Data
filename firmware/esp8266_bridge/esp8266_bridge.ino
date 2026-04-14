@@ -94,9 +94,6 @@ void sendToServer(const String& jsonData) {
   if (code < 0) {
     httpInitialized = false;
   }
-
-  // Always ACK the Mega so it doesn't wait for TX_TIMEOUT (5s)
-  Serial.println("ACK");
 }
 
 void loop() {
@@ -119,6 +116,11 @@ void loop() {
 
       // Only process valid JSON (starts with '{')
       if (trimmed.length() > 10 && trimmed.startsWith("{")) {
+        
+        // CRITICAL FIX: Always ACK the Mega immediately so it doesn't wait for TX_TIMEOUT (5s)
+        // We do this BEFORE the rate limit check, otherwise dropped packets cause the Mega to freeze!
+        Serial.println("ACK");
+
         if (millis() - lastHTTPRequest >= HTTP_INTERVAL) {
           lastHTTPRequest = millis();
           sendToServer(trimmed);
