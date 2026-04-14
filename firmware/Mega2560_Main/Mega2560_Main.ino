@@ -297,10 +297,10 @@ void loop() {
   }
 
   // ---------------------------------------------------------
-  // NON-BLOCKING ULTRASONIC POLLING
-  // Trigger every 200ms, but don't hang for the echo return in a blocking way
+  // ULTRASONIC POLLING (Synchronous with 10ms timeout)
+  // Trigger every 200ms. pulseIn blocks for max 10ms (~1.7m)
   // ---------------------------------------------------------
-  if (!sonicWaitState && currentMillis - lastSonicUpdate >= 200) {
+  if (currentMillis - lastSonicUpdate >= 200) {
     lastSonicUpdate = currentMillis;
     digitalWrite(PIN_TRIG, LOW);
     delayMicroseconds(2);
@@ -308,20 +308,11 @@ void loop() {
     delayMicroseconds(10);
     digitalWrite(PIN_TRIG, LOW);
     
-    sonicWaitState = true;
-    sonicPingMicros = micros();
-  }
-
-  // If waiting for echo (State Machine logic)
-  // We wait at least 150us after trigger before reading to ensure the burst is sent
-  if (sonicWaitState && (micros() - sonicPingMicros >= 150)) {
-    // PulseIn with a reduced 10ms timeout (~1.7m range)
-    // This provides a safety net: it avoids blocking for the full 23ms and eating CPU cycle that could be used for Serial
+    // Blocking measurement right after trigger to ensure we don't miss the pulse
     long duration = pulseIn(PIN_ECHO, HIGH, 10000); 
     if (duration > 0) {
       sysData.sonic_dist = (duration * 0.0343) / 2.0;
     }
-    sonicWaitState = false; // Reset for next cycle
   }
 
   // ---------------------------------------------------------
