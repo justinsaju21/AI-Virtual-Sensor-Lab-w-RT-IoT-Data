@@ -22,6 +22,7 @@
 const char* WIFI_SSID     = "THE MAN";
 const char* WIFI_PASSWORD = "Justin3443";
 const char* SERVER_URL    = "https://ai-virtual-sensor-lab-w-rt-iot-data.onrender.com/api/sensor-data";
+const char* DEVICE_ID     = "mega_node_01";
 // ========================================
 
 // Global persistent HTTP objects — keeps TLS connection alive between requests
