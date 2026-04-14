@@ -67,6 +67,7 @@ void sendToServer(const String& jsonData) {
 
   // Re-init if WiFi was lost and reconnected
   if (!httpInitialized) {
+    http.end(); // Clean up previous socket if any leak occurred
     http.begin(wifiClient, SERVER_URL);
     http.addHeader("Content-Type", "application/json");
     http.setReuse(true);
@@ -97,6 +98,7 @@ void sendToServer(const String& jsonData) {
     String response = http.getString(); 
   } else {
     // If connection was dropped by server, re-initialize for next call
+    http.end(); // Terminate dead socket properly to prevent TCP socket leak
     httpInitialized = false;
   }
 }
@@ -106,6 +108,7 @@ void loop() {
   if (millis() - lastWifiCheck > 15000) {
     lastWifiCheck = millis();
     if (WiFi.status() != WL_CONNECTED) {
+      http.end(); // Cleanly close socket before attempting WiFi reset
       httpInitialized = false; // Will re-init once WiFi is back
       WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
     }
@@ -121,15 +124,15 @@ void loop() {
 
       // Only process valid JSON (starts with '{')
       if (trimmed.length() > 10 && trimmed.startsWith("{")) {
-        
-        // CRITICAL FIX: Always ACK the Mega immediately so it doesn't wait for TX_TIMEOUT (5s)
-        // We do this BEFORE the rate limit check, otherwise dropped packets cause the Mega to freeze!
-        Serial.println("ACK");
 
         if (millis() - lastHTTPRequest >= HTTP_INTERVAL) {
           lastHTTPRequest = millis();
           sendToServer(trimmed);
         }
+
+        // ACK the Mega AFTER processing (e.g. after HTTP POST) so we don't overflow the Serial buffer
+        // Flow control: Mega waits for this before sending the next packet.
+        Serial.println("ACK");
       }
       inputBuffer = "";
     } else if (c != '\r') {

@@ -86,7 +86,7 @@ unsigned long sonicPingMicros = 0;
 const unsigned long INTERVAL_FAST = 50;    // Joystick, Touch, Tilt
 const unsigned long INTERVAL_MED  = 200;   // Gases, LDR, Flame, Sound
 const unsigned long INTERVAL_DHT  = 2000;  // DHT11 minimum read interval (2 sec)
-const unsigned long INTERVAL_TX   = 100;   // Transmit every 100ms (10Hz update)
+const unsigned long INTERVAL_TX   = 500;   // Transmit every 500ms (2Hz update)
 
 unsigned long lastFastUpdate = 0;
 unsigned long lastMedUpdate  = 0;
@@ -97,7 +97,7 @@ unsigned long lastSonicUpdate = 0;
 // Handshake State
 bool waitingForAck = false;
 unsigned long lastTXAttempt = 0;
-const unsigned long TX_TIMEOUT = 500; // 500ms safety timeout to recover from dropped packets (was 5000)
+const unsigned long TX_TIMEOUT = 2000; // 2000ms safety timeout to recover from dropped packets
 
 
 // Data structure holding all current readings
