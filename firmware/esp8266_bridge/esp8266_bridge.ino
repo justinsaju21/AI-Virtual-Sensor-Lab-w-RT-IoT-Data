@@ -36,6 +36,8 @@ const unsigned long HTTP_INTERVAL = 500; // Send at most every 500ms
 bool httpInitialized = false; // Track if http.begin() has been called
 
 void setup() {
+  system_update_cpu_freq(160); // Double CPU speed to 160MHz (cuts TLS handshake from ~3s to ~1.5s if it drops)
+  
   Serial.begin(115200);
   delay(200);
 
@@ -90,8 +92,12 @@ void sendToServer(const String& jsonData) {
   // POST — uses existing TLS connection (no handshake cost after first request)
   int code = http.POST(payload);
 
-  // If connection was dropped by server, re-initialize for next call
-  if (code < 0) {
+  if (code > 0) {
+    // CRITICAL: We MUST read the response stream, otherwise the ESP8266HTTPClient 
+    // considers the connection dirty and violently closes it, destroying Keep-Alive!
+    String response = http.getString(); 
+  } else {
+    // If connection was dropped by server, re-initialize for next call
     httpInitialized = false;
   }
 }
