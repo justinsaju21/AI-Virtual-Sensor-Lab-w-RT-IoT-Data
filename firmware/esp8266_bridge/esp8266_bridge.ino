@@ -70,8 +70,8 @@ void sendToServer(const String& jsonData) {
     http.end(); // Clean up previous socket if any leak occurred
     http.begin(wifiClient, SERVER_URL);
     http.addHeader("Content-Type", "application/json");
-    http.setReuse(true);
-    http.setTimeout(65000);
+    // Removed setReuse(true) because ESP8266 WiFiClientSecure Keep-Alive causes memory fragmentation/crashing
+    http.setTimeout(15000); // Changed to 15s to fail-fast if Render hangs
     httpInitialized = true;
   }
 
@@ -102,10 +102,13 @@ void sendToServer(const String& jsonData) {
   Serial.println(code);
 
   if (code > 0) {
-    // CRITICAL: We MUST read the response stream, otherwise the ESP8266HTTPClient 
-    // considers the connection dirty and violently closes it, destroying Keep-Alive!
+    // Read the response stream to flush the buffer
     String response = http.getString(); 
     Serial.println("[BRIDGE] Render Response: " + response);
+    
+    // Explicitly disconnect after every request to save RAM since we disabled Keep-Alive
+    http.end();
+    httpInitialized = false;
   } else {
     // If connection was dropped by server, re-initialize for next call
     Serial.println("[BRIDGE] Connection Dropped or Failed! Error: " + http.errorToString(code));
