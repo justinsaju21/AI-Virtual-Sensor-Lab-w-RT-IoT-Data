@@ -86,8 +86,7 @@ void loop() {
   // LOW means the NPN transistor is active and sinking to ground 
   // (Metal is touching the magnetic field)
   if (metalDetected == LOW) {
-    Serial.println("METAL OJECT DETECTED!");
-  } else {
+    Serial.println("METAL OBJECT DETECTED!");  } else {
     // Serial.println("Clear.");
   }
 

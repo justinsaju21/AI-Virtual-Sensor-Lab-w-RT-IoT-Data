@@ -119,8 +119,7 @@ void loop() {
 
 ## 7. Common Mistakes & Troubleshooting
 
-1. **The Button Reada "0" Without Pressing:**
-   - *Symptom:* The "BUTTON CLICKED" message prints continuously.
+1. **The Button Reads "0" Without Pressing:**   - *Symptom:* The "BUTTON CLICKED" message prints continuously.
    - *Cause:* The `SW` pin is floating electromagnetically. Your code uses `pinMode(JOY_BUTTON, INPUT);` instead of `INPUT_PULLUP`.
    - *Fix:* Ensure the Arduino is pulling the button pin HIGH (5V) internally.
 2. **Only Half the Range Works:**

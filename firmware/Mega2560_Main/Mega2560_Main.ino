@@ -8,7 +8,7 @@
  * over Serial (pins 0/1) to the ESP8266 Wi-Fi Gateway.
  *
  * Required Libraries:
- * - ArduinoJson (v6 or v7)
+ * - ArduinoJson (v7)
  * - Adafruit BMP280 Library
  * - Adafruit Unified Sensor
  * - DHT sensor library
@@ -359,12 +359,12 @@ void loop() {
 // ==========================================
 void transmitData() {
   waitingForAck = true; // Set flag - wait for ESP to finish cloud post
-  StaticJsonDocument<2048> doc;
+  JsonDocument doc;
 
   // Construct structured payload
   doc["device_id"] = "mega_node_01";
 
-  JsonObject s = doc.createNestedObject("sensors");
+  JsonObject s = doc["sensors"].to<JsonObject>();
 
   // TIP: You can comment out lines below if a sensor is not connected
 

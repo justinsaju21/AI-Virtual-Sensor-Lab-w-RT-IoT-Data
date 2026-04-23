@@ -178,18 +178,23 @@ function parseQuizFromMarkdown(filePath) {
 
       const options = [];
       let correctIndex = 0;
+      let foundCorrect = false;
 
       const optionLines = optionsRaw.split('\n').map(l => l.trim()).filter(l => l.startsWith('-'));
       optionLines.forEach((ol, idx) => {
         let optText = ol.replace(/^-\s*[A-D]\)\s*/, '').trim();
         if (optText.includes('*(Correct)*')) {
           correctIndex = idx;
+          foundCorrect = true;
           optText = optText.replace('*(Correct)*', '').trim();
         }
         options.push(optText);
       });
 
       if (options.length > 0) {
+        if (!foundCorrect) {
+          console.warn(`No correct answer marker found for question: "${qText}"`);
+        }
         questions.push({
           question: qText,
           options,

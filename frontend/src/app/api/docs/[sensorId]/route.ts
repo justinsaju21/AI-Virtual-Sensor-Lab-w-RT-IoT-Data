@@ -132,7 +132,12 @@ export async function GET(
         } catch {
             // Try finding generically
             const files = await fs.readdir(docsDir);
-            const found = files.find(f => f.toLowerCase().includes(rawSensorId.toLowerCase()) || f.toLowerCase().includes(sanitizedId.toLowerCase()));
+            const found = files.find(f => 
+                f.toLowerCase() === `${rawSensorId.toLowerCase()}.md` ||
+                f.toLowerCase() === `${sanitizedId.toLowerCase()}.md` ||
+                f.toLowerCase().startsWith(`${sanitizedId.toLowerCase()}_`) ||
+                f.toLowerCase().startsWith(`${sanitizedId.toLowerCase()}-`)
+            );
             if (found) {
                 filePath = path.join(docsDir, found);
                 // Re-verify resolved path

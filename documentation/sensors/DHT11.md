@@ -144,7 +144,7 @@ To run the Arduino code above, you must install the following libraries via the 
 
 **Q1: How does the DHT11 physically measure changes in humidity?**
 - A) By measuring the air pressure.
-- B) Using a moisture-absorbing substrate where electrical resistance changes with water content. *(Correct)*
+- B) Using a moisture-absorbing substrate where electrical capacitance changes with water content. *(Correct)*
 - C) By bouncing ultrasonic waves off water molecules.
 - D) Using a tiny internal Fan.
 

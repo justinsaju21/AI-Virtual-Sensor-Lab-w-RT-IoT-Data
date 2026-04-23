@@ -105,8 +105,7 @@ void loop() {
 1. **The Shadow Test:**
    - **Instruction:** Hold your hand directly over the sensor so it casts a solid shadow, but don't touch it. Then remove your hand.
    - **Observation:** Notice the analog numbers drop smoothly when the shadow falls over it and rise when the light returns.
-   - **Expected:** Unlike digital IR sensors that use reflection, this strictly measures ambient ambient energy.
-
+   - **Expected:** Unlike digital IR sensors that use reflection, this strictly measures ambient energy.
 2. **The Color Response Test:**
    - **Instruction:** Shine a red light (from a phone screen or LED) onto the LDR and note the peak value. Then shine a blue light of equal brightness.
    - **Observation:** The LDR will likely react much better to the Red/Yellow light than the Blue light.

@@ -17,6 +17,7 @@
 
 void setup() {
   Serial.begin(115200);
+  analogSetPinAttenuation(TEMP_PIN, ADC_11db);  // Enable full 0-3.3V range
   Serial.println("LM35 Temperature Probe ESP32 Test");
 }
 
