@@ -86,7 +86,7 @@ unsigned long sonicPingMicros = 0;
 const unsigned long INTERVAL_FAST = 50;    // Joystick, Touch, Tilt
 const unsigned long INTERVAL_MED  = 200;   // Gases, LDR, Flame, Sound
 const unsigned long INTERVAL_DHT  = 2000;  // DHT11 minimum read interval (2 sec)
-const unsigned long INTERVAL_TX   = 500;   // Transmit every 500ms (2Hz update)
+const unsigned long INTERVAL_TX   = 200;   // Transmit every 200ms (5Hz update to match backend)
 
 unsigned long lastFastUpdate = 0;
 unsigned long lastMedUpdate  = 0;
