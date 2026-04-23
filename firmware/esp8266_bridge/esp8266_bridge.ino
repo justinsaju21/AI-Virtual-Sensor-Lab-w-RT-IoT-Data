@@ -41,6 +41,7 @@ void setup() {
   delay(200);
 
   wifiClient.setInsecure(); // Skip SSL cert check
+  wifiClient.setBufferSizes(512, 512); // CRITICAL: Reduces BearSSL memory footprint, preventing Keep-Alive crashes
 
   WiFi.mode(WIFI_STA);
   WiFi.setSleep(false); // Disable WiFi sleep mode for lower latency
@@ -70,8 +71,8 @@ void sendToServer(const String& jsonData) {
     http.end(); // Clean up previous socket if any leak occurred
     http.begin(wifiClient, SERVER_URL);
     http.addHeader("Content-Type", "application/json");
-    // Removed setReuse(true) because ESP8266 WiFiClientSecure Keep-Alive causes memory fragmentation/crashing
-    http.setTimeout(15000); // Changed to 15s to fail-fast if Render hangs
+    http.setReuse(true); // Restored Keep-Alive. Buffer sizes fixed the memory issue.
+    http.setTimeout(15000); // 15s to fail-fast if Render hangs
     httpInitialized = true;
   }
 
@@ -106,9 +107,7 @@ void sendToServer(const String& jsonData) {
     String response = http.getString(); 
     Serial.println("[BRIDGE] Render Response: " + response);
     
-    // Explicitly disconnect after every request to save RAM since we disabled Keep-Alive
-    http.end();
-    httpInitialized = false;
+    // We KEEP the connection alive now. No http.end() here!
   } else {
     // If connection was dropped by server, re-initialize for next call
     Serial.println("[BRIDGE] Connection Dropped or Failed! Error: " + http.errorToString(code));
