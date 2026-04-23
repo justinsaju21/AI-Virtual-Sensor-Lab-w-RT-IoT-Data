@@ -50,7 +50,7 @@ export const Header: React.FC<HeaderProps> = ({ systemInfo, isConnected, deviceI
                             <div className="flex items-center gap-2">
                                 <Activity className="h-4 w-4 text-emerald-400" />
                                 <span className="text-xs text-slate-400">Rate</span>
-                                <span className="text-xs font-mono font-medium text-white">0.5Hz</span>
+                                <span className="text-xs font-mono font-medium text-white">5Hz</span>
                             </div>
                         </div>
                     )}
