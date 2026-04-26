@@ -29,11 +29,11 @@ const getSlides = (isDark: boolean): Slide[] => [
         content: (
             <div style={{ display: "flex", flexDirection: "column", alignItems: "center", textAlign: "center", height: "100%", justifyContent: "center" }}>
                 <div style={{
-                    padding: "16px 24px", background: (isDark ? "rgba(0,242,254,0.1)" : "rgba(0,242,254,0.2)"), border: "1px solid rgba(0,242,254,0.2)",
+                    padding: "16px 24px", background: (isDark ? "rgba(0,242,254,0.1)" : "rgba(2,132,199,0.1)"), border: isDark ? "1px solid rgba(0,242,254,0.2)" : "1px solid rgba(2,132,199,0.2)",
                     borderRadius: 99, marginBottom: 40, display: "inline-flex", alignItems: "center", gap: 12
                 }}>
-                    <Cpu size={24} color="#00f2fe" />
-                    <span style={{ color: "#00f2fe", fontWeight: 700, letterSpacing: "0.05em", fontSize: 14 }}>SIXTH SEMESTER PROJECT</span>
+                    <Cpu size={24} color={isDark ? "#00f2fe" : "#0284c7"} />
+                    <span style={{ color: isDark ? "#00f2fe" : "#0284c7", fontWeight: 700, letterSpacing: "0.05em", fontSize: 14 }}>SIXTH SEMESTER PROJECT</span>
                 </div>
 
                 <h1 style={{
@@ -52,7 +52,7 @@ const getSlides = (isDark: boolean): Slide[] => [
                 <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 40, width: "100%", maxWidth: 900 }}>
                     {/* Team */}
                     <div style={{ textAlign: "right", paddingRight: 40, borderRight: isDark ? "1px solid rgba(255,255,255,0.1)" : "1px solid rgba(0,0,0,0.1)" }}>
-                        <h3 style={{ color: "#4facfe", fontSize: 14, fontWeight: 700, letterSpacing: "0.1em", marginBottom: 16, textTransform: "uppercase" }}>Project Associates</h3>
+                        <h3 style={{ color: isDark ? "#4facfe" : "#0284c7", fontSize: 14, fontWeight: 700, letterSpacing: "0.1em", marginBottom: 16, textTransform: "uppercase" }}>Project Associates</h3>
                         <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
                             {[
                                 { name: "Justin Jacob Saju", id: "RA2311053010097" },
@@ -69,7 +69,7 @@ const getSlides = (isDark: boolean): Slide[] => [
 
                     {/* Guide */}
                     <div style={{ textAlign: "left", paddingLeft: 10, display: "flex", flexDirection: "column", justifyContent: "center" }}>
-                        <h3 style={{ color: "#10b981", fontSize: 14, fontWeight: 700, letterSpacing: "0.1em", marginBottom: 16, textTransform: "uppercase" }}>Project Guide</h3>
+                        <h3 style={{ color: isDark ? "#10b981" : "#059669", fontSize: 14, fontWeight: 700, letterSpacing: "0.1em", marginBottom: 16, textTransform: "uppercase" }}>Project Guide</h3>
                         <div>
                             <div style={{ color: (isDark ? "#fff" : "#0f172a"), fontSize: 22, fontWeight: 700 }}>Dr. Elamaran E</div>
                             <div style={{ color: (isDark ? "#64748b" : "#334155"), fontSize: 16 }}>Assistant Professor</div>
