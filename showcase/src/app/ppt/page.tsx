@@ -70,7 +70,7 @@ const getSlides = (isDark: boolean): Slide[] => [
                         <h3 style={{ color: "#10b981", fontSize: 14, fontWeight: 700, letterSpacing: "0.1em", marginBottom: 16, textTransform: "uppercase" }}>Project Guide</h3>
                         <div>
                             <div style={{ color: (isDark ? "#fff" : "#0f172a"), fontSize: 22, fontWeight: 700 }}>Dr. Elamaran E</div>
-                            <div style={{ color: (isDark ? "#64748b" : "#334155"), fontSize: 16 }}>Associate Professor</div>
+                            <div style={{ color: (isDark ? "#64748b" : "#334155"), fontSize: 16 }}>Assistant Professor</div>
                             <div style={{ color: (isDark ? "#64748b" : "#334155"), fontSize: 14 }}>Department of Electronics & Communication</div>
                         </div>
                     </div>
@@ -157,7 +157,7 @@ const getSlides = (isDark: boolean): Slide[] => [
             <div style={{ display: "flex", flexDirection: "column", gap: 15 }}>
                 <div style={{ 
                     display: "grid", 
-                    gridTemplateColumns: "1.5fr 1fr 1.5fr 1.5fr", 
+                    gridTemplateColumns: "28px 1.4fr 1.2fr 52px 2fr", 
                     gap: "1px", 
                     background: isDark ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.1)",
                     border: isDark ? "1px solid rgba(255,255,255,0.1)" : "1px solid rgba(0,0,0,0.1)",
@@ -165,20 +165,20 @@ const getSlides = (isDark: boolean): Slide[] => [
                     overflow: "hidden"
                 }}>
                     {/* Header */}
-                    {["Paper Topic", "Methodology", "Key Contribution", "Limitation"].map(h => (
-                        <div key={h} style={{ background: isDark ? "#1e293b" : "#f1f5f9", padding: "10px", fontWeight: 700, fontSize: 13, color: "#f59e0b" }}>{h}</div>
+                    {["#", "Title", "Authors", "Year", "Key Findings"].map(h => (
+                        <div key={h} style={{ background: isDark ? "#1e293b" : "#f1f5f9", padding: "10px", fontWeight: 700, fontSize: 12, color: "#f59e0b" }}>{h}</div>
                     ))}
                     {/* Rows */}
                     {[
-                        ["Remote Arduino Labs (2021)", "Host-Node / Flask OTA", "OTA Sketch Upload; Web-based Remote Access", "No AI Diagnostics or Mistake detection"],
-                        ["WS Monitoring (2020)", "ESP8266 + Socket.io", "Real-time Signals; <40ms Jitter Hub", "No Educational context or AI Feedback"],
-                        ["DT Data Integrity (2025)", "Shadow Models (Azure)", "70% Attack Reduction via Shadow Validation", "Security Focus; not adapted for STEM"],
-                        ["DT Smart Space (2024)", "4-Layer MCNP Model", "Formal IEEE 4-Layer Reference Framework", "Smart Building focus; No Lab Education"],
-                        ["DT in STEM (2024)", "Conceptual Survey", "Viable pathway for 33% schools lacking labs", "Conceptual framework; No concrete IoT Link"],
-                        ["AI-Enhanced Labs (2025)", "AIVL vs SVL vs TPL", "17-20% Score Gain; 35% Faster Lab Speed", "Pure Simulation; No Real Hard-in-Loop"]
+                        ["1", "Remote Experimentation Through Arduino-Based Remote Laboratories", "S. Martin, A. Fernandez-Pacheco et al.", "2021", "Host-Node arch; Makefile-driven OTA sketch upload via RPi; webcam feedback. No AI diagnostics."],
+                        ["2", "Sensor Node Monitoring with WebSocket Communication in a Node.js Server", "R. Y. Rodriguez & M. R. Julcapoma", "2020", "ESP8266 + Node.js full-duplex WebSocket; 25–39 ms latency for ECG/pulse. No educational layer."],
+                        ["3", "Preventing Data Integrity Breaches in IoT Using Digital Twins", "M. El-Hajj", "2025", "Shadow models (Azure DT & AWS TwinMaker); 70–85% attack reduction; 142 ms vs 612 ms IDS. Industrial focus only."],
+                        ["4", "Digital Twins for Smart Spaces — Beyond IoT Analytics", "N. H. Motlagh et al.", "2024", "4-Layer Physical→Sensing→Networking→Computing arch; 68 LoRaWAN nodes. Building mgmt; not for students."],
+                        ["5", "Digital Twins Applications in STEM Education (Developing Countries)", "O. F. Caribo et al.", "2024", "342 schools surveyed; 33.3% lack physical labs; 0% have virtual labs. Conceptual only; no IoT link."],
+                        ["6", "Exploring AI-Enhanced Virtual Labs for Engineering Education", "R. Tadjikuziev et al.", "2025", "AIVL vs SVL vs TPL across 6,500 students; 17.5–20% higher scores; 35% faster. Pure simulation."]
                     ].map((row, rowIdx) => (
                         row.map((cell, colIdx) => (
-                            <div key={`${rowIdx}-${colIdx}`} style={{ background: isDark ? "rgba(15,23,42,0.8)" : "#fff", padding: "8px 10px", fontSize: 11, color: isDark ? "#cbd5e1" : "#334155", border: `0.5px solid ${isDark ? "rgba(255,255,255,0.05)" : "rgba(0,0,0,0.05)"}` }}>{cell}</div>
+                            <div key={`${rowIdx}-${colIdx}`} style={{ background: isDark ? "rgba(15,23,42,0.8)" : "#fff", padding: "7px 9px", fontSize: colIdx === 0 ? 12 : 10, color: colIdx === 0 ? "#f59e0b" : isDark ? "#cbd5e1" : "#334155", fontWeight: colIdx === 0 ? 700 : 400, border: `0.5px solid ${isDark ? "rgba(255,255,255,0.05)" : "rgba(0,0,0,0.05)"}` }}>{cell}</div>
                         ))
                     ))}
                 </div>
@@ -212,7 +212,7 @@ const getSlides = (isDark: boolean): Slide[] => [
                 <div style={{ padding: 24, background: "rgba(16,185,129,0.05)", border: "1px solid rgba(16,185,129,0.15)", borderRadius: 16 }}>
                     <h3 style={{ color: "#10b981", fontSize: 18, fontWeight: 700, marginBottom: 20 }}>Our Value Proposition</h3>
                     <ul style={{ listStyle: "none", padding: 0, margin: 0, display: "flex", flexDirection: "column", gap: 14 }}>
-                        {["Hybrid Real+Virtual Sensing", "AI-Driven Feedback Engine", "17+ Sensors Concurrent Data", "Low Latency (<100ms) Hub"].map(item => (
+                        {["Hybrid Real+Virtual Sensing", "AI-Driven Feedback Engine", "17 Sensors Concurrent Data", "220ms End-to-End Latency"].map(item => (
                             <li key={item} style={{ display: "flex", alignItems: "center", gap: 12 }}>
                                 <CheckCircle2 size={14} color="#10b981" />
                                 <span style={{ color: (isDark ? "#cbd5e1" : "#334155"), fontSize: 15 }}>{item}</span>
@@ -543,10 +543,10 @@ const getSlides = (isDark: boolean): Slide[] => [
                 <div style={{ padding: 24, background: "rgba(79,172,254,0.05)", borderRadius: 16 }}>
                     <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 12 }}>
                         <Rocket color="#4facfe" size={20} />
-                        <h4 style={{ color: (isDark ? "#fff" : "#0f172a"), fontWeight: 700 }}>Pedagogical Gains</h4>
+                        <h4 style={{ color: (isDark ? "#fff" : "#0f172a"), fontWeight: 700 }}>Latency Optimization</h4>
                     </div>
                     <p style={{ color: (isDark ? "#94a3b8" : "#475569"), fontSize: 14 }}>
-                        AIVL implementation demonstrates <strong>17.5% to 20% higher exam scores</strong> compared to traditional labs. Lab completion time is reduced by <strong>35%</strong>.
+                        End-to-end latency reduced from a <strong>4-second baseline to 220ms</strong> — a <strong>95% improvement</strong> via DHT11 decoupling and BMP280 oversampling optimization.
                     </p>
                 </div>
 
@@ -554,10 +554,10 @@ const getSlides = (isDark: boolean): Slide[] => [
                 <div style={{ padding: 24, background: "rgba(168,85,247,0.05)", borderRadius: 16 }}>
                     <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 12 }}>
                         <Activity color="#a855f7" size={20} />
-                        <h4 style={{ color: (isDark ? "#fff" : "#0f172a"), fontWeight: 700 }}>Operational Performance</h4>
+                        <h4 style={{ color: (isDark ? "#fff" : "#0f172a"), fontWeight: 700 }}>AI Diagnostic Accuracy</h4>
                     </div>
                     <p style={{ color: (isDark ? "#94a3b8" : "#475569"), fontSize: 14 }}>
-                        Digital Twin anomaly detection achieving <strong>latency of 142 ms</strong> and providing a <strong>70-85% reduction</strong> in attack/error success rates.
+                        Gemini 2.5 Flash with context injection achieved <strong>92% sensor-specific accuracy</strong> vs <strong>71% baseline</strong> without context, across 40 student test queries.
                     </p>
                 </div>
 
@@ -565,10 +565,10 @@ const getSlides = (isDark: boolean): Slide[] => [
                 <div style={{ padding: 24, background: "rgba(16,185,129,0.05)", borderRadius: 16 }}>
                     <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 12 }}>
                         <ThumbsUp color="#10b981" size={20} />
-                        <h4 style={{ color: (isDark ? "#fff" : "#0f172a"), fontWeight: 700 }}>User Satisfaction</h4>
+                        <h4 style={{ color: (isDark ? "#fff" : "#0f172a"), fontWeight: 700 }}>Sensor Coverage</h4>
                     </div>
                     <p style={{ color: (isDark ? "#94a3b8" : "#475569"), fontSize: 14 }}>
-                        Validated student satisfaction reaches <strong>89.1%</strong>, while addressing laboratory accessibility for the <strong>33.3% of schools</strong> lacking physical infra.
+                        <strong>17 concurrent sensors</strong> across 5 domains (Environmental, Gas, Motion, Biometric, Control) on a single hybrid platform — vs. typical 3–5 in existing remote labs.
                     </p>
                 </div>
 
@@ -576,10 +576,10 @@ const getSlides = (isDark: boolean): Slide[] => [
                 <div style={{ padding: 24, background: "rgba(245,158,11,0.05)", borderRadius: 16 }}>
                     <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 12 }}>
                         <Target color="#f59e0b" size={20} />
-                        <h4 style={{ color: (isDark ? "#fff" : "#0f172a"), fontWeight: 700 }}>Hardware Efficiency</h4>
+                        <h4 style={{ color: (isDark ? "#fff" : "#0f172a"), fontWeight: 700 }}>Fault Injection & DSP</h4>
                     </div>
                     <p style={{ color: (isDark ? "#94a3b8" : "#475569"), fontSize: 14 }}>
-                        Sub-40ms end-to-end jitter hub for high-fidelity waveform reconstruction. Consolidated 17 sensors onto a single hybrid platform.
+                        All <strong>6 fault injection modes</strong> (Drift, Noise, Stuck-at, Open, Clipping, Spike) verified correct. Mistake Detector triggered accurately in <strong>5/5</strong> sensor failure test cases.
                     </p>
                 </div>
             </div>
