@@ -6,51 +6,44 @@ import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
 import { LiveChart } from "@/components/charts/LiveChart";
 import { SensorDetailLayout } from "@/components/sensors/SensorDetailLayout";
-import { Cpu, Info, Move, Brain } from "lucide-react";
-import { useMistakeDetector, MistakeAlert } from "@/components/ai/MistakeDetector";
 import { AIQuizModal } from "@/components/ai/AIQuizModal";
+import { GraphExplainerModal } from "@/components/ai/GraphExplainerModal";
+import { useMistakeDetector, MistakeAlert } from "@/components/ai/MistakeDetector";
 import { useFaultInjector } from "@/hooks/useFaultInjector";
+import { useSignalProcessing } from "@/hooks/useSignalProcessing";
 import { TestingControlPanel } from "@/components/testing/TestingControlPanel";
+import { Activity, Info, Download, Sparkles, Brain, Cpu, Waves } from "lucide-react";
 import { SENSOR_QUIZZES } from "@/config/quizzes";
 
+interface DataPoint { time: string; value: number; processingValue?: number; }
+const MAX_DATA_POINTS = 50;
+
 const THEORY = {
-    "physics": "The HC-SR501 Passive Infrared (PIR) sensor detects motion by mapping changes in the infrared radiation emitted by warm bodies (humans/animals). It features a specialized pyroelectric sensor split into two identical, electrically opposed halves. In a static environment, both halves receive the same ambient IR levels, canceling each other out to produce zero voltage. When a warm body walks past, it crosses the field of view of the first half, causing a positive voltage spike, and then crosses the second half, causing an equal negative spike. This differential AC waveform is what triggers the 'Motion Detected' logic.",
-    "math": "**Differential Pyroelectric Effect:**\n$ \\Delta V = \\frac{p \\cdot A \\cdot \\Delta T}{C_v} $\n\nWhere:\n- $p$: Pyroelectric coefficient\n- $A$: Area of the crystal\n- $\\Delta T$: Rate of temperature change (from the moving body crossing sectors)\n- $C_v$: Heat capacity",
-    "circuit": "**Hardware Architecture:**\n- **Fresnel Lens:** The iconic white dome isn't just a cover. It's an array of precisely molded Fresnel lenses that focus IR light onto the specific halves of the pyroelectric element, greatly expanding the detection range and angle to ~110 degrees up to 7 meters.\n- **BISS0001 IC:** A dedicated PIR motion detector control chip that handles the micro-volt amplification, filtering, window comparison, and the timing logic for the HIGH output."
+    physics: `PIR (Passive Infrared) sensors detect motion by measuring changes in infrared radiation. Human bodies emit heat as IR radiation at ~9.4µm.`,
+    math: `**Fresnel Lens Focus:** The plastic dome is a Fresnel lens that divides the detection area into 'zones'. Motion across zones triggers the signal.`,
+    circuit: `**Pyroelectric Element:** The sensor uses two balanced sensing elements. When one element sees more IR than the other, the output goes HIGH.`
 };
+
 const EXPERIMENTS = [
     {
-        "title": "Cross vs Direct Approach Test",
-        "instruction": "Have a friend walk slowly ACROSS the sensor's view, then try walking STRAIGHT TOWARD the sensor face.",
-        "observation": "Walking across triggers it almost instantly. Walking straight toward it takes much longer or fails entirely.",
-        "expected": "The Fresnel lens creates discrete detection zones side-by-side. Moving across multiple zones rapidly creates strong differential signals."
-    },
-    {
-        "title": "Glass Transparency Test",
-        "instruction": "Have someone wave their hands vigorously while standing behind a closed glass window.",
-        "observation": "The PIR likely will NOT trigger even though the person is clearly visible through the glass.",
-        "expected": "Standard window glass is opaque to the specific 9µm far-infrared wavelengths emitted by the human body."
+        title: "Walk-Through Test",
+        instruction: "Walk past the sensor at 2 meters distance.",
+        observation: "Digital pin goes HIGH for several seconds.",
+        expected: "Proves infrared heat detection."
     }
 ];
 
 const COMMON_MISTAKES = [
     {
-        "title": "False Positives After Power-On",
-        "symptom": "Sensor triggers continuously when the room is empty.",
-        "cause": "The pyroelectric element is still stabilizing to the ambient room temperature during the 60-second warmup.",
-        "fix": "Implement the 60-second startup delay in code. Do not allow motion near the sensor during this calibration window."
-    },
-    {
-        "title": "HVAC False Positives",
-        "symptom": "Security alarm triggers when nobody is home.",
-        "cause": "Sensor mounted near an air vent, heater, or facing a sunny window — rapid hot/cold air changes look exactly like a moving body.",
-        "fix": "Relocate sensor away from vents and sunlight exposure. Turn the sensitivity dial (Tx) counter-clockwise."
+        title: "Warm-up Time",
+        symptom: "Sensor triggers randomly for the first minute.",
+        cause: "The PIR element needs ~30-60s to stabilize thermally.",
+        fix: "Ignore initial triggers during `setup()`."
     }
 ];
 
-
-const ARDUINO_CODE = `// Motion Sensor - PIR HC-SR501
-#define PIR_PIN 10
+const ARDUINO_CODE = `// PIR Motion Sensor
+#define PIR_PIN 7
 
 void setup() {
   Serial.begin(115200);
@@ -59,50 +52,67 @@ void setup() {
 
 void loop() {
   if (digitalRead(PIR_PIN) == HIGH) {
-    Serial.println("Motion detected!");
-  } else {
-    Serial.println("No motion");
+    Serial.println("Motion Detected!");
   }
-  delay(500);
+  delay(100);
 }`;
-
-
-
-
 
 export default function MotionPage() {
     const { isConnected, data } = useSocket();
+    const [history, setHistory] = useState<DataPoint[]>([]);
     const [showQuiz, setShowQuiz] = useState(false);
+    const [showExplainer, setShowExplainer] = useState(false);
     const [showTestingPanel, setShowTestingPanel] = useState(false);
     const [dismissedAnomalies, setDismissedAnomalies] = useState<number[]>([]);
+    const [calibrationOffset, setCalibrationOffset] = useState(0);
 
-    // Convert boolean to number for fault injection (0 or 1)
+    // 1. Raw Input
     const rawVal = data?.sensors.pir?.active ? 1 : 0;
+
+    // 2. Fault Injection
     const { injectedValue, fault, setFault } = useFaultInjector(rawVal);
 
-    // Convert back to boolean
-    const isMotionDetected = injectedValue !== null && injectedValue > 0.5;
-    const motionState = isMotionDetected ? "Motion Detected!" : "No Motion";
+    // 3. Calibration
+    const calibratedValue = (typeof injectedValue === 'number') ? injectedValue + calibrationOffset : injectedValue;
 
-    // Mock history for mistake detector (just last few states)
-    const [history, setHistory] = useState<{ time: string, value: number }[]>([]);
+    // 4. Signal Processing
+    const { filter, setFilter, processedData } = useSignalProcessing(history.map(d => d.value));
+
     useEffect(() => {
-        if (data) {
+        if (data && typeof calibratedValue === 'number') {
             const timestamp = new Date().toLocaleTimeString("en-US", { hour12: false, minute: "2-digit", second: "2-digit" });
-            setHistory(prev => [...prev, { time: timestamp, value: rawVal }].slice(-20));
+            setHistory((prev) => [...prev, { time: timestamp, value: calibratedValue }].slice(-MAX_DATA_POINTS));
         }
-    }, [data, rawVal]);
+    }, [data, calibratedValue]);
 
-    const anomalies = useMistakeDetector({ sensorName: "Motion Sensor", data: history, expectedRange: { min: 0, max: 1 } }).filter((_, i) => !dismissedAnomalies.includes(i));
+    const chartData = history.map((point, i) => ({
+        ...point,
+        processingValue: processedData[i]
+    }));
+
+    const anomalies = useMistakeDetector({
+        sensorName: "Motion Sensor",
+        data: history,
+        expectedRange: { min: 0, max: 1 }
+    }).filter((_, i) => !dismissedAnomalies.includes(i));
+
+    const isDetected = (typeof calibratedValue === "number") ? calibratedValue > 0.5 : false;
+
+    const exportCSV = () => {
+        const csv = "Time,Motion (State),Processed\n" + chartData.map(d => `${d.time},${d.value},${d.processingValue ?? ''}`).join("\n");
+        const blob = new Blob([csv], { type: "text/csv" });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a"); a.href = url; a.download = "motion_data.csv"; a.click(); URL.revokeObjectURL(url);
+    };
 
     return (
         <>
             <SensorDetailLayout
-                title="Motion Sensor (PIR)"
-                description="Detects motion via pyroelectric infrared sensing."
+                title="Motion (PIR) Sensor"
+                description="Detects infrared thermal signatures of moving objects."
                 sensorId="HC-SR501" isReal={!!data?.sensors?.pir?.isReal}
-                dataSnippet={{ value: rawVal, pin: "D10" }}
-                theory={THEORY}
+                dataSnippet={{ status: isDetected ? "Moving" : "Still", pin: "D7" }}
+                theory={THEORY as any}
                 arduinoCode={ARDUINO_CODE}
                 experiments={EXPERIMENTS}
                 commonMistakes={COMMON_MISTAKES}
@@ -110,39 +120,86 @@ export default function MotionPage() {
                     showPanel: showTestingPanel,
                     setShowPanel: setShowTestingPanel,
                     renderPanel: () => (
-                        // Disable filter/calibration for binary sensor
                         <TestingControlPanel
                             faultType={fault.type} setFault={setFault}
-                            filterType="none" setFilter={() => { }}
-                            calibrationOffset={0} setCalibrationOffset={() => { }}
+                            filterType={filter.type} setFilter={setFilter}
+                            calibrationOffset={calibrationOffset} setCalibrationOffset={setCalibrationOffset}
                         />
                     )
                 }}
             >
-                {anomalies.map((anomaly, i) => <MistakeAlert key={i} anomaly={anomaly} onDismiss={() => setDismissedAnomalies([...dismissedAnomalies, i])} />)}
+                {anomalies.map((anomaly, i) => (
+                    <MistakeAlert key={i} anomaly={anomaly} onDismiss={() => setDismissedAnomalies([...dismissedAnomalies, i])} />
+                ))}
+
                 <div className="grid gap-6 md:grid-cols-3">
                     <Card variant="gradient" className="md:col-span-1 relative overflow-hidden">
-                        <div className={`absolute top-0 right-0 w-32 h-32 ${isMotionDetected ? "bg-green-500/30 animate-pulse" : "bg-slate-500/20"} rounded-full blur-2xl`} />
+                        <div className={`absolute top-0 right-0 w-32 h-32 ${isDetected ? "bg-emerald-500/30 animate-ping" : "bg-slate-500/20"} rounded-full blur-2xl -translate-y-1/2 translate-x-1/2`} />
                         <CardContent className="flex flex-col items-center justify-center py-8">
-                            <div className={`h-16 w-16 mb-4 rounded-full flex items-center justify-center ring-2 ${isMotionDetected ? "bg-green-500/20 ring-green-500/50" : "bg-slate-500/10 ring-slate-500/20"}`}><Move className={`h-8 w-8 ${isMotionDetected ? "text-green-400" : "text-slate-400"}`} /></div>
-                            <span className={`text-xl font-bold ${isMotionDetected ? "text-green-400" : "text-slate-400"}`}>{motionState}</span>
+                            <div className={`h-14 w-14 mb-3 rounded-full flex items-center justify-center ring-1 ${isDetected ? "bg-emerald-500/20 ring-emerald-500/50" : "bg-slate-500/10 ring-slate-500/20"}`}>
+                                <Waves className={`h-7 w-7 ${isDetected ? "text-emerald-400" : "text-slate-400"}`} />
+                            </div>
+                            <span className="text-xs font-medium text-slate-500 uppercase tracking-wider mb-1">Status</span>
+                            <div className="flex items-baseline gap-1">
+                                <span className={`text-4xl font-bold tracking-tighter ${isDetected ? "text-emerald-400" : (fault.type !== 'none' ? 'text-amber-400' : 'text-white')}`}>
+                                    {isDetected ? "DETECTED" : "CLEAR"}
+                                </span>
+                            </div>
                             {fault.type !== 'none' && <Badge variant="warning" size="sm" className="mt-2 animate-pulse">⚠ Fault: {fault.type}</Badge>}
-                            <Badge variant={isConnected ? "success" : "default"} size="sm" className="mt-4">{isConnected ? "Monitoring" : "Offline"}</Badge>
+                            <Badge variant={isConnected ? "success" : "default"} size="sm" className="mt-4">{isConnected ? "Active" : "Offline"}</Badge>
                         </CardContent>
                     </Card>
-                    <Card variant="default" className="md:col-span-2"><CardHeader><CardTitle>Status</CardTitle></CardHeader><CardContent><div className="mt-4"><LiveChart data={history} color="#22c55e" gradientId="motionGrad" unit="" height={220} minDomain={-0.1} maxDomain={1.1} type="stepAfter" /></div></CardContent></Card>
+
+                    <Card variant="default" className="md:col-span-2">
+                        <CardHeader className="flex flex-row items-center justify-between pb-2">
+                            <CardTitle className="flex items-center gap-2"><Activity className="h-4 w-4 text-emerald-400" />Activity Log</CardTitle>
+                            <div className="flex gap-2">
+                                <button onClick={() => setShowExplainer(true)} className="flex items-center gap-1 text-xs px-2 py-1 rounded bg-purple-500/10 border border-purple-500/30 text-purple-400 hover:bg-purple-500/20"><Sparkles size={12} />AI Explain</button>
+                                <button onClick={exportCSV} className="flex items-center gap-1 text-xs px-2 py-1 rounded bg-white/5 border border-white/10 text-slate-400 hover:bg-white/10"><Download size={12} />CSV</button>
+                            </div>
+                        </CardHeader>
+                        <CardContent>
+                            <LiveChart data={chartData} color="#10b981" gradientId="motionGrad" unit="" height={220} minDomain={-0.1} maxDomain={1.1} type="stepAfter" />
+                        </CardContent>
+                    </Card>
                 </div>
+
                 <div className="flex justify-center mt-4 mb-4">
-                    <button onClick={() => setShowQuiz(true)} className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-green-500/20 to-teal-500/20 border border-green-500/30 rounded-xl text-white font-medium hover:from-green-500/30 hover:to-teal-500/30 transition">
-                        <Brain className="h-5 w-5 text-green-400" /> Test Knowledge</button>
+                    <button onClick={() => setShowQuiz(true)} className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-emerald-500/20 to-teal-500/20 border border-emerald-500/30 rounded-xl text-white font-medium hover:from-emerald-500/30 hover:to-teal-500/30 transition">
+                        <Brain className="h-5 w-5 text-emerald-400" /> Test Knowledge
+                    </button>
                 </div>
+
                 <div className="grid gap-6 md:grid-cols-2">
-                    <Card variant="default"><CardHeader><CardTitle className="flex items-center gap-2"><Cpu className="h-4 w-4 text-cyan-400" />Specs</CardTitle></CardHeader><CardContent className="space-y-2 text-sm"><SpecRow label="Range" value="~7 meters" /><SpecRow label="FOV" value="~120°" /><SpecRow label="Delay" value="1-300s adjustable" /></CardContent></Card>
-                    <Card variant="default"><CardHeader><CardTitle className="flex items-center gap-2"><Info className="h-4 w-4 text-blue-400" />Wiring</CardTitle></CardHeader><CardContent><table className="w-full text-sm"><tbody className="divide-y divide-white/5"><tr><td className="py-1.5 font-mono text-white">VCC</td><td className="py-1.5 font-mono text-green-400">5V</td></tr><tr><td className="py-1.5 font-mono text-white">OUT</td><td className="py-1.5 font-mono text-green-400">D10</td></tr><tr><td className="py-1.5 font-mono text-white">GND</td><td className="py-1.5 font-mono text-green-400">GND</td></tr></tbody></table></CardContent></Card>
+                    <Card variant="default">
+                        <CardHeader><CardTitle className="flex items-center gap-2"><Cpu className="h-4 w-4 text-cyan-400" />Specs</CardTitle></CardHeader>
+                        <CardContent className="space-y-2 text-sm">
+                            <SpecRow label="Range" value="Up to 7m" />
+                            <SpecRow label="Angle" value="< 110°" />
+                        </CardContent>
+                    </Card>
+                    <Card variant="default">
+                        <CardHeader><CardTitle className="flex items-center gap-2"><Info className="h-4 w-4 text-blue-400" />Wiring</CardTitle></CardHeader>
+                        <CardContent>
+                            <table className="w-full text-sm">
+                                <thead><tr className="border-b border-white/10 text-slate-500"><th className="py-1.5 text-left">Pin</th><th className="py-1.5 text-left">Arduino</th></tr></thead>
+                                <tbody className="divide-y divide-white/5">
+                                    <tr><td className="py-1.5 font-mono text-white">VCC</td><td className="py-1.5 font-mono text-emerald-400">5V</td></tr>
+                                    <tr><td className="py-1.5 font-mono text-white">OUT</td><td className="py-1.5 font-mono text-emerald-400">D7</td></tr>
+                                    <tr><td className="py-1.5 font-mono text-white">GND</td><td className="py-1.5 font-mono text-emerald-400">GND</td></tr>
+                                </tbody>
+                            </table>
+                        </CardContent>
+                    </Card>
                 </div>
             </SensorDetailLayout>
-            {showQuiz && <AIQuizModal sensorName="Motion Sensor" sensorId="PIR" onClose={() => setShowQuiz(false)} defaultQuestions={SENSOR_QUIZZES["motion"]} />}
+
+            {showQuiz && <AIQuizModal sensorName="Motion Sensor" sensorId="HC-SR501" onClose={() => setShowQuiz(false)} defaultQuestions={SENSOR_QUIZZES["motion"]} />}
+            {showExplainer && <GraphExplainerModal sensorName="Motion Sensor" data={chartData} onClose={() => setShowExplainer(false)} />}
         </>
     );
 }
-const SpecRow = ({ label, value }: { label: string; value: string }) => (<div className="flex justify-between py-1 border-b border-white/5 last:border-0"><span className="text-slate-500">{label}</span><span className="font-medium text-white">{value}</span></div>);
+
+const SpecRow = ({ label, value }: { label: string; value: string }) => (
+    <div className="flex justify-between py-1 border-b border-white/5 last:border-0"><span className="text-slate-500">{label}</span><span className="font-medium text-white">{value}</span></div>
+);
