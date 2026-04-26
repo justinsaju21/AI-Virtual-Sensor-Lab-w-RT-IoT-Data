@@ -83,10 +83,10 @@ unsigned long sonicPingMicros = 0;
 // GLOBALS & TIMERS
 // ==========================================
 // Standard polling intervals (in ms)
-const unsigned long INTERVAL_FAST = 50;    // Joystick, Touch, Tilt
-const unsigned long INTERVAL_MED  = 200;   // Gases, LDR, Flame, Sound
+const unsigned long INTERVAL_FAST = 50;    // Joystick, Touch, Tilt, Sound
+const unsigned long INTERVAL_MED  = 200;   // Gases, LDR, Flame
 const unsigned long INTERVAL_DHT  = 2000;  // DHT11 minimum read interval (2 sec)
-const unsigned long INTERVAL_TX   = 200;   // Transmit every 200ms (5Hz update to match backend)
+const unsigned long INTERVAL_TX   = 100;   // Transmit every 100ms (10Hz update for lower latency)
 
 unsigned long lastFastUpdate = 0;
 unsigned long lastMedUpdate  = 0;
@@ -224,9 +224,14 @@ void loop() {
     sysData.joy_y = analogRead(PIN_JOY_Y);
     sysData.joy_sw = digitalRead(PIN_JOY_SW);
 
-    sysData.touch_active = digitalRead(PIN_TOUCH) == HIGH;
-    sysData.tilt_active = digitalRead(PIN_TILT) == LOW; // Low when tilted (pullup)
-    sysData.hall_active = digitalRead(PIN_HALL) == LOW; // Low when mag detected
+    // Latch transient inputs to guarantee they are caught between transmissions
+    sysData.touch_active |= (digitalRead(PIN_TOUCH) == HIGH);
+    sysData.tilt_active |= (digitalRead(PIN_TILT) == LOW); // Low when tilted (pullup)
+    sysData.hall_active |= (digitalRead(PIN_HALL) == LOW); // Low when mag detected
+    
+    // Sound is highly transient, moved from MED to FAST
+    sysData.sound_a = analogRead(PIN_SOUND_A);
+    sysData.sound_d |= (digitalRead(PIN_SOUND_D) == HIGH); // High = Noise
 
     // Pulse Oximeter requires constant polling (only if sensor initialized)
     if (maxOk) {
@@ -264,11 +269,10 @@ void loop() {
     sysData.flame_a = analogRead(PIN_FLAME_A);
     sysData.flame_d = digitalRead(PIN_FLAME_D) == LOW; // Low = Fire
 
-    sysData.sound_a = analogRead(PIN_SOUND_A);
-    sysData.sound_d = digitalRead(PIN_SOUND_D) == HIGH; // High = Noise
+    // Sound moved to FAST loop
 
-    sysData.pir_active = digitalRead(PIN_PIR) == HIGH;
-    sysData.ir_active = digitalRead(PIN_IR) == LOW; // Low = Obstacle
+    sysData.pir_active |= (digitalRead(PIN_PIR) == HIGH);
+    sysData.ir_active |= (digitalRead(PIN_IR) == LOW); // Low = Obstacle
     // sysData.prox_active = digitalRead(PIN_PROX) == LOW; // No proximity sensor connected
 
     // Thermistor calculation (Steinhart-Hart / B-parameter)
@@ -309,10 +313,9 @@ void loop() {
     digitalWrite(PIN_TRIG, LOW);
     
     // Blocking measurement right after trigger to ensure we don't miss the pulse
-    long duration = pulseIn(PIN_ECHO, HIGH, 10000); 
-    if (duration > 0) {
-      sysData.sonic_dist = (duration * 0.0343) / 2.0;
-    }
+    long duration = pulseIn(PIN_ECHO, HIGH, 10000);
+    // Reset to 0.0 on timeout/no echo — prevents stale value from persisting on dashboard
+    sysData.sonic_dist = (duration > 0) ? (duration * 0.0343) / 2.0 : 0.0;
   }
 
   // ---------------------------------------------------------
@@ -417,4 +420,12 @@ void transmitData() {
   // the ESP8266's JSON parser. Only JSON + newline should be sent.
   serializeJson(doc, Serial);
   Serial.println(); // Terminate with newline
+
+  // Reset latches to live state after transmission to prevent them from getting stuck True
+  sysData.touch_active = (digitalRead(PIN_TOUCH) == HIGH);
+  sysData.tilt_active = (digitalRead(PIN_TILT) == LOW);
+  sysData.hall_active = (digitalRead(PIN_HALL) == LOW);
+  sysData.sound_d = (digitalRead(PIN_SOUND_D) == HIGH);
+  sysData.pir_active = (digitalRead(PIN_PIR) == HIGH);
+  sysData.ir_active = (digitalRead(PIN_IR) == LOW);
 }

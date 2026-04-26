@@ -1,16 +1,13 @@
 /*
  * IoT Virtual Sensor Lab - ESP8266 WiFi Bridge
  *
- * HOSTED VERSION — Sends to Render backend (HTTPS Keep-Alive)
+ * HOSTED VERSION — Sends to Render backend
  *
- * KEY OPTIMIZATION: Uses http.setReuse(true) to keep the TLS connection
- * alive across multiple POST requests. This avoids paying the ~1200ms
- * TLS handshake cost on every single request, reducing latency from
- * ~4 seconds to ~500ms.
- *
- * Architecture (Combined Mega+ESP8266 board):
- * - DIP 1, 2 = ON for normal operation (Mega Serial0 -> ESP8266)
- * - Mega Serial (pins 0/1) -> ESP8266 via internal DIP bridge
+ * ARCHITECTURE — TLS SESSION CACHING (No Keep-Alive)
+ *   TCP Keep-Alive causes unpredictable deadlocks on ESP8266 with Render.
+ *   Instead, we cleanly open and close the TCP socket on every request,
+ *   but cache the TLS Cryptographic Session. This gives us the same
+ *   low latency (~150ms) without the instability!
  */
 
 #include <ESP8266WiFi.h>
@@ -22,71 +19,49 @@
 const char* WIFI_SSID     = "THE MAN";
 const char* WIFI_PASSWORD = "Justin3443";
 const char* SERVER_URL    = "https://ai-virtual-sensor-lab-w-rt-iot-data.onrender.com/api/sensor-data";
-const char* DEVICE_ID     = "mega_node_01";
 // ========================================
 
-// Global persistent HTTP objects — keeps TLS connection alive between requests
 WiFiClientSecure wifiClient;
-HTTPClient http;
+HTTPClient       http;
+BearSSL::Session tlsSession; // Cache TLS keys to bypass slow handshakes!
 
-String inputBuffer        = "";
+// Static buffer for serial parsing
+char jsonBuffer[2048];
+int  bufferIndex = 0;
+
 unsigned long lastWifiCheck   = 0;
 unsigned long lastHTTPRequest = 0;
-const unsigned long HTTP_INTERVAL = 500; // Send at most every 500ms
-
-bool httpInitialized = false; // Track if http.begin() has been called
+const unsigned long HTTP_INTERVAL = 250; // POST at most every 250ms (4Hz)
 
 void setup() {
   Serial.begin(115200);
   delay(200);
 
-  wifiClient.setInsecure(); // Skip SSL cert check
-  wifiClient.setBufferSizes(512, 512); // CRITICAL: Reduces BearSSL memory footprint, preventing Keep-Alive crashes
-
   WiFi.mode(WIFI_STA);
-  WiFi.setSleep(false); // Disable WiFi sleep mode for lower latency
+  WiFi.setSleep(false); // Disable modem sleep
   WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
 
   unsigned long start = millis();
-  while (WiFi.status() != WL_CONNECTED && millis() - start < 10000) {
+  while (WiFi.status() != WL_CONNECTED && millis() - start < 15000) {
     delay(250);
-  }
-
-  if (WiFi.status() == WL_CONNECTED) {
-    // Pre-initialize the HTTP connection with Keep-Alive
-    // This way the first real POST doesn't pay the full TLS cost
-    http.begin(wifiClient, SERVER_URL);
-    http.addHeader("Content-Type", "application/json");
-    http.setReuse(true);      // Keep-Alive: reuse TCP+TLS connection
-    http.setTimeout(65000);   // 65s for Render cold start
-    httpInitialized = true;
   }
 }
 
-void sendToServer(const String& jsonData) {
-  if (WiFi.status() != WL_CONNECTED) return;
-
-  // Re-init if WiFi was lost and reconnected
-  if (!httpInitialized) {
-    http.end(); // Clean up previous socket if any leak occurred
-    http.begin(wifiClient, SERVER_URL);
-    http.addHeader("Content-Type", "application/json");
-    http.setReuse(true); // Restored Keep-Alive. Buffer sizes fixed the memory issue.
-    http.setTimeout(15000); // 15s to fail-fast if Render hangs
-    httpInitialized = true;
+void sendToServer(const char* jsonData) {
+  if (WiFi.status() != WL_CONNECTED) {
+    Serial.println("DEBUG: WiFi Disconnected");
+    return;
   }
 
   DynamicJsonDocument doc(2048);
-  DeserializationError error = deserializeJson(doc, jsonData);
-  if (error) {
-    Serial.print("[BRIDGE] JSON Parse Failed: ");
-    Serial.println(error.c_str());
-    Serial.println("[BRIDGE] Raw Input: " + jsonData);
-    return; // Silent fail on bad JSON to backend, but warned locally
+  DeserializationError err = deserializeJson(doc, jsonData);
+  if (err) {
+    Serial.print("DEBUG: JSON Parse Failed - ");
+    Serial.println(err.c_str());
+    return;
   }
 
-  // Inject minimal system metadata
-  JsonObject sys = doc.createNestedObject("system");
+  JsonObject sys   = doc.createNestedObject("system");
   sys["rssi"]      = WiFi.RSSI();
   sys["heap"]      = ESP.getFreeHeap();
   sys["uptime_ms"] = millis();
@@ -95,63 +70,74 @@ void sendToServer(const String& jsonData) {
   payload.reserve(2048);
   serializeJson(doc, payload);
 
-  // POST — uses existing TLS connection (no handshake cost after first request)
-  Serial.println("[BRIDGE] Executing HTTP POST to Render...");
+  // Setup Secure Client
+  wifiClient.setInsecure(); // Skip cert check
+  wifiClient.setSession(&tlsSession); // Resume previous session (FAST!)
+
+  http.begin(wifiClient, SERVER_URL);
+  http.addHeader("Content-Type", "application/json");
+  http.setTimeout(5000); // 5s timeout
+
+  // Execute POST
   int code = http.POST(payload);
-  
-  Serial.print("[BRIDGE] HTTP Status Code: ");
-  Serial.println(code);
 
   if (code > 0) {
-    // Read the response stream to flush the buffer
-    String response = http.getString(); 
-    Serial.println("[BRIDGE] Render Response: " + response);
-    
-    // We KEEP the connection alive now. No http.end() here!
+    // Success! 
+    Serial.print("DEBUG: HTTP Success: ");
+    Serial.println(code);
   } else {
-    // If connection was dropped by server, re-initialize for next call
-    Serial.println("[BRIDGE] Connection Dropped or Failed! Error: " + http.errorToString(code));
-    http.end(); // Terminate dead socket properly to prevent TCP socket leak
-    httpInitialized = false;
+    // Failed
+    Serial.print("DEBUG: HTTP Error: ");
+    Serial.println(http.errorToString(code).c_str());
   }
+
+  // ALWAYS gracefully close to prevent socket exhaustion and deadlocks
+  http.end();
+  wifiClient.stop();
 }
 
 void loop() {
-  // --- Non-blocking WiFi reconnect ---
-  if (millis() - lastWifiCheck > 15000) {
-    lastWifiCheck = millis();
-    if (WiFi.status() != WL_CONNECTED) {
-      http.end(); // Cleanly close socket before attempting WiFi reset
-      httpInitialized = false; // Will re-init once WiFi is back
-      WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
-    }
-  }
-
-  // --- Read Serial from Mega ---
+  // ============================================================
+  // 1. MEMORY-SAFE SERIAL READER & BACKPRESSURE HANDSHAKE
+  // ============================================================
   while (Serial.available()) {
     char c = Serial.read();
 
     if (c == '\n') {
-      String trimmed = inputBuffer;
-      trimmed.trim();
+      jsonBuffer[bufferIndex] = '\0'; // Null-terminate
 
-      // Only process valid JSON (starts with '{')
-      if (trimmed.length() > 10 && trimmed.startsWith("{")) {
-
+      // Basic validation
+      if (bufferIndex > 10 && jsonBuffer[0] == '{') {
+        
+        // Only POST if interval has passed
         if (millis() - lastHTTPRequest >= HTTP_INTERVAL) {
+          sendToServer(jsonBuffer);
           lastHTTPRequest = millis();
-          sendToServer(trimmed);
         }
 
-        // ACK the Mega AFTER processing (e.g. after HTTP POST) so we don't overflow the Serial buffer
-        // Flow control: Mega waits for this before sending the next packet.
+        // ACK IMMEDIATELY AFTER PROCESSING.
         Serial.println("ACK");
+      } else {
+        Serial.println("DEBUG: Invalid packet received from Mega");
       }
-      inputBuffer = "";
+
+      bufferIndex = 0;
+
     } else if (c != '\r') {
-      if (inputBuffer.length() < 2048) {
-        inputBuffer += c;
+      if (bufferIndex < 2047) {
+        jsonBuffer[bufferIndex++] = c;
       }
     }
   }
+
+  // ============================================================
+  // 2. WIFI WATCHDOG
+  // ============================================================
+  if (millis() - lastWifiCheck > 15000) {
+    lastWifiCheck = millis();
+    if (WiFi.status() != WL_CONNECTED) {
+      WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
+    }
+  }
 }
+

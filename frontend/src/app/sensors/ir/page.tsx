@@ -93,7 +93,7 @@ export default function IRPage() {
             <SensorDetailLayout
                 title="IR Obstacle Sensor"
                 description="Detects objects via IR light reflection."
-                sensorId="TCRT5000 / KY-032" isReal={!!data?.sensors?.ir?.isReal}
+                sensorId="TCRT5000" isReal={!!data?.sensors?.ir?.isReal}
                 dataSnippet={{ value: isDetected, pin: "D13" }}
                 theory={THEORY}
                 arduinoCode={ARDUINO_CODE}

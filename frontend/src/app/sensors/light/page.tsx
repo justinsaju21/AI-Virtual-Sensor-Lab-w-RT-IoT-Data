@@ -116,7 +116,7 @@ export default function LightPage() {
             <SensorDetailLayout
                 title="Light Sensor (LDR)"
                 description="Photoresistor that decreases resistance with increasing light intensity."
-                sensorId="LDR / CdS Cell" isReal={!!data?.sensors?.ldr?.isReal}
+                sensorId="LDR" isReal={!!data?.sensors?.ldr?.isReal}
                 dataSnippet={{ value: displayValue, unit: "raw", type: "Analog", pin: "A4" }}
                 theory={THEORY}
                 arduinoCode={ARDUINO_CODE}

@@ -50,10 +50,10 @@
     \draw [arrow] (start) -- (analog);
     \draw [arrow] (analog) -- (process);
     \draw [arrow] (process) -- node[right, annotation] {Raw \& Computed} (json);
-    \draw [arrow] (json) -- node[right, annotation] {\texttt{INTERVAL\_TX = 500ms}} (send);
+    \draw [arrow] (json) -- node[right, annotation] {\texttt{INTERVAL\_TX = 100ms}} (send);
     
     % Feedback loop
-    \draw [arrow, rounded corners] (send.east) -- ++(2.5,0) |- node[pos=0.25, right, annotation] {Next \texttt{loop()} tick} (start.east);
+    \draw [arrow, rounded corners] (send.east) -- ++(2.5,0) |- node[pos=0.25, right, annotation] {Wait for ACK\\Next \texttt{loop()} tick} (start.east);
 \end{tikzpicture}
 \end{figure}
 
@@ -92,7 +92,7 @@
 
 \newpage
 
-\section*{3. AI Context Injection Workflow (Gemma 4 E4B)}
+\section*{3. AI Context Injection Workflow (Gemini 2.5 Flash)}
 \textit{This data flow pipeline demonstrates how live lab state is injected into the LLM system prompt to provide context-aware tutoring.}
 \begin{figure}[h]
 \centering
@@ -103,7 +103,7 @@
 
     \node (context) [ai, below=of sensor, text width=14em] {Context Builder\\(Compiles System Prompt)};
     
-    \node (llm) [cloud, fill=purple!20, below=of context, text width=12em] {Gemma 4 E4B Model\\(Semantic Router)};
+    \node (llm) [cloud, fill=purple!20, below=of context, text width=12em] {Gemini 2.5 Flash Model\\(Inference Engine)};
     \node (response) [process, below=of llm] {Actionable AI Response\\(UI Tutor Modal)};
 
     \draw [arrow] (sensor) -- (context);
@@ -167,8 +167,8 @@
     \end{scope}
 
     % Edges
-    \draw [arrow] (iot) -- node[above, annotation] {UART} (bridge);
-    \draw [arrow] (bridge) -- node[right, annotation] {TCP/IP over WiFi} (backend);
+    \draw [arrow] (iot) -- node[above, annotation] {UART (ACK Sync)} (bridge);
+    \draw [arrow] (bridge) -- node[right, annotation] {TLS Session (BearSSL)} (backend);
     
     \draw [arrow] (frontend) -- node[above, annotation] {REST API} (backend);
     \draw [arrow, <->] (backend) edge[bend right=20] node[right, annotation] {WebSockets} (user);
@@ -180,7 +180,7 @@
 \newpage
 
 \section*{6. Latency \& Concurrency Timeline}
-\textit{This timeline explicitly compares the real-time sensor transmission loop (500ms) against the asynchronous AI inference (3-5s).}
+\textit{This timeline explicitly compares the real-time sensor transmission loop (200ms) against the asynchronous AI inference (3-5s).}
 \begin{figure}[h]
 \centering
 \begin{tikzpicture}[node distance=2.5cm and 1cm]
@@ -188,10 +188,10 @@
     
     \node (split) [process, below=1.5cm of input, fill=gray!20, text width=10em] {Latency Split\\(Backend Router)};
 
-    \node (fast) [hw, below left=2.5cm and -0.5cm of split, fill=green!20] {Real-Time Stream\\(WebSocket @ 2Hz)};
-    \node (slow) [ai, below right=2.5cm and -0.5cm of split, fill=purple!20] {AI Inference Engine\\(Gemma 4 E4B)};
+    \node (fast) [hw, below left=2.5cm and -0.5cm of split, fill=green!20] {Real-Time Stream\\(WebSocket @ 5Hz)};
+    \node (slow) [ai, below right=2.5cm and -0.5cm of split, fill=purple!20] {AI Inference Engine\\(Gemini 2.5 Flash)};
 
-    \node (ui) [startend, below=1.8cm of fast, text width=9em] {UI State Refresh\\\textbf{$\sim$500ms Latency}};
+    \node (ui) [startend, below=1.8cm of fast, text width=9em] {UI State Refresh\\\textbf{$\sim$150-250ms Latency}};
     \node (airesp) [startend, below=1.8cm of slow, text width=10em] {Tutor Text Stream\\\textbf{3000ms+ Latency}};
 
     \draw [arrow] (input) -- (split);
@@ -201,6 +201,62 @@
     
     \draw [arrow] (fast) -- node[right, annotation] {Non-blocking} (ui);
     \draw [arrow] (slow) -- node[right, annotation] {Async Chunking} (airesp);
+\end{tikzpicture}
+\end{figure}
+\newpage
+
+\section*{7. Frontend Application Architecture}
+\textit{This block diagram maps the component structure of the React frontend, showing how real-time hooks and AI contexts feed into the UI layers.}
+\begin{figure}[h]
+\centering
+\begin{tikzpicture}[node distance=2cm and 1.5cm]
+    
+    % External Sources (Top Row)
+    \node (backend) [cloud, fill=cyan!10] {Node.js Backend\\(Socket.io)};
+    \node (llm) [cloud, fill=purple!10, right=4cm of backend] {Gemini 2.5 Flash\\(REST API)};
+
+    % State & Hooks Layer
+    \node (socket_hook) [process, below=1.5cm of backend] {useSocket Hook\\(Data Stream)};
+    \node (ai_context) [ai, below=1.5cm of llm] {AI Context Provider\\(State Manager)};
+
+    % UI Layer - Dashboard
+    \node (dashboard) [startend, below right=1.5cm and 0.5cm of socket_hook, text width=11em] {Main Dashboard View\\(17 Sensor Grid)};
+    
+    % UI Layer - Detail Modal
+    \node (modal) [process, below=1.5cm of dashboard, text width=12em, fill=orange!10] {Sensor Detail Modal\\(Deep Dive Component)};
+
+    % Sub-components for the Modal
+    \node (charts) [data, left=1cm of modal, fill=blue!10] {Recharts\\(Live Graphs)};
+    \node (tutor) [ai, right=1cm of modal, fill=purple!10] {AI Tutor\\(Chat Widget)};
+
+    % --- Connections ---
+    
+    % External to Hooks
+    \draw [arrow] (backend) -- node[right, annotation] {5Hz JSON (wss://)} (socket_hook);
+    \draw [arrow, <->] (llm) -- node[right, annotation] {Context \& Prompts} (ai_context);
+    
+    % Hooks to Dashboard
+    \draw [arrow] (socket_hook) -- node[left, annotation, xshift=-0.1cm, yshift=0.2cm] {Live State} (dashboard.150);
+    \draw [arrow] (ai_context) -- node[right, annotation, xshift=0.1cm, yshift=0.2cm] {Global State} (dashboard.30);
+
+    % Dashboard to Modal
+    \draw [arrow] (dashboard) -- node[right, annotation] {onClick (Select Sensor)} (modal);
+    
+    % Hooks to Sub-components
+    % Route socket hook down to charts
+    \draw [arrow, rounded corners] (socket_hook.west) -- ++(-1.5,0) |- node[pos=0.25, right, annotation] {History Buffer} (charts.north);
+    % Route AI context down to tutor
+    \draw [arrow, rounded corners] (ai_context.east) -- ++(1.5,0) |- node[pos=0.25, left, annotation] {Selected Sensor Data} (tutor.north);
+
+    % Sub-components feeding into Modal
+    \draw [dashed_arrow] (charts) -- (modal);
+    \draw [dashed_arrow] (tutor) -- (modal);
+
+    % Background Box for Frontend Boundary
+    \begin{scope}[on background layer]
+        \node [draw=gray, dashed, thick, rounded corners, fill=gray!5, fit=(socket_hook) (ai_context) (dashboard) (modal) (charts) (tutor), label={[font=\sffamily\bfseries, gray]above:Next.js Frontend Client}] {};
+    \end{scope}
+
 \end{tikzpicture}
 \end{figure}
 

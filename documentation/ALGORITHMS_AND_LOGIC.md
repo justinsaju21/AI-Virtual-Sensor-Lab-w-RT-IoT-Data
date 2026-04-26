@@ -37,14 +37,14 @@ function smoothedValue(newSample) {
 ```
 **Why use it?** It creates a steady trendline on your charts, making it easier to read values like Temperature or Gas levels.
 
-### **B. Dynamic Thresholding**
-Used for "Binary" sensors like PIR or Hall Effect.
+### **B. Threshold Gate Filter (Noise Suppression)**
+Used to remove micro-fluctuations (jitter) from analog signals.
 ```javascript
 // Logic
-if (raw_value > sensitivity_threshold) {
-    return "DETECTED";
+if (Math.abs(current - previous) < noise_threshold) {
+    return previous; // Ignore small changes
 } else {
-    return "CLEAR";
+    return current; // Accept large changes
 }
 ```
 
@@ -53,14 +53,18 @@ if (raw_value > sensitivity_threshold) {
 ## 🤖 3. AI Supervision & Inference Engine
 The "AI" doesn't just chat; it watches the live data stream for engineering mistakes.
 
-### **Rule 1: The "Floating Pin" Mistake**
-- **Symptom:** A Digital Sensor (Motion/Touch) is fluctuating between 0 and 1 extremely fast (like a square wave).
-- **AI Logic:** `if (frequency > 20Hz && sensorType == "Digital")`
-- **Output Warning:** "Potential Floating Pin detected! Please check if your Pull-up/Pull-down resistor is connected."
+### **Rule 1: The "Stuck Sensor" Anomaly**
+- **Logic:** `if (variance(last_5_samples) == 0)`
+- **Goal:** Identifies if a sensor has stopped responding or is shorted.
 
-### **Rule 2: Environmental Correlation**
+### **Rule 2: The "Floating Pin" Mistake**
+- **Symptom:** A Digital Sensor (Motion/Touch) is fluctuating between 0 and 1 extremely fast.
+- **AI Logic:** `if (frequency > 20Hz && sensorType == "Digital")`
+- **Output Warning:** "Potential Floating Pin detected! Please check your wiring."
+
+### **Rule 3: Environmental Correlation**
 - **Logic:** `if (Gas_Sensor > 400 && LDR_Sensor < 100 && Flame_Sensor == 0)`
-- **AI Inference:** "Detected Smoke in a dark room without a fire spark. Likely a hidden smoldering fire or sensor calibration error!"
+- **AI Inference:** "Detected Smoke in a dark room without a fire spark. Likely a hidden smoldering fire!"
 
 ---
 

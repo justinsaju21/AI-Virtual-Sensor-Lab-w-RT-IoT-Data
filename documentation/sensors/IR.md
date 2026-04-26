@@ -59,14 +59,14 @@ This sensor outputs purely digital logic, acting like a contactless button.
 | :--- | :--- | :--- |
 | **VCC** | 5V | Power for the IR LED and comparator |
 | **GND** | GND | Common Ground |
-| **OUT** | Digital Pin (e.g. D13) | Digital Signal Output (LOW when obstacle detected) |
+| **OUT** | Digital Pin (e.g. D14) | Digital Signal Output (LOW when obstacle detected) |
 
 ---
 
 ## 5. Arduino Implementation Code
 
 ```cpp
-#define IR_PIN 13
+#define IR_PIN 14
 
 void setup() {
   Serial.begin(115200);

@@ -5,7 +5,7 @@ This document explains every single file in the repository, its purpose, and how
 ---
 
 ## 📁 1. The Frontend (`/frontend`)
-The frontend is built with **Next.js 14** using the **App Router** architecture.
+The frontend is built with **Next.js 16.1.1** using the **App Router** architecture.
 
 ### **📦 `src/components/` (The UI Library)**
 - **`ui/`**: Basic UI building blocks like Buttons, Cards, and Badges.
@@ -15,19 +15,19 @@ The frontend is built with **Next.js 14** using the **App Router** architecture.
 - **`ai/MistakeDetector.tsx`**: A smart overlay that pops up when unusual sensor patterns (like floating pins) are detected.
 
 ### **🎣 `src/hooks/` (The Global Logic Hooks)**
-- **`useSocket.ts`**: The "Heartbeat" of the app. It opens the connection to the backend and exposes a `data` object that contains all 15 sensors.
+- **`useSocket.ts`**: The "Heartbeat" of the app. It opens the connection to the backend and exposes a `data` object that contains all 17 sensors.
 - **`useFaultInjector.ts`**: Intercepts the real data. If a user clicks "Stuck-at-GND" in the UI, this hook overrides the real value with `0`.
 - **`useSignalProcessing.ts`**: Runs the **Moving Average** math. It keeps an internal array of the last 10 samples and averages them.
 
 ### **📄 `src/app/` (The Pages/Routes)**
-- **`page.tsx`**: The main Dashboard. Shows preview cards for all 15 sensors.
+- **`page.tsx`**: The main Dashboard. Shows preview cards for all 17 sensors.
 - **`sensors/[name]/page.tsx`**: The detailed view for each sensor. These are the core files where learning happens.
 - **`assistant/page.tsx`**: The full-screen AI chat page for deep troubleshooting.
 
 ---
 
 ## 📁 2. The Showcase & Marketing (`/showcase`)
-A secondary project built with Next.js 15 for high-fidelity presentation.
+A secondary project built with **Next.js 16.1.1** for high-fidelity presentation.
 - **`src/app/ppt/page.tsx`**: The interactive presentation deck with **Light/Dark Theme** support.
 - **`src/components/Hero.tsx`**: The entry visual for stakeholders.
 
@@ -42,7 +42,7 @@ The backend is a **Node.js** server that acts as a secure "Data Hub".
   - Contains the logic: "When data comes from the Arduino, scream it to every open browser."
 - **`mockDataGenerator.js`**: 
   - The Digital Twin engine. 
-  - Generates physics-based data for all 15 sensors every 2 seconds when hardware is offline.
+  - Generates physics-based data for all 17 sensors every 2 seconds when hardware is offline.
 - **`package.json`**: Lists the critical libraries like `socket.io` and `cors`.
 
 ---
@@ -52,7 +52,7 @@ This is the code that actually lives inside the chips on your board.
 
 - **`Mega2560_Main/Mega2560_Main.ino`**:
   - The "Data Harvester" (Super-Node firmware). 
-  - Uses non-blocking timers to loop through 15 physical sensors (Analog & Digital).
+  - Uses non-blocking timers to loop through 17 physical sensors (Analog & Digital).
   - Serializes a JSON payload and sends it over **Serial (UART0)** to the ESP8266.
 - **`esp8266_bridge/esp8266_bridge.ino`**:
   - The "WiFi Gateway." 

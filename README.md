@@ -38,7 +38,7 @@ http://localhost:3000
 ### **Frontend - Complete Feature Set**
 
 #### **Dashboard & Monitoring (✅ COMPLETE)**
-- 📊 **Real-time Sensor Grid** - All 17 sensors with live updates (200ms / 5Hz refresh)
+- 📊 **Real-time Sensor Grid** - All 17 sensors with live updates (100ms / 10Hz refresh)
 - 📊 **Historical Trends** - Multi-sensor chart with dual overlay (raw + processed)
 - 🧪 **Automated Portfolio Reports** - Export PDF/CSV lab reports with AI insights
 - 🎨 **Category Filtering** - 5 sensor groups: Environmental, Detection, Analog, Input, Medical
@@ -135,7 +135,7 @@ http://localhost:3000
 - ✅ `POST /api/sensor-data` - Hardware data intake from ESP8266
 - ✅ `POST /api/ai/chat` - AI chat endpoint with conversation history
 - ✅ `POST /api/ai/quiz` - Quiz question generation per sensor
-- ✅ `WS  /socket.io` - Real-time WebSocket broadcast (200ms interval)
+- ✅ `WS  /socket.io` - Real-time WebSocket broadcast (100ms interval)
 
 #### **Hybrid Mode (✅ COMPLETE)**
 - Real hardware data merges seamlessly with mock data
@@ -148,7 +148,7 @@ http://localhost:3000
 - 17 sensor values with realistic ranges
 - Animated sine/cosine patterns for variation
 - Calibration-aware offsets
-- 200ms broadcast interval
+- 100ms broadcast interval
 - Handshake protocol for zero-loss transmissions
 - Smooth animations over 5-second cycles
 
@@ -332,7 +332,7 @@ iot-virtual-lab/
 ## 🎯 Core Features in Detail
 
 ### **1. Real-Time Data Monitoring**
-- **17 Sensors** with live updates every **200ms (5Hz)**
+- **17 Sensors** with live updates every **100ms (10Hz)**
 - **Dual-layer visualization** - Raw sensor data + processed signal overlay
 - **System health dashboard** - WiFi signal (-62 dBm), uptime, device ID
 - **Auto-reconnection** - WebSocket with exponential backoff
@@ -402,11 +402,11 @@ See [DEPLOYMENT_AND_DOMAIN.md](documentation/DEPLOYMENT_AND_DOMAIN.md) for detai
 | Metric | Value | Notes |
 |--------|-------|-------|
 | **Dashboard Load Time** | ~800ms | Including 17 sensor cards |
-| **Data Update Interval** | 200ms | WebSocket broadcast rate |
+| **Data Update Interval** | 100ms | WebSocket broadcast rate |
 | **Chart History** | 50 points | Rolling window for performance |
 | **Backend Memory** | ~200 MB | Mock data + WebSocket connections |
 | **Frontend Memory** | ~300 MB | React + charts + Socket.io |
-| **Network Throughput** | 25-40 KB/s | WebSocket messages at 200ms |
+| **Network Throughput** | 50-80 KB/s | WebSocket messages at 100ms |
 | **Backend CPU** | 15-20% | Mock data generation |
 | **Frontend CPU** | 5-10% | React updates + chart rendering |
 
@@ -452,7 +452,7 @@ NEXT_PUBLIC_API_URL=http://localhost:5000/api
 
 ### **Hardware Configuration (firmware)**
 - **Arduino Pin Mapping**: See `firmware/main/pinout.md`
-- **Baud Rate**: 9600 or configurable in sketch
+- **Baud Rate**: 115200 (Standardized for high-speed JSON)
 - **WiFi SSID/Password**: Configure in `ESP8266/wifi_bridge.ino`
 - **Server Endpoint**: POST to `/api/sensor-data`
 
@@ -518,7 +518,7 @@ See **LOCAL_HOSTING_SETUP.md** for detailed troubleshooting guide.
 **✅ PRODUCTION READY**
 
 - All core features implemented and tested
-- Real-time monitoring stable at 200ms intervals
+- Real-time monitoring stable at 100ms intervals
 - AI integration working with fallback support
 - Hardware integration compatible with 17 sensors
 - Cloud deployment configured and tested

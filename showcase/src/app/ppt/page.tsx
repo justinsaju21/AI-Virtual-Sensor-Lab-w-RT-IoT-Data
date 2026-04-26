@@ -292,7 +292,7 @@ const getSlides = (isDark: boolean): Slide[] => [
 
                         <div style={{ padding: "10px 12px", background: "rgba(16,185,129,0.08)", border: "1px solid rgba(16,185,129,0.25)", borderRadius: 10 }}>
                             <h4 style={{ color: "#10b981", fontSize: 12, fontWeight: 800, marginBottom: 3 }}>3. ESP8266 (WiFi Bridge)</h4>
-                            <div style={{ fontSize: 10, color: "#6ee7b7", lineHeight: 1.5 }}>Serial3 HW Link (Mega → ESP)<br />JSON Payload Dispatch → Cloud</div>
+                            <div style={{ fontSize: 10, color: "#6ee7b7", lineHeight: 1.5 }}>Serial Tx0/Rx0 Link (Mega → ESP)<br />JSON Payload Dispatch → Cloud</div>
                         </div>
                     </div>
 
@@ -362,7 +362,7 @@ const getSlides = (isDark: boolean): Slide[] => [
                         <div style={{ width: 2, height: 24, background: "linear-gradient(180deg, #a855f7, #22d3ee)", borderRadius: 2 }} />
                         <ChevronRight size={14} color="#22d3ee" />
                         <div style={{ width: 2, height: 24, background: "linear-gradient(180deg, #22d3ee, #22d3ee)", borderRadius: 2 }} />
-                        <span style={{ writingMode: "vertical-rl", color: (isDark ? "#475569" : "#94a3b8"), fontSize: 8, fontWeight: 700, letterSpacing: "1px" }}>5Hz</span>
+                        <span style={{ writingMode: "vertical-rl", color: (isDark ? "#475569" : "#94a3b8"), fontSize: 8, fontWeight: 700, letterSpacing: "1px" }}>10Hz</span>
                     </div>
 
                     {/* COL 3: PRESENTATION */}

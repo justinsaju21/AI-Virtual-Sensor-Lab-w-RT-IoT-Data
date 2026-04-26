@@ -92,14 +92,12 @@ Open Arduino IDE → Sketch → Include Library → Manage Libraries:
 Open `esp8266_bridge.ino` and update:
 
 ```cpp
-const char* WIFI_SSID = "YOUR_WIFI_NAME";
+const char* WIFI_SSID     = "YOUR_WIFI_NAME";
 const char* WIFI_PASSWORD = "YOUR_WIFI_PASSWORD";
-const char* SERVER_URL = "http://YOUR_COMPUTER_IP:5000/api/sensor-data";
+const char* SERVER_URL    = "https://ai-virtual-sensor-lab-w-rt-iot-data.onrender.com/api/sensor-data";
 ```
 
-**To find your computer's IP:**
-- Windows: Run `ipconfig` in Command Prompt
-- Look for "IPv4 Address" (e.g., 192.168.1.100)
+**Important: The system uses BearSSL for TLS session caching.** The ESP8266 skips cert checks (`setInsecure()`) but establishes an encrypted tunnel for data transmission to the Render backend.
 
 ### 4. Upload Code
 
@@ -125,13 +123,15 @@ Open Serial Monitor (115200 baud). You should see JSON data every 2 seconds:
 
 ### 2. Test ESP8266 Connection
 
-After uploading, ESP8266 Serial Monitor should show:
+After uploading, ESP8266 Serial Monitor (115200 baud) should show successful POST attempts:
 
 ```
-WiFi Connected!
-IP Address: 192.168.1.XXX
-Received from Arduino: {...}
-Data sent successfully!
+DEBUG: HTTP Success: 200
+```
+
+If it fails, it will show:
+```
+DEBUG: HTTP Error: connection refused
 ```
 
 ### 3. Verify on Dashboard

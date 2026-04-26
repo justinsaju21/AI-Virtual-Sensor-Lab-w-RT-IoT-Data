@@ -1,6 +1,6 @@
 # IoT Virtual Lab: Full Sensor Manual
 
-This comprehensive guide contains the technical specifications, physical theory, wiring diagrams, and experimental procedures for all 17 sensors included in the IoT Virtual Laboratory.
+This comprehensive guide contains the technical specifications, physical theory, wiring diagrams, and experimental procedures for all 17 sensors (including 16 physical and 1 simulated proximity signal) included in the IoT Virtual Laboratory.
 
 ---
 
@@ -68,8 +68,9 @@ This document outlines the dedicated pin assignments for all 17 sensors in the V
 | **Joystick (X)** | Horizontal Axis | Analog | **A2** |
 | **Joystick (Y)** | Vertical Axis | Analog | **A3** |
 | **LDR** | Light Sensor | Analog | **A4** |
-| **Flame/Sound** | Flame (A5) / Sound (A6) | Analog | **A5/A6** |
-| **LM35/Thermistor**| Alternative Temp Sensors| Analog | **A7** |
+| **Flame** | IR Fire Intensity | Analog | **A5** |
+| **Sound** | Audio Signal | Analog | **A6** |
+| **NTC Thermistor**| Analog Temp Probe| Analog | **A7** |
 
 ---
 
@@ -89,7 +90,7 @@ This document outlines the dedicated pin assignments for all 17 sensors in the V
 | **PIR** | Passive Infrared Motion | Digital Input | **Pin 10** |
 | **Proximity** | Inductive Metal Sensor | Digital Input | **Pin 11** |
 | **Tilt** | Vibration / Angle Switch | Digital Input | **Pin 12** |
-| **IR Object** | Infrared Proximity | Digital Input | **Pin 13** |
+| **IR Object** | Infrared Proximity | Digital Input | **Pin 14** |
 
 ---
 
@@ -98,8 +99,8 @@ This document outlines the dedicated pin assignments for all 17 sensors in the V
 
 | Connection | Description | Pin Type | Assigned Pin |
 | :--- | :--- | :--- | :--- |
-| **Serial Tx3** | Mega Transmit to ESP | Hardware Serial | **Pin 14** |
-| **Serial Rx3** | Mega Receive from ESP | Hardware Serial | **Pin 15** |
+| **Serial Tx0** | Mega Transmit to ESP | Hardware Serial | **Pin 1** |
+| **Serial Rx0** | Mega Receive from ESP | Hardware Serial | **Pin 0** |
 
 ---
 
@@ -107,9 +108,9 @@ This document outlines the dedicated pin assignments for all 17 sensors in the V
 
 | Category | Used | Available | Remaining |
 | :--- | :--- | :--- | :--- |
-| **Analog** | 6 | 16 | **10** (A6 to A15) |
+| **Analog** | 8 | 16 | **8** (A8 to A15) |
 | **Digital** | 16* | 54 | **38** |
-| **Total** | **22** | **70** | **48 unused pins** |
+| **Total** | **24** | **70** | **46 unused pins** |
 
 *(Note: The 16 Digital pins used include the 2 I2C pins and the 2 internal Serial pins for the Wi-Fi chip).*
 
@@ -129,17 +130,17 @@ This document outlines the dedicated pin assignments for all 17 sensors in the V
 The custom combo board relies on a dual-microcontroller architecture to handle heavy loads:
 - **Data Acquisition (ATmega2560):** Handles all real-time sensor polling, ADC conversions, string parsing, and I2C requests.
 - **Network Interface (ESP8266):** Handles the Wi-Fi stack and WebSocket/REST transmission to the Node.js backend to ensure the main sensor loop is never blocked by network latency.
-- **The Bridge:** The ATmega2560 packages the 17 sensor readings into a minified JSON string and transmits it over **Hardware Serial3** (Pins 14/15) at a high baud rate to the waiting ESP8266, which acts as a transparent network proxy.
+- **The Bridge:** The ATmega2560 packages the 17 sensor readings into a minified JSON string and transmits it over **Hardware Serial** (Pins 0/1) at 115200 baud to the waiting ESP8266.
+- **The Handshake:** A stop-and-wait ACK protocol ensures the Mega never overwhelms the ESP8266's buffer while it is busy with network tasks.
 
 ---
 
-### Sensor Sampling Strategy (Optimization)
-To achieve a smooth 50Hz unified data stream to the Node.js backend without blocking the main `loop()`, sensors are sampled using a non-blocking timeline and hardware interrupts:
+To achieve a smooth 10Hz unified data stream to the Node.js backend without blocking the main `loop()`, sensors are sampled using a non-blocking timeline:
 
-- **Interrupt-Driven (Instant):** The DHT11 (Pin 2) and Ultrasonic Trig (Pin 3) are prioritized.
-- **Fast Polling (50Hz):** Joystick, Proximity, Touch, IR, Hall.
-- **Medium Polling (2Hz):** PIR (Pin 10), Tilt (Pin 12), IR Object (Pin 13), LDR, Sound (Envelope).
-- **Slow Polling (0.5Hz):** MQ-2, MQ-3 (Slow chemical reaction times).
+- **Fast Polling (20Hz / 50ms):** Joystick, Touch, Tilt, Sound Digital, Hall, IR.
+- **Medium Polling (5Hz / 200ms):** MQ-2, MQ-3, LDR, Flame, Sound Analog.
+- **Slow Polling (0.5Hz / 2s):** DHT11 (hardware limited).
+- **Transmission (10Hz / 100ms):** Full system state sent to ESP8266.
 
 ---
 
@@ -509,10 +510,10 @@ graph TD
 <div style="page-break-after: always;"></div>
 
 <a name="proximity-sensor-inductive"></a>
-## Proximity Sensor (Inductive)
+## Proximity Sensor (Inductive) - [SIMULATED]
 
 ### 1. Description
-Industrial metal detector. Uses Faraday's Law to sense ferrous materials without contact.
+Industrial metal detector. In this laboratory, this sensor is implemented as a **Digital Twin** (Mock Data) to ensure educational safety while demonstrating Faraday's Law.
 
 ### 2. Theory & Physics
 Oscillator creates EM field. Metallic objects induce **Eddy Currents**, which drain energy from the field, dampening the oscillator.
