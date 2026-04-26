@@ -37,12 +37,12 @@ const getSlides = (isDark: boolean): Slide[] => [
                 </div>
 
                 <h1 style={{
-                    fontSize: "clamp(3rem, 5vw, 4.5rem)", fontWeight: 900, lineHeight: 1.1, marginBottom: 20,
+                    fontSize: "clamp(2.5rem, 4vw, 3.8rem)", fontWeight: 900, lineHeight: 1.1, marginBottom: 20,
                     backgroundImage: (isDark ? "linear-gradient(135deg, #fff 0%, #94a3b8 100%)" : "linear-gradient(135deg, #1e293b 0%, #64748b 100%)"), 
                     WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent",
                     backgroundClip: "text", color: "transparent"
                 }}>
-                    AI-Enabled IoT<br />Virtual Laboratory
+                    AI-Enabled Virtual Sensor Laboratory<br />with Real-Time IoT Data
                 </h1>
 
                 <p style={{ fontSize: 20, color: (isDark ? "#94a3b8" : "#475569"), marginBottom: 60, maxWidth: 600 }}>
@@ -581,7 +581,7 @@ const getSlides = (isDark: boolean): Slide[] => [
                         <h4 style={{ color: (isDark ? "#fff" : "#0f172a"), fontWeight: 700 }}>Fault Injection & DSP</h4>
                     </div>
                     <p style={{ color: (isDark ? "#94a3b8" : "#475569"), fontSize: 14 }}>
-                        All <strong>6 fault injection modes</strong> (Drift, Noise, Stuck-at, Open, Clipping, Spike) verified correct. Mistake Detector triggered accurately in <strong>5/5</strong> sensor failure test cases.
+                        All <strong>5 fault injection modes</strong> (Drift, Noise, Stuck-at-Low, Stuck-at-High, Open) verified correct. Mistake Detector triggered accurately in <strong>5/5</strong> sensor failure test cases.
                     </p>
                 </div>
             </div>
