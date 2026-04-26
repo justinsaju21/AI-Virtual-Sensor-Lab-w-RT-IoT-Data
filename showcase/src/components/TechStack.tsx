@@ -9,7 +9,7 @@ export default function TechStack() {
         { cat: "Frontend", items: ["Next.js 14", "TypeScript", "Framer Motion", "Recharts", "Lucide Icons", "Socket.io Client"] },
         { cat: "Cloud", items: ["Node.js 18+", "Express.js", "Socket.io", "Render Service", "Vercel Edge", "CORS"] },
         { cat: "Hardware", items: ["Arduino Mega", "ESP8266", "ADC Protocol", "I2C/SPI", "JSON Serializer", "Non-blocking Loop"] },
-        { cat: "Sensors", items: ["DHT11", "BMP180", "MQ-Series Gas", "Ultrasonic HC-SR04", "PIR Motion", "PPG Sensor"] },
+        { cat: "Sensors", items: ["DHT11", "BMP280", "MQ-Series Gas", "Ultrasonic HC-SR04", "PIR Motion", "MAX30102 PPG"] },
     ];
 
     return (

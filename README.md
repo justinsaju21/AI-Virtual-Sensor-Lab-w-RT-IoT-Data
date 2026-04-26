@@ -153,7 +153,7 @@ http://localhost:3000
 - Smooth animations over 5-second cycles
 
 #### **AI Integration (✅ COMPLETE)**
-- **Gemini 1.5 Flash** for chat and quiz generation
+- **Gemini 2.5 Flash** for chat and quiz generation
 - Graceful degradation if API key unavailable
 - Context-aware responses using sensor data
 - Fallback responses for offline mode
@@ -213,7 +213,7 @@ http://localhost:3000
 - **Runtime**: Node.js (v18+)
 - **Server**: Express 5.2.1
 - **Real-time**: Socket.io 4.8.3
-- **AI Model**: Google Generative AI SDK (Gemini 1.5 Flash)
+- **AI Model**: Google Generative AI SDK (Gemini 2.5 Flash)
 - **CORS**: Enabled for cross-origin requests
 - **Environment**: dotenv for configuration
 
@@ -340,7 +340,7 @@ iot-virtual-lab/
 
 ### **2. Interactive Learning Platform**
 - **Context-aware AI tutor** - Knows which sensor you're learning about
-- **Auto-generated quizzes** - Gemini 1.5 Flash creates unique questions
+- **Auto-generated quizzes** - Gemini 2.5 Flash creates unique questions
 - **Mistake detection** - Identifies student errors and provides solutions
 - **Theory panels** - Physics, math, circuit diagrams per sensor
 - **Arduino code examples** - Copy-paste ready with syntax highlighting
@@ -367,7 +367,7 @@ iot-virtual-lab/
 - **Per-sensor flags** - `isReal: true/false` in data stream
 - **30-second timeout** - Auto-fallback if real data stale
 
-### **6. AI Integration (Gemini 1.5 Flash)**
+### **6. AI Integration (Gemini 2.5 Flash)**
 - **Chat endpoint** - `/api/ai/chat` with conversation history
 - **Quiz generator** - `/api/ai/quiz` with sensor-specific questions
 - **Fallback mode** - Hardcoded responses if API unavailable

@@ -27,7 +27,7 @@ export default function DashboardPreview() {
                 pill="Interface Parity"
                 title="Production"
                 gradientText="Sensor Dashboard"
-                subtitle="The actual monitoring interface used by engineers and students to manage 15+ IoT data streams in real-time."
+                subtitle="The actual monitoring interface used by engineers and students to manage 17 IoT data streams in real-time."
             />
 
             <motion.div
@@ -92,7 +92,7 @@ export default function DashboardPreview() {
                         <div style={{ marginBottom: 32, display: "flex", justifyContent: "space-between", alignItems: "flex-end" }}>
                             <div>
                                 <h2 style={{ fontSize: 24, fontWeight: 800, color: "#fff", marginBottom: 4 }}>Sensor Dashboard</h2>
-                                <p style={{ fontSize: 12, color: tokens.colors.textMuted }}>Monitor 15 connected IoT sensors in real-time</p>
+                                <p style={{ fontSize: 12, color: tokens.colors.textMuted }}>Monitor 17 connected IoT sensors in real-time</p>
                             </div>
                             <div style={{ padding: "8px 16px", background: "rgba(16,185,129,0.05)", borderRadius: 6, border: "1px solid rgba(16,185,129,0.1)", display: "flex", alignItems: "center", gap: 8 }}>
                                 <div className="pulse-dot" style={{ background: "#10b981", width: 6, height: 6 }} />
@@ -106,7 +106,7 @@ export default function DashboardPreview() {
                                 { icon: <Zap size={16} />, label: "STATUS", val: "All Systems Go", color: tokens.colors.green },
                                 { icon: <Signal size={16} />, label: "SIGNAL", val: "-60 dBm", color: tokens.colors.blue },
                                 { icon: <Clock size={16} />, label: "UPTIME", val: "2h 45m", color: tokens.colors.purple },
-                                { icon: <Activity size={16} />, label: "SENSORS", val: "15 Active", color: "#f59e0b" },
+                                { icon: <Activity size={16} />, label: "SENSORS", val: "17 Active", color: "#f59e0b" },
                                 { icon: <Server size={16} />, label: "DEVICE", val: "virt_lab_01", color: tokens.colors.cyan },
                             ].map((s, i) => (
                                 <div key={i} style={{ background: "rgba(255,255,255,0.02)", borderRadius: 8, padding: "16px", border: "1px solid rgba(255,255,255,0.04)", display: "flex", alignItems: "center", gap: 12 }}>

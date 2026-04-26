@@ -432,7 +432,7 @@ const getSlides = (isDark: boolean): Slide[] => [
                     { category: "Environmental & Light", icon: <Sun size={18} color="#f59e0b" />, sensors: "DHT11, BMP280, Thermistor, LDR" },
                     { category: "Gas & Safety", icon: <Shield size={18} color="#ef4444" />, sensors: "MQ-2, MQ-3, Flame Detector" },
                     { category: "Motion & Control", icon: <Move size={18} color="#3b82f6" />, sensors: "Joystick, Ultrasonic, PIR, Tilt, Touch, Hall, IR" },
-                    { category: "Biometric & Signal", icon: <Fingerprint size={18} color="#a855f7" />, sensors: "MAX30102, Sound Sensor, Inductive" }
+                    { category: "Biometric & Signal", icon: <Fingerprint size={18} color="#a855f7" />, sensors: "MAX30102, Sound Sensor, Proximity" }
                 ].map((cat, i) => (
                     <div key={i} style={{ padding: 20, background: isDark ? "rgba(255,255,255,0.03)" : "rgba(0,0,0,0.03)", borderRadius: 12, border: "1px solid rgba(255,255,255,0.08)" }}>
                         <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 10 }}>
