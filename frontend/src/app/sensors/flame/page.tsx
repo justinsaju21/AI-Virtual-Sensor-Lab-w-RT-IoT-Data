@@ -6,200 +6,138 @@ import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
 import { LiveChart } from "@/components/charts/LiveChart";
 import { SensorDetailLayout } from "@/components/sensors/SensorDetailLayout";
-import { AIQuizModal } from "@/components/ai/AIQuizModal";
-import { GraphExplainerModal } from "@/components/ai/GraphExplainerModal";
+import { Cpu, Info, Flame, Brain } from "lucide-react";
 import { useMistakeDetector, MistakeAlert } from "@/components/ai/MistakeDetector";
+import { AIQuizModal } from "@/components/ai/AIQuizModal";
 import { useFaultInjector } from "@/hooks/useFaultInjector";
-import { useSignalProcessing } from "@/hooks/useSignalProcessing";
 import { TestingControlPanel } from "@/components/testing/TestingControlPanel";
-import { Flame, Info, Download, Sparkles, Brain, Cpu, Activity } from "lucide-react";
 import { SENSOR_QUIZZES } from "@/config/quizzes";
 
-interface DataPoint { time: string; value: number; processingValue?: number; }
-const MAX_DATA_POINTS = 50;
-
 const THEORY = {
-    physics: `The Flame Sensor detects infrared light emitted by fire in the 760nm to 1100nm range. It uses a high-speed photodiode that is sensitive to IR radiation.`,
-    math: `**Radiant Intensity:** IR intensity decreases with the square of the distance ($1/d^2$).`,
-    circuit: `**Analog Output:** Provides a voltage proportional to the IR intensity. **Digital Output:** Triggers when intensity crosses a potentiometer threshold.`
+    "physics": "The flame sensor leverages an infrared (IR) photodiode specifically tuned to detect light wavelengths in the 760nm - 1100nm range. This spectrum corresponds directly to the thermal radiation emitted by hydrocarbon flames. When IR photons strike the photodiode's semiconductor junction, they excite electrons, creating electron-hole pairs. This generates a small photocurrent proportional to the intensity of the incident IR radiation. The sensor is highly directional, typically featuring a 60-degree detection angle, making it highly sensitive to active fires while somewhat rejecting ambient light.",
+    "math": "**Voltage Divider & Thresholding:**\nThe sensor employs an LM393 voltage comparator to provide a digital output alongside the raw analog signal.\n\n$ V_{out} = V_{cc} \\times \\frac{R_{photo}}{R_{photo} + R_{fixed}} $\n\n- **Digital Output:** $ V_{out} < V_{ref} \\rightarrow HIGH $ (Flame Detected)\n- **Analog Output:** Provides a continuous 0-1023 ADC mapping of IR intensity.",
+    "circuit": "**Hardware Architecture:**\n- **Detector:** 5mm IR Receiver Diode (black casing).\n- **Comparator:** LM393 Dual Differential Comparator chip.\n- **Potentiometer:** A 10k\\Omega trimpot configures the $ V_{ref} $ pin on the LM393, allowing manual adjustment of the digital trigger sensitivity.\n- **Output Pins:** A0 (Analog Voltage) and D0 (Digital Logic Level).\n\n*Note:* While the sensor filters most visible light, direct sunlight contains massive amounts of IR radiation and can cause false positives."
 };
-
 const EXPERIMENTS = [
     {
-        title: "Lighter Test",
-        instruction: "Hold a lighter 10cm from the sensor and strike it.",
-        observation: "Analog value drops sharply (Active LOW).",
-        expected: "Shows how IR radiation from a flame triggers the photodiode."
+        "title": "Lighter Distance Calibration Test",
+        "instruction": "Hold a lit lighter or candle at 50cm from the sensor. Slowly move it closer 5cm at a time.",
+        "observation": "The analog reading climbs (the inverted scale drops) as the flame approaches. The digital alarm LED triggers at a threshold distance.",
+        "expected": "Demonstrates the inverse relationship between analog output voltage and flame intensity. Adjusting the potentiometer screw on the module changes the digital trigger threshold distance."
+    },
+    {
+        "title": "Sunlight Interference Test",
+        "instruction": "Hold the sensor toward a window in bright sunlight. Note the reading, then cover the sensor.",
+        "observation": "Even without a flame, sunlight may produce a moderately elevated reading.",
+        "expected": "Proves that the black epoxy filter is important but not perfect — very intense broadband sunlight still bleeds some IR through."
     }
 ];
 
 const COMMON_MISTAKES = [
     {
-        title: "Sunlight Interference",
-        symptom: "Sensor triggers even without fire.",
-        cause: "Direct sunlight contains massive IR radiation.",
-        fix: "Shield the sensor from direct sunlight or adjust sensitivity."
+        "title": "Sensor Always Triggered",
+        "symptom": "DO pin stays LOW constantly even in normal room light.",
+        "cause": "Potentiometer sensitivity is turned all the way up, making the sensor hypersensitive to ambient IR.",
+        "fix": "Rotate the blue potentiometer screw counter-clockwise to reduce sensitivity until the alarm clears in a normal environment."
+    },
+    {
+        "title": "Analog Output is Inverted Logic",
+        "symptom": "Reading is 1023 when pointing at a flame — seems backwards!",
+        "cause": "The AO output is inverted: lower voltage = more light detected.",
+        "fix": "Use map(value, 0, 1023, 100, 0) to remap: 100% = intense flame, 0% = no flame."
     }
 ];
 
-const ARDUINO_CODE = `// Flame Sensor
-#define FLAME_PIN A0
+
+const ARDUINO_CODE = `// Flame Sensor - KY-026
+#define FLAME_PIN A5
+#define DO_PIN 8
 
 void setup() {
   Serial.begin(115200);
+  pinMode(DO_PIN, INPUT);
 }
 
 void loop() {
-  int val = analogRead(FLAME_PIN);
-  Serial.println(val);
-  delay(100);
+  int flameValue = analogRead(FLAME_PIN);
+  bool detected = digitalRead(DO_PIN) == LOW; // Active LOW
+  
+  Serial.print("Flame: ");
+  Serial.print(flameValue);
+  if (detected) Serial.print(" [FIRE!]");
+  Serial.println();
+  delay(500);
 }`;
+
+
+
+
 
 export default function FlamePage() {
     const { isConnected, data } = useSocket();
-    const [history, setHistory] = useState<DataPoint[]>([]);
     const [showQuiz, setShowQuiz] = useState(false);
-    const [showExplainer, setShowExplainer] = useState(false);
     const [showTestingPanel, setShowTestingPanel] = useState(false);
     const [dismissedAnomalies, setDismissedAnomalies] = useState<number[]>([]);
-    const [calibrationOffset, setCalibrationOffset] = useState(0);
 
-    // 1. Raw Input
-    const rawVal = data?.sensors.flame?.raw ?? 1023; // High = No flame
-
-    // 2. Fault Injection
+    const rawVal = data?.sensors.flame?.analog ?? 1023; // Default 1023 (no fire)
     const { injectedValue, fault, setFault } = useFaultInjector(rawVal);
 
-    // 3. Calibration
-    const calibratedValue = (typeof injectedValue === 'number') ? injectedValue + calibrationOffset : injectedValue;
+    // Logic: Low value (< 200) means fire
+    const detected = typeof injectedValue === "number" && injectedValue < 200;
 
-    // 4. Signal Processing
-    const { filter, setFilter, processedData } = useSignalProcessing(history.map(d => d.value));
-
+    // Mock history
+    const [history, setHistory] = useState<{ time: string, value: number }[]>([]);
     useEffect(() => {
-        if (data && typeof calibratedValue === 'number') {
+        if (data && typeof injectedValue === 'number') {
             const timestamp = new Date().toLocaleTimeString("en-US", { hour12: false, minute: "2-digit", second: "2-digit" });
-            setHistory((prev) => [...prev, { time: timestamp, value: calibratedValue }].slice(-MAX_DATA_POINTS));
+            setHistory(prev => [...prev, { time: timestamp, value: injectedValue }].slice(-20));
         }
-    }, [data, calibratedValue]);
+    }, [data, injectedValue]);
 
-    const chartData = history.map((point, i) => ({
-        ...point,
-        processingValue: processedData[i]
-    }));
-
-    const anomalies = useMistakeDetector({
-        sensorName: "Flame Sensor",
-        data: history,
-        expectedRange: { min: 100, max: 1023 }
-    }).filter((_, i) => !dismissedAnomalies.includes(i));
-
-    const isDetected = (typeof calibratedValue === "number") ? calibratedValue < 500 : false;
-    const displayValue = (typeof calibratedValue === "number") ? calibratedValue.toFixed(0) : "--";
-
-    const exportCSV = () => {
-        const csv = "Time,Flame (ADC),Processed\n" + chartData.map(d => `${d.time},${d.value},${d.processingValue ?? ''}`).join("\n");
-        const blob = new Blob([csv], { type: "text/csv" });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement("a"); a.href = url; a.download = "flame_data.csv"; a.click(); URL.revokeObjectURL(url);
-    };
+    const anomalies = useMistakeDetector({ sensorName: "Flame Sensor", data: history, expectedRange: { min: 0, max: 1023 } }).filter((_, i) => !dismissedAnomalies.includes(i));
 
     return (
         <>
             <SensorDetailLayout
                 title="Flame Sensor"
-                description="Infrared-based fire detection module."
+                description="Detects fire via IR radiation from flames."
                 sensorId="KY-026" isReal={!!data?.sensors?.flame?.isReal}
-                dataSnippet={{ value: displayValue, status: isDetected ? "FIRE!" : "Safe", pin: "A0" }}
-                theory={THEORY as any}
+                dataSnippet={{ value: injectedValue, pin: "A5" }}
+                theory={THEORY}
                 arduinoCode={ARDUINO_CODE}
                 experiments={EXPERIMENTS}
                 commonMistakes={COMMON_MISTAKES}
                 testingProps={{
                     showPanel: showTestingPanel,
                     setShowPanel: setShowTestingPanel,
-                    renderPanel: () => (
-                        <TestingControlPanel
-                            faultType={fault.type} setFault={setFault}
-                            filterType={filter.type} setFilter={setFilter}
-                            calibrationOffset={calibrationOffset} setCalibrationOffset={setCalibrationOffset}
-                        />
-                    )
+                    renderPanel: () => <TestingControlPanel faultType={fault.type} setFault={setFault} filterType="none" setFilter={() => { }} calibrationOffset={0} setCalibrationOffset={() => { }} />
                 }}
             >
-                {anomalies.map((anomaly, i) => (
-                    <MistakeAlert key={i} anomaly={anomaly} onDismiss={() => setDismissedAnomalies([...dismissedAnomalies, i])} />
-                ))}
-
+                {anomalies.map((anomaly, i) => <MistakeAlert key={i} anomaly={anomaly} onDismiss={() => setDismissedAnomalies([...dismissedAnomalies, i])} />)}
                 <div className="grid gap-6 md:grid-cols-3">
                     <Card variant="gradient" className="md:col-span-1 relative overflow-hidden">
-                        <div className={`absolute top-0 right-0 w-32 h-32 ${isDetected ? "bg-red-500/30 animate-pulse" : "bg-slate-500/20"} rounded-full blur-2xl -translate-y-1/2 translate-x-1/2`} />
+                        <div className={`absolute top-0 right-0 w-32 h-32 ${detected ? "bg-orange-500/40 animate-pulse" : "bg-slate-500/20"} rounded-full blur-2xl`} />
                         <CardContent className="flex flex-col items-center justify-center py-8">
-                            <div className={`h-14 w-14 mb-3 rounded-full flex items-center justify-center ring-1 ${isDetected ? "bg-red-500/20 ring-red-500/50" : "bg-slate-500/10 ring-slate-500/20"}`}>
-                                <Flame className={`h-7 w-7 ${isDetected ? "text-red-400" : "text-slate-400"}`} />
-                            </div>
-                            <span className="text-xs font-medium text-slate-500 uppercase tracking-wider mb-1">Flame Level</span>
-                            <div className="flex items-baseline gap-1">
-                                <span className={`text-5xl font-bold tracking-tighter ${isDetected ? "text-red-500" : (fault.type !== 'none' ? 'text-amber-400' : 'text-white')}`}>
-                                    {displayValue}
-                                </span>
-                            </div>
-                            <span className={`text-sm font-bold mt-1 ${isDetected ? "text-red-400" : "text-slate-500"}`}>{isDetected ? "FLAME DETECTED" : "Clear"}</span>
+                            <div className={`h-16 w-16 mb-4 rounded-full flex items-center justify-center ring-2 ${detected ? "bg-orange-500/30 ring-orange-500/50 animate-pulse" : "bg-slate-500/10 ring-slate-500/20"}`}><Flame className={`h-8 w-8 ${detected ? "text-orange-400" : "text-slate-400"}`} /></div>
+                            <span className={`text-xl font-bold ${detected ? "text-orange-400" : "text-slate-400"}`}>{detected ? "FLAME!" : "No Flame"}</span>
+                            <span className="text-lg text-white mt-1">Raw: {injectedValue}</span>
                             {fault.type !== 'none' && <Badge variant="warning" size="sm" className="mt-2 animate-pulse">⚠ Fault: {fault.type}</Badge>}
-                            <Badge variant={isConnected ? "success" : "default"} size="sm" className="mt-4">{isConnected ? "Active" : "Offline"}</Badge>
+                            <Badge variant={isConnected ? "success" : "default"} size="sm" className="mt-3">{isConnected ? "Monitoring" : "Offline"}</Badge>
                         </CardContent>
                     </Card>
-
-                    <Card variant="default" className="md:col-span-2">
-                        <CardHeader className="flex flex-row items-center justify-between pb-2">
-                            <CardTitle className="flex items-center gap-2"><Activity className="h-4 w-4 text-red-400" />Detection History</CardTitle>
-                            <div className="flex gap-2">
-                                <button onClick={() => setShowExplainer(true)} className="flex items-center gap-1 text-xs px-2 py-1 rounded bg-purple-500/10 border border-purple-500/30 text-purple-400 hover:bg-purple-500/20"><Sparkles size={12} />AI Explain</button>
-                                <button onClick={exportCSV} className="flex items-center gap-1 text-xs px-2 py-1 rounded bg-white/5 border border-white/10 text-slate-400 hover:bg-white/10"><Download size={12} />CSV</button>
-                            </div>
-                        </CardHeader>
-                        <CardContent>
-                            <LiveChart data={chartData} color="#ef4444" gradientId="flameGrad" unit="" height={220} minDomain={0} maxDomain={1023} />
-                        </CardContent>
-                    </Card>
+                    <Card variant="default" className="md:col-span-2"><CardHeader><CardTitle>Detection</CardTitle></CardHeader><CardContent><div className="mt-4"><LiveChart data={history} color="#f97316" gradientId="flameGrad" unit="" height={220} minDomain={-0.1} maxDomain={1.1} type="stepAfter" /></div></CardContent></Card>
                 </div>
-
                 <div className="flex justify-center mt-4 mb-4">
-                    <button onClick={() => setShowQuiz(true)} className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-red-500/20 to-orange-500/20 border border-red-500/30 rounded-xl text-white font-medium hover:from-red-500/30 hover:to-orange-500/30 transition">
-                        <Brain className="h-5 w-5 text-red-400" /> Test Knowledge
-                    </button>
+                    <button onClick={() => setShowQuiz(true)} className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-orange-500/20 to-red-500/20 border border-orange-500/30 rounded-xl text-white font-medium hover:from-orange-500/30 hover:to-red-500/30 transition">
+                        <Brain className="h-5 w-5 text-orange-400" /> Test Knowledge</button>
                 </div>
-
                 <div className="grid gap-6 md:grid-cols-2">
-                    <Card variant="default">
-                        <CardHeader><CardTitle className="flex items-center gap-2"><Cpu className="h-4 w-4 text-cyan-400" />Specs</CardTitle></CardHeader>
-                        <CardContent className="space-y-2 text-sm">
-                            <SpecRow label="Wave Range" value="760nm - 1100nm" />
-                            <SpecRow label="Detection Angle" value="60°" />
-                        </CardContent>
-                    </Card>
-                    <Card variant="default">
-                        <CardHeader><CardTitle className="flex items-center gap-2"><Info className="h-4 w-4 text-blue-400" />Wiring</CardTitle></CardHeader>
-                        <CardContent>
-                            <table className="w-full text-sm">
-                                <thead><tr className="border-b border-white/10 text-slate-500"><th className="py-1.5 text-left">Pin</th><th className="py-1.5 text-left">Arduino</th></tr></thead>
-                                <tbody className="divide-y divide-white/5">
-                                    <tr><td className="py-1.5 font-mono text-white">VCC</td><td className="py-1.5 font-mono text-red-400">5V</td></tr>
-                                    <tr><td className="py-1.5 font-mono text-white">A0</td><td className="py-1.5 font-mono text-red-400">A0</td></tr>
-                                    <tr><td className="py-1.5 font-mono text-white">GND</td><td className="py-1.5 font-mono text-red-400">GND</td></tr>
-                                </tbody>
-                            </table>
-                        </CardContent>
-                    </Card>
+                    <Card variant="default"><CardHeader><CardTitle className="flex items-center gap-2"><Cpu className="h-4 w-4 text-cyan-400" />Specs</CardTitle></CardHeader><CardContent className="space-y-2 text-sm"><SpecRow label="Range" value="~100cm" /><SpecRow label="Wavelength" value="760-1100nm" /><SpecRow label="Angle" value="~60°" /></CardContent></Card>
+                    <Card variant="default"><CardHeader><CardTitle className="flex items-center gap-2"><Info className="h-4 w-4 text-blue-400" />Wiring</CardTitle></CardHeader><CardContent><table className="w-full text-sm"><tbody className="divide-y divide-white/5"><tr><td className="py-1.5 font-mono text-white">AO</td><td className="py-1.5 font-mono text-orange-400">A5</td></tr><tr><td className="py-1.5 font-mono text-white">DO</td><td className="py-1.5 font-mono text-orange-400">D8</td></tr></tbody></table></CardContent></Card>
                 </div>
             </SensorDetailLayout>
-
             {showQuiz && <AIQuizModal sensorName="Flame Sensor" sensorId="KY-026" onClose={() => setShowQuiz(false)} defaultQuestions={SENSOR_QUIZZES["flame"]} />}
-            {showExplainer && <GraphExplainerModal sensorName="Flame Sensor" data={chartData} onClose={() => setShowExplainer(false)} />}
         </>
     );
 }
-
-const SpecRow = ({ label, value }: { label: string; value: string }) => (
-    <div className="flex justify-between py-1 border-b border-white/5 last:border-0"><span className="text-slate-500">{label}</span><span className="font-medium text-white">{value}</span></div>
-);
+const SpecRow = ({ label, value }: { label: string; value: string }) => (<div className="flex justify-between py-1 border-b border-white/5 last:border-0"><span className="text-slate-500">{label}</span><span className="font-medium text-white">{value}</span></div>);
