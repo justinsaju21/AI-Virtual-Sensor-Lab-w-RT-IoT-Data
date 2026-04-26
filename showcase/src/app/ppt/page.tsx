@@ -38,7 +38,9 @@ const getSlides = (isDark: boolean): Slide[] => [
 
                 <h1 style={{
                     fontSize: "clamp(3rem, 5vw, 4.5rem)", fontWeight: 900, lineHeight: 1.1, marginBottom: 20,
-                    background: (isDark ? "linear-gradient(135deg, #fff 0%, #94a3b8 100%)" : "linear-gradient(135deg, #1e293b 0%, #64748b 100%)"), WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent"
+                    backgroundImage: (isDark ? "linear-gradient(135deg, #fff 0%, #94a3b8 100%)" : "linear-gradient(135deg, #1e293b 0%, #64748b 100%)"), 
+                    WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent",
+                    backgroundClip: "text", color: "transparent"
                 }}>
                     AI-Enabled IoT<br />Virtual Laboratory
                 </h1>
@@ -49,7 +51,7 @@ const getSlides = (isDark: boolean): Slide[] => [
 
                 <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 40, width: "100%", maxWidth: 900 }}>
                     {/* Team */}
-                    <div style={{ textAlign: "right", paddingRight: 40, borderRight: "1px solid rgba(255,255,255,0.1)" }}>
+                    <div style={{ textAlign: "right", paddingRight: 40, borderRight: isDark ? "1px solid rgba(255,255,255,0.1)" : "1px solid rgba(0,0,0,0.1)" }}>
                         <h3 style={{ color: "#4facfe", fontSize: 14, fontWeight: 700, letterSpacing: "0.1em", marginBottom: 16, textTransform: "uppercase" }}>Project Associates</h3>
                         <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
                             {[
